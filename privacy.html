@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Privacy — Tiffin Finder</title>
+  <meta name="description" content="What Tiffin Finder stores and doesn’t. In this version nothing is stored on a server: follows and alert sign-ups stay in your browser. Draft, to be reviewed by a lawyer.">
+  <meta name="theme-color" content="#3b1642">
+  <meta name="color-scheme" content="light dark">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Tiffin Finder">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="./icons/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&display=swap">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js"></script>
+</head>
+<body data-page="privacy">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="preview-bar" id="preview-bar" role="region" aria-label="Preview notice">
+    <div class="wrap preview-bar-inner">
+      <p><strong>Preview build</strong> — listings are samples for design and testing. Real kitchens are added only after permit verification.</p>
+      <button type="button" class="icon-btn" data-dismiss-preview aria-label="Dismiss preview notice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="./" aria-label="Tiffin Finder home">
+        <svg class="logo" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+          <rect width="64" height="64" rx="14" fill="#3b1642"/>
+          <path d="M24 17c0-7 16-7 16 0" fill="none" stroke="#f8f1e7" stroke-width="3" stroke-linecap="round"/>
+          <rect x="17" y="17" width="30" height="11" rx="4" fill="#f2b33d"/>
+          <rect x="15" y="30" width="34" height="11" rx="4" fill="#e8a317"/>
+          <rect x="13" y="43" width="38" height="12" rx="5" fill="#c98700"/>
+          <rect x="30" y="13" width="4" height="44" rx="2" fill="#f8f1e7" opacity=".92"/>
+        </svg>
+        <span class="wordmark">Tiffin Finder</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="./kitchens.html">For kitchens</a>
+        <a href="./permitted.html">How permits work</a>
+      </nav>
+      <div class="header-actions">
+        <button type="button" class="btn btn-primary btn-small" id="install-btn" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M4 19h16"/></svg>
+          <span class="btn-label">Install</span>
+        </button>
+        <button type="button" class="icon-btn theme-toggle" id="theme-toggle" aria-label="Switch to dark theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-hero">
+      <div class="wrap page-hero-inner">
+        <p class="eyebrow">Legal</p>
+        <h1>Privacy</h1>
+        <p class="lede">What this site stores, where, and what it never sees. Last updated 22 September 2026.</p>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <article class="prose">
+        <div class="callout callout-draft">
+          <p>Draft — to be reviewed by a lawyer before the service charges anyone.</p>
+        </div>
+
+        <h2 id="short">The short version</h2>
+        <p>In this version of Tiffin Finder <strong>nothing you do is stored on a server</strong>. There are no accounts, no analytics, no advertising trackers and no cookies set by us. The kitchens you follow and the alert sign-up you save live only in your browser, on your device, and you can clear them any time.</p>
+
+        <h2 id="browser">What stays in your browser</h2>
+        <ul>
+          <li><strong>Follows.</strong> The list of kitchens you follow is saved in your browser’s local storage so it’s there when you come back. It never leaves your device.</li>
+          <li><strong>Alert sign-up.</strong> If you enter an email and tick the consent box, we save the email, the time you ticked the box, the wording you agreed to and the kitchens you follow — in your browser only. Alerts aren’t running yet, so nothing is sent anywhere. When alerts launch we will ask before moving this off your device.</li>
+          <li><strong>Theme.</strong> Your light/dark choice, if you change it.</li>
+          <li><strong>Preview notice.</strong> Whether you dismissed the amber preview bar, so it stays hidden on this device.</li>
+          <li><strong>Offline copy.</strong> The site uses a service worker to keep a copy of its own pages and the kitchen list so it opens quickly and works offline. That copy contains no personal data.</li>
+        </ul>
+
+        <div class="callout">
+          <p><strong>Clear everything this site saved on this device.</strong> This removes follows, the alert sign-up, your theme choice and the preview-notice dismissal from this browser. It does not affect other devices.</p>
+          <p><button type="button" class="btn btn-secondary" id="clear-data">Clear my saved data</button></p>
+          <p class="fine" id="clear-data-status" role="status" aria-live="polite"></p>
+        </div>
+
+        <h2 id="third">What third parties may see</h2>
+        <ul>
+          <li><strong>Hosting.</strong> The site is served as static files by our hosting provider (GitHub Pages in the preview). Like any web host, it may keep standard server logs with IP addresses for security and operations. We do not receive or analyse them.</li>
+          <li><strong>Fonts.</strong> The typefaces load from Google Fonts. Your browser requests them from Google’s servers, which see the request the way any web request is seen. We’d like to self-host fonts in a later version to remove this.</li>
+          <li><strong>WhatsApp and phone.</strong> When you tap “Order on WhatsApp” or “Call”, your device opens WhatsApp or your phone app. From that point you’re dealing with the kitchen directly, under WhatsApp’s and your carrier’s own privacy terms. Tiffin Finder does not see your messages or calls.</li>
+        </ul>
+
+        <h2 id="kitchens">Kitchens’ information</h2>
+        <p>For real kitchens, we publish the business details the kitchen gives us and asks us to show: kitchen name, cuisine, quadrant and delivery areas, menu and prices, and the WhatsApp number and phone number they use for orders. We never publish home addresses. We keep a copy of the permit a kitchen shows us for verification and do not publish it. Kitchens can ask us to change or remove their listing at any time.</p>
+        <p>The listings on the site right now are samples with made-up names and 403-555-01xx numbers. They don’t belong to anyone.</p>
+
+        <h2 id="alerts">Future alerts and your consent</h2>
+        <p>When alerts launch they will follow Canada’s anti-spam law (CASL):</p>
+        <ul>
+          <li>You choose to receive them by ticking a box that is <strong>unchecked by default</strong>. We never pre-tick it.</li>
+          <li>We record when and how you consented and the wording you agreed to.</li>
+          <li><strong>Every message includes an unsubscribe link</strong> that works with one tap, and we act on it within 10 business days (our target is immediately).</li>
+          <li>Alerts are only about kitchens you chose to follow. We won’t sell or share your email with kitchens or anyone else.</li>
+        </ul>
+
+        <h2 id="rights">Your choices</h2>
+        <p>Because nothing is stored on our side in this version, there’s nothing for us to correct or delete for you yet — the “Clear my saved data” button above does it all. Once alerts launch and we hold your email, you’ll be able to ask us to show, correct or delete what we have, and we’ll answer within 30 days. Alberta’s Personal Information Protection Act (PIPA) and Canada’s PIPEDA apply to us as a small Alberta service.</p>
+
+        <h2 id="contact">Questions</h2>
+        <p>Use the <a href="./about.html#contact">contact form</a> on the About page. Our target for privacy questions is a reply within 48 hours.</p>
+
+        <p class="fine">Draft — to be reviewed by a lawyer before the service charges anyone. This page is not legal advice.</p>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <div class="footer-brand">
+        <a class="brand" href="./" aria-label="Tiffin Finder home">
+          <svg class="logo" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+            <rect width="64" height="64" rx="14" fill="#3b1642"/>
+            <path d="M24 17c0-7 16-7 16 0" fill="none" stroke="#f8f1e7" stroke-width="3" stroke-linecap="round"/>
+            <rect x="17" y="17" width="30" height="11" rx="4" fill="#f2b33d"/>
+            <rect x="15" y="30" width="34" height="11" rx="4" fill="#e8a317"/>
+            <rect x="13" y="43" width="38" height="12" rx="5" fill="#c98700"/>
+            <rect x="30" y="13" width="4" height="44" rx="2" fill="#f8f1e7" opacity=".92"/>
+          </svg>
+          <span class="wordmark">Tiffin Finder</span>
+        </a>
+        <p>Permit-verified home tiffin kitchens in Calgary. We list; you order directly with the kitchen.</p>
+      </div>
+      <nav class="footer-nav" aria-label="Footer">
+        <ul>
+          <li><a href="./about.html">About</a></li>
+          <li><a href="./kitchens.html">For kitchens</a></li>
+          <li><a href="./permitted.html">How permits work</a></li>
+          <li><a href="./terms.html">Terms</a></li>
+          <li><a href="./privacy.html">Privacy</a></li>
+        </ul>
+      </nav>
+      <p class="footer-note">Preview build with sample listings. Tiffin Finder does not take orders or payments and is not the seller of any meal.</p>
+      <p class="footer-copy">© 2026 Tiffin Finder · Calgary, Alberta</p>
+    </div>
+  </footer>
+
+  <div class="sheet" id="ios-sheet" hidden>
+    <button type="button" class="sheet-backdrop" aria-label="Close"></button>
+    <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-title" aria-describedby="sheet-desc">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <h2 id="sheet-title">Add Tiffin Finder to your Home Screen</h2>
+      <p id="sheet-desc">On iPhone and iPad, apps install from Safari’s Share menu.</p>
+      <ol class="steps">
+        <li><span>Tap the <strong>Share</strong> button <svg class="share-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v12M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg> in Safari’s toolbar.</span></li>
+        <li><span>Scroll down and tap <strong>Add to Home Screen</strong>.</span></li>
+        <li><span>Tap <strong>Add</strong> in the top corner.</span></li>
+      </ol>
+      <p class="fine">Opened this inside another app? Open it in Safari first.</p>
+      <button type="button" class="btn btn-primary btn-block" id="sheet-close">Got it</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
