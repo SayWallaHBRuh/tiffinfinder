@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Tiffin Finder">
-  <rect width="64" height="64" rx="14" fill="#3b1642"/>
-  <path d="M24 17c0-7 16-7 16 0" fill="none" stroke="#f8f1e7" stroke-width="3" stroke-linecap="round"/>
-  <rect x="17" y="17" width="30" height="11" rx="4" fill="#f2b33d"/>
-  <rect x="15" y="30" width="34" height="11" rx="4" fill="#e8a317"/>
-  <rect x="13" y="43" width="38" height="12" rx="5" fill="#c98700"/>
-  <rect x="30" y="13" width="4" height="44" rx="2" fill="#f8f1e7" opacity=".92"/>
+  <rect width="64" height="64" rx="14" fill="#1f5c3a"/>
+  <path d="M24 17c0-7 16-7 16 0" fill="none" stroke="#fbf7ef" stroke-width="3" stroke-linecap="round"/>
+  <rect x="17" y="17" width="30" height="11" rx="4" fill="#f4b35e"/>
+  <rect x="15" y="30" width="34" height="11" rx="4" fill="#e8912d"/>
+  <rect x="13" y="43" width="38" height="12" rx="5" fill="#c9731a"/>
+  <rect x="30" y="13" width="4" height="44" rx="2" fill="#fbf7ef" opacity=".92"/>
 </svg>

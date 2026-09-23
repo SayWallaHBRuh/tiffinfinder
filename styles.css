@@ -1,6 +1,6 @@
 /* ==========================================================================
    Tiffin Finder — styles.css
-   Identity: aubergine ground, turmeric accent, chai-cream surfaces.
+   Identity: leaf-green ground, saffron accent, warm-cream surfaces.
    Display: Fraunces · Body: Manrope. Mobile-first, tokens on :root,
    dark theme via prefers-color-scheme with a data-theme override.
    ========================================================================== */
@@ -9,50 +9,58 @@
 :root {
   color-scheme: light;
 
-  --bg: #faf5ec;
-  --bg-2: #f3eadb;
+  --bg: #fbf7ef;
+  --bg-2: #f4ede0;
   --surface: #ffffff;
-  --surface-2: #f6efe3;
-  --surface-3: #ede3d2;
+  --surface-2: #f7f1e6;
+  --surface-3: #eee5d5;
 
-  --ink: #2b1b2e;
-  --ink-2: #4e3e52;
-  --muted: #6e5e72;
-  --line: #e6dacb;
-  --line-strong: #d3c3ae;
+  --ink: #17271d;
+  --ink-2: #3a4a3f;
+  --muted: #5c6b60;
+  --line: #e4dccb;
+  --line-strong: #cfc4ae;
+  /* Borders that identify a form control: 3:1 against the surfaces they sit on. */
+  --field-line: #8c8676;
 
-  --brand: #3b1642;
-  --brand-2: #58215f;
-  --brand-3: #2a1030;
-  --on-brand: #f8f1e7;
-  --on-brand-muted: #d9c9d6;
-  --brand-line: rgb(248 241 231 / 0.16);
-  --brand-field: rgb(248 241 231 / 0.08);
+  --brand: #1f5c3a;
+  --brand-2: #22603c;
+  --brand-3: #154129;
+  --on-brand: #fbf7ef;
+  --on-brand-muted: #cfe0d4;
+  /* Saffron that is light enough to be small text on the green bands,
+     including where the radial glows lighten them (>= 4.5:1 at the glow peak). */
+  --on-brand-accent: #fad29a;
+  --brand-line: rgb(251 247 239 / 0.16);
+  --brand-field: rgb(251 247 239 / 0.08);
+  --brand-field-line: rgb(251 247 239 / 0.55);
 
-  --accent: #e8a317;
-  --accent-strong: #c98700;
-  --accent-ink: #8a5a00;
-  --accent-soft: #fbedcb;
-  --on-accent: #2b1b2e;
+  --accent: #e8912d;
+  --accent-strong: #d17719;
+  --accent-ink: #8a4a0b;
+  --accent-soft: #fce9d2;
+  --on-accent: #17271d;
 
-  --verified: #1f6b4a;
-  --verified-soft: #ddf1e4;
-  --pending: #8a5a00;
-  --pending-soft: #fbedcb;
+  --verified: #1d6b4f;
+  --verified-soft: #ddf1e6;
+  --pending: #8a4a0b;
+  --pending-soft: #fce9d2;
   --danger: #a32d2d;
   --danger-soft: #fbe3e3;
   --focus: var(--ink);
   --inset-hi: transparent;
 
-  --dabba-cream: #f8f1e7;
-  --tile-s: 62%;
-  --tile-l: 93%;
-  --chip-on-bg: #3b1642;
-  --chip-on-ink: #f8f1e7;
+  --dabba-cream: #fbf7ef;
+  --tile-s: 58%;
+  --tile-l: 92%;
+  --chip-on-bg: #1f5c3a;
+  --chip-on-ink: #fbf7ef;
+  --preview-bg: var(--accent-soft);
+  --preview-rule: var(--line);
 
-  --shadow-1: 0 1px 2px rgb(43 27 46 / 0.06), 0 8px 24px -14px rgb(43 27 46 / 0.22);
-  --shadow-2: 0 2px 4px rgb(43 27 46 / 0.08), 0 22px 44px -20px rgb(43 27 46 / 0.32);
-  --shadow-sheet: 0 -12px 40px -12px rgb(43 27 46 / 0.35);
+  --shadow-1: 0 1px 2px rgb(23 39 29 / 0.06), 0 8px 24px -14px rgb(23 39 29 / 0.22);
+  --shadow-2: 0 2px 4px rgb(23 39 29 / 0.08), 0 22px 44px -20px rgb(23 39 29 / 0.32);
+  --shadow-sheet: 0 -12px 40px -12px rgb(23 39 29 / 0.35);
 
   --radius: 20px;
   --radius-sm: 12px;
@@ -78,43 +86,51 @@
   :root:not([data-theme="light"]) {
     color-scheme: dark;
 
-    --bg: #17101c;
-    --bg-2: #1e1424;
-    --surface: #271a2d;
-    --surface-2: #2e1f35;
-    --surface-3: #3a2842;
+    --bg: #101a14;
+    --bg-2: #14211a;
+    --surface: #18261e;
+    --surface-2: #1e2e25;
+    --surface-3: #26382d;
 
-    --ink: #f6eee4;
-    --ink-2: #dccfc6;
-    --muted: #a99aa6;
-    --line: #3f2d48;
-    --line-strong: #4b3a54;
+    --ink: #eef2ec;
+    --ink-2: #c7d2c9;
+    --muted: #93a398;
+    --line: #2a3b31;
+    --line-strong: #3a4f42;
+    --field-line: #667a6c;
 
-    --brand: #2a1230;
-    --brand-2: #3b1642;
-    --brand-3: #1c0b21;
-    --on-brand: #f8f1e7;
-    --on-brand-muted: #d9c9d6;
+    --brand: #133524;
+    --brand-2: #1a4430;
+    --brand-3: #0c2518;
+    --on-brand: #f3f0e6;
+    --on-brand-muted: #b9cdbf;
+    --on-brand-accent: #f4b36a;
+    --brand-line: rgb(243 240 230 / 0.16);
+    --brand-field: rgb(243 240 230 / 0.08);
+    --brand-field-line: rgb(243 240 230 / 0.5);
 
-    --accent: #f2b33d;
-    --accent-strong: #f7c35c;
-    --accent-ink: #f2b33d;
-    --accent-soft: #3d2c12;
-    --on-accent: #2b1b2e;
+    --accent: #f0a04a;
+    --accent-strong: #f5b266;
+    --accent-ink: #f4b36a;
+    --accent-soft: #3a2a17;
+    --on-accent: #17120a;
 
-    --verified: #7ed6a2;
-    --verified-soft: #16302a;
-    --pending: #f2b33d;
-    --pending-soft: #3d2c12;
+    --verified: #7fcba2;
+    --verified-soft: #1b3a2b;
+    --pending: #f4b36a;
+    --pending-soft: #3a2a17;
     --danger: #ff8a8a;
     --danger-soft: #4a1f1f;
     --focus: var(--accent-strong);
     --inset-hi: rgb(255 255 255 / 0.06);
 
-    --tile-s: 32%;
-    --tile-l: 20%;
-    --chip-on-bg: #f2b33d;
-    --chip-on-ink: #2b1b2e;
+    --dabba-cream: #f3f0e6;
+    --tile-s: 30%;
+    --tile-l: 21%;
+    --chip-on-bg: #7fcba2;
+    --chip-on-ink: #101a14;
+    --preview-bg: var(--surface-2);
+    --preview-rule: var(--accent);
 
     --shadow-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 28px -14px rgb(0 0 0 / 0.6);
     --shadow-2: 0 2px 4px rgb(0 0 0 / 0.35), 0 24px 48px -20px rgb(0 0 0 / 0.7);
@@ -125,43 +141,51 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #17101c;
-  --bg-2: #1e1424;
-  --surface: #271a2d;
-  --surface-2: #2e1f35;
-  --surface-3: #3a2842;
+  --bg: #101a14;
+  --bg-2: #14211a;
+  --surface: #18261e;
+  --surface-2: #1e2e25;
+  --surface-3: #26382d;
 
-  --ink: #f6eee4;
-  --ink-2: #dccfc6;
-  --muted: #a99aa6;
-  --line: #3f2d48;
-  --line-strong: #4b3a54;
+  --ink: #eef2ec;
+  --ink-2: #c7d2c9;
+  --muted: #93a398;
+  --line: #2a3b31;
+  --line-strong: #3a4f42;
+  --field-line: #667a6c;
 
-  --brand: #2a1230;
-  --brand-2: #3b1642;
-  --brand-3: #1c0b21;
-  --on-brand: #f8f1e7;
-  --on-brand-muted: #d9c9d6;
+  --brand: #133524;
+  --brand-2: #1a4430;
+  --brand-3: #0c2518;
+  --on-brand: #f3f0e6;
+  --on-brand-muted: #b9cdbf;
+  --on-brand-accent: #f4b36a;
+  --brand-line: rgb(243 240 230 / 0.16);
+  --brand-field: rgb(243 240 230 / 0.08);
+  --brand-field-line: rgb(243 240 230 / 0.5);
 
-  --accent: #f2b33d;
-  --accent-strong: #f7c35c;
-  --accent-ink: #f2b33d;
-  --accent-soft: #3d2c12;
-  --on-accent: #2b1b2e;
+  --accent: #f0a04a;
+  --accent-strong: #f5b266;
+  --accent-ink: #f4b36a;
+  --accent-soft: #3a2a17;
+  --on-accent: #17120a;
 
-  --verified: #7ed6a2;
-  --verified-soft: #16302a;
-  --pending: #f2b33d;
-  --pending-soft: #3d2c12;
+  --verified: #7fcba2;
+  --verified-soft: #1b3a2b;
+  --pending: #f4b36a;
+  --pending-soft: #3a2a17;
   --danger: #ff8a8a;
   --danger-soft: #4a1f1f;
   --focus: var(--accent-strong);
   --inset-hi: rgb(255 255 255 / 0.06);
 
-  --tile-s: 32%;
-  --tile-l: 20%;
-  --chip-on-bg: #f2b33d;
-  --chip-on-ink: #2b1b2e;
+  --dabba-cream: #f3f0e6;
+  --tile-s: 30%;
+  --tile-l: 21%;
+  --chip-on-bg: #7fcba2;
+  --chip-on-ink: #101a14;
+  --preview-bg: var(--surface-2);
+  --preview-rule: var(--accent);
 
   --shadow-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 28px -14px rgb(0 0 0 / 0.6);
   --shadow-2: 0 2px 4px rgb(0 0 0 / 0.35), 0 24px 48px -20px rgb(0 0 0 / 0.7);
@@ -315,9 +339,11 @@ main {
 }
 
 .preview-bar {
-  background: var(--accent-soft);
+  background: var(--preview-bg);
   color: var(--ink);
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--preview-rule);
+  /* Saffron edge rule; an inset shadow so the bar's height is unchanged. */
+  box-shadow: inset 4px 0 0 var(--accent);
 }
 
 .preview-bar-inner {
@@ -582,12 +608,12 @@ main {
 .btn-primary {
   background: var(--accent);
   color: var(--on-accent);
-  box-shadow: 0 8px 20px -12px rgb(232 163 23 / 0.7);
+  box-shadow: 0 8px 20px -12px rgb(209 119 25 / 0.7);
 }
 
 .btn-primary:hover {
   background: var(--accent-strong);
-  box-shadow: 0 12px 26px -12px rgb(232 163 23 / 0.8);
+  box-shadow: 0 12px 26px -12px rgb(209 119 25 / 0.8);
 }
 
 .btn-secondary {
@@ -651,26 +677,28 @@ main {
   display: none;
 }
 
+/* The main conversion button follows the rule "saffron carries action,
+   green carries identity": saffron fill with dark ink (never white on saffron). */
 .btn-whatsapp {
-  background: #1a7c4e;
-  color: #ffffff;
-  box-shadow: 0 10px 24px -14px rgb(26 124 78 / 0.9);
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 10px 24px -14px rgb(209 119 25 / 0.8);
 }
 
 .btn-whatsapp:hover {
-  background: #16693f;
+  background: var(--accent-strong);
 }
 
 /* ---------- 6. Hero ------------------------------------------------------ */
 .hero {
-  --focus: var(--accent);
+  --focus: var(--on-brand-accent);
   position: relative;
   isolation: isolate;
   overflow: hidden;
   color: var(--on-brand);
   background:
-    radial-gradient(90% 70% at 100% 0%, rgb(242 179 61 / 0.28), transparent 60%),
-    radial-gradient(60% 50% at 0% 100%, rgb(242 179 61 / 0.12), transparent 60%),
+    radial-gradient(90% 70% at 100% 0%, rgb(60 140 90 / 0.22), transparent 60%),
+    radial-gradient(60% 50% at 0% 100%, rgb(250 210 154 / 0.06), transparent 60%),
     linear-gradient(160deg, var(--brand-2), var(--brand) 55%, var(--brand-3));
 }
 
@@ -682,7 +710,7 @@ main {
 }
 
 .hero .eyebrow {
-  color: var(--accent);
+  color: var(--on-brand-accent);
 }
 
 .hero h1 {
@@ -742,7 +770,7 @@ main {
   right: -6%;
   bottom: -12%;
   width: clamp(180px, 28vw, 340px);
-  opacity: 0.14;
+  opacity: 0.16;
   z-index: -1;
   pointer-events: none;
   transform: rotate(-8deg);
@@ -751,7 +779,7 @@ main {
 @media (max-width: 559px) {
   .hero-art {
     width: 180px;
-    opacity: 0.1;
+    opacity: 0.12;
   }
 
   .hero-count .long {
@@ -805,7 +833,7 @@ main {
   min-height: 52px;
   padding: 12px 16px 12px 46px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--line-strong);
+  border: 1px solid var(--field-line);
   background: var(--surface-2);
   color: var(--ink);
   font-size: 1rem;
@@ -822,8 +850,11 @@ main {
   border-color: var(--ink-2);
 }
 
+/* Fields get the same solid 2px focus outline as buttons and chips (--ink in
+   light, saffron in dark); the saffron border + soft ring stay as decoration. */
 .search-field input:focus {
-  outline: none;
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
   border-color: var(--accent-strong);
   background: var(--surface);
   box-shadow: 0 0 0 4px var(--accent-soft);
@@ -960,7 +991,7 @@ main {
   min-height: 48px;
   padding: 10px 44px 10px 16px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--line-strong);
+  border: 1px solid var(--field-line);
   background: var(--surface-2);
   color: var(--ink);
   -webkit-appearance: none;
@@ -984,7 +1015,8 @@ main {
 }
 
 .select select:focus {
-  outline: none;
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
   border-color: var(--accent-strong);
   box-shadow: 0 0 0 4px var(--accent-soft);
 }
@@ -1034,7 +1066,7 @@ main {
   width: 38px;
   height: 22px;
   border-radius: var(--radius-pill);
-  background: var(--line-strong);
+  background: var(--field-line);
   transition: background var(--dur-2) var(--ease-out);
   flex: none;
 }
@@ -1983,11 +2015,11 @@ main {
 
 /* ---------- 11. Alerts panel --------------------------------------------- */
 .alerts {
-  --focus: var(--accent);
+  --focus: var(--on-brand-accent);
   margin-top: 40px;
   color: var(--on-brand);
   background:
-    radial-gradient(70% 80% at 0% 0%, rgb(242 179 61 / 0.18), transparent 60%),
+    radial-gradient(70% 80% at 0% 0%, rgb(60 140 90 / 0.22), transparent 60%),
     linear-gradient(140deg, var(--brand), var(--brand-3));
 }
 
@@ -2003,7 +2035,7 @@ main {
 }
 
 .alerts .eyebrow {
-  color: var(--accent);
+  color: var(--on-brand-accent);
   margin-bottom: 8px;
 }
 
@@ -2029,7 +2061,7 @@ main {
   min-height: 50px;
   padding: 12px 16px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgb(248 241 231 / 0.28);
+  border: 1px solid var(--brand-field-line);
   background: var(--brand-field);
   color: var(--on-brand);
   transition: border-color var(--dur-1) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
@@ -2041,13 +2073,14 @@ main {
 }
 
 .alerts-form input[type="email"]::placeholder {
-  color: rgb(217 201 214 / 0.7);
+  color: var(--on-brand-muted);
 }
 
 .alerts-form input[type="email"]:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 4px rgb(242 179 61 / 0.25);
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-color: var(--on-brand-accent);
+  box-shadow: 0 0 0 4px rgb(250 210 154 / 0.28);
 }
 
 .check {
@@ -2090,11 +2123,11 @@ main {
 }
 
 .form-status.is-error {
-  color: #ffb4b4;
+  color: #ffc4c4;
 }
 
 .form-status.is-ok {
-  color: #9be3bb;
+  color: #a6e6c0;
 }
 
 .alerts-saved {
@@ -2208,7 +2241,7 @@ main {
   inset: 0;
   border: 0;
   padding: 0;
-  background: rgb(20 8 24 / 0.55);
+  background: rgb(10 22 15 / 0.55);
   opacity: 0;
   transition: opacity var(--dur-2) var(--ease-out);
   cursor: default;
@@ -2299,10 +2332,10 @@ main {
 
 /* ---------- 14. Static pages (prose) ------------------------------------- */
 .page-hero {
-  --focus: var(--accent);
+  --focus: var(--on-brand-accent);
   color: var(--on-brand);
   background:
-    radial-gradient(80% 80% at 100% 0%, rgb(242 179 61 / 0.22), transparent 60%),
+    radial-gradient(80% 80% at 100% 0%, rgb(60 140 90 / 0.22), transparent 60%),
     linear-gradient(160deg, var(--brand-2), var(--brand) 60%, var(--brand-3));
 }
 
@@ -2330,7 +2363,7 @@ main {
 }
 
 .page-hero .eyebrow {
-  color: var(--accent);
+  color: var(--on-brand-accent);
 }
 
 .prose {
@@ -2357,13 +2390,13 @@ main {
   margin-bottom: 0.4em;
 }
 
-.prose a {
+.prose a:not(.btn) {
   color: var(--accent-ink);
   font-weight: 700;
   transition: color var(--dur-1) var(--ease-out), text-decoration-color var(--dur-1) var(--ease-out);
 }
 
-.prose a:hover {
+.prose a:not(.btn):hover {
   color: var(--ink);
   text-decoration-thickness: 2px;
 }
@@ -2426,7 +2459,7 @@ main {
   height: 40px;
   border-radius: 50%;
   background: var(--brand);
-  color: var(--accent);
+  color: var(--on-brand-accent);
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1.1rem;
@@ -2515,7 +2548,7 @@ main {
   min-height: 48px;
   padding: 12px 14px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--line-strong);
+  border: 1px solid var(--field-line);
   background: var(--surface-2);
   color: var(--ink);
   transition: border-color var(--dur-1) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
@@ -2528,7 +2561,8 @@ main {
 
 .contact-form input:focus,
 .contact-form textarea:focus {
-  outline: none;
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
   border-color: var(--accent-strong);
   box-shadow: 0 0 0 4px var(--accent-soft);
 }

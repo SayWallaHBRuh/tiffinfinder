@@ -9,7 +9,7 @@
 
 'use strict';
 
-var VERSION = 'tf-v1.1.1';
+var VERSION = 'tf-v1.2.2';
 var SHELL_CACHE = VERSION + '-shell';
 var DATA_CACHE = VERSION + '-data';
 

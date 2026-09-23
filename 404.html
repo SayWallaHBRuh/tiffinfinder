@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Page not found — Tiffin Finder</title>
   <meta name="robots" content="noindex">
-  <meta name="theme-color" content="#3b1642">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#1f5c3a">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101a14">
   <meta name="color-scheme" content="light dark">
   <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
@@ -19,8 +20,8 @@
   <style>
     :root { color-scheme: light dark; }
     *, *::before, *::after { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; background: #faf5ec; color: #2b1b2e; font-family: "Manrope", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.55; -webkit-font-smoothing: antialiased; }
-    @media (prefers-color-scheme: dark) { body { background: #17101c; color: #f6eee4; } .btn-secondary { background: #271a2d; border-color: #4b3a54; color: #f6eee4; } .dabba-tile { background: #3d2c12; } .site-footer { background: #1e1424; border-color: #3f2d48; } }
+    body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; background: #fbf7ef; color: #17271d; font-family: "Manrope", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+    @media (prefers-color-scheme: dark) { body { background: #101a14; color: #eef2ec; } .btn-secondary { background: #18261e; border-color: #3a4f42; color: #eef2ec; } .dabba-tile { background: #3a2a17; } .eyebrow { color: #f4b36a; } .site-footer { background: #14211a; border-color: #2a3b31; } }
     main { flex: 1 0 auto; }
     svg { display: block; }
     .wrap { width: 100%; max-width: 1120px; margin-inline: auto; padding-inline: 16px; }
@@ -32,16 +33,17 @@
     .site-nav a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; font-size: 0.95rem; text-decoration: none; color: inherit; }
     .notfound { text-align: center; padding: 64px 16px 80px; }
     .notfound h1 { font-family: "Fraunces", "Iowan Old Style", Georgia, serif; font-weight: 600; font-size: clamp(1.9rem, 1.3rem + 3vw, 3.1rem); line-height: 1.12; letter-spacing: -0.012em; margin: 0 0 0.5em; text-wrap: balance; }
-    .eyebrow { margin: 0; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #c98700; }
-    .dabba-tile { display: grid; place-items: center; width: 92px; height: 92px; margin: 0 auto 20px; border-radius: 26px; background: #fbedcb; }
+    .eyebrow { margin: 0; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #8a4a0b; }
+    .dabba-tile { display: grid; place-items: center; width: 92px; height: 92px; margin: 0 auto 20px; border-radius: 26px; background: #fce9d2; }
     .dabba { width: 64px; height: 64px; }
     .page-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 18px 0; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 10px 20px; border-radius: 999px; border: 1px solid transparent; font-weight: 700; font-size: 0.97rem; text-decoration: none; color: #2b1b2e; background: #f6efe3; }
-    .btn-primary { background: #e8a317; }
-    .btn-secondary { background: #ffffff; border-color: #d3c3ae; }
-    .site-footer { border-top: 1px solid #e6dacb; background: #f3eadb; font-size: 0.93rem; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 10px 20px; border-radius: 999px; border: 1px solid transparent; font-weight: 700; font-size: 0.97rem; text-decoration: none; color: #17271d; background: #f7f1e6; }
+    .btn-primary { background: #e8912d; }
+    .btn-secondary { background: #ffffff; border-color: #cfc4ae; }
+    .site-footer { border-top: 1px solid #e4dccb; background: #f4ede0; font-size: 0.93rem; }
     .footer-inner { display: grid; gap: 16px; padding-block: 32px 28px; }
-    .footer-brand p, .footer-copy { margin: 0; opacity: 0.8; }
+    .footer-brand p, .footer-copy { margin: 0; color: #5c6b60; }
+    @media (prefers-color-scheme: dark) { .footer-brand p, .footer-copy { color: #93a398; } }
     .footer-nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 2px 20px; }
     .footer-nav a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; text-decoration: none; color: inherit; }
   </style>
@@ -54,12 +56,12 @@
     <div class="wrap header-inner">
       <a class="brand" href="./" aria-label="Tiffin Finder home">
         <svg class="logo" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-          <rect width="64" height="64" rx="14" fill="#3b1642"/>
-          <path d="M24 17c0-7 16-7 16 0" fill="none" stroke="#f8f1e7" stroke-width="3" stroke-linecap="round"/>
-          <rect x="17" y="17" width="30" height="11" rx="4" fill="#f2b33d"/>
-          <rect x="15" y="30" width="34" height="11" rx="4" fill="#e8a317"/>
-          <rect x="13" y="43" width="38" height="12" rx="5" fill="#c98700"/>
-          <rect x="30" y="13" width="4" height="44" rx="2" fill="#f8f1e7" opacity=".92"/>
+          <rect width="64" height="64" rx="14" fill="#1f5c3a"/>
+          <path d="M24 17c0-7 16-7 16 0" fill="none" stroke="#fbf7ef" stroke-width="3" stroke-linecap="round"/>
+          <rect x="17" y="17" width="30" height="11" rx="4" fill="#f4b35e"/>
+          <rect x="15" y="30" width="34" height="11" rx="4" fill="#e8912d"/>
+          <rect x="13" y="43" width="38" height="12" rx="5" fill="#c9731a"/>
+          <rect x="30" y="13" width="4" height="44" rx="2" fill="#fbf7ef" opacity=".92"/>
         </svg>
         <span class="wordmark">Tiffin Finder</span>
       </a>
@@ -74,11 +76,11 @@
     <div class="wrap notfound">
       <div class="dabba-tile large" aria-hidden="true">
         <svg class="dabba" viewBox="0 0 64 64" width="64" height="64" focusable="false">
-          <path d="M23 16c0-8 18-8 18 0" fill="none" stroke="#5a2a63" stroke-width="3.2" stroke-linecap="round"/>
-          <rect x="15" y="16" width="34" height="12" rx="4.5" fill="#f2b33d"/>
-          <rect x="13" y="30" width="38" height="12" rx="4.5" fill="#e8a317"/>
-          <rect x="11" y="44" width="42" height="13" rx="5.5" fill="#c98700"/>
-          <rect x="30" y="12" width="4.2" height="46" rx="2.1" fill="#f8f1e7" opacity=".92"/>
+          <path d="M23 16c0-8 18-8 18 0" fill="none" stroke="#8a4a0b" stroke-width="3.2" stroke-linecap="round"/>
+          <rect x="15" y="16" width="34" height="12" rx="4.5" fill="#f4b35e"/>
+          <rect x="13" y="30" width="38" height="12" rx="4.5" fill="#e8912d"/>
+          <rect x="11" y="44" width="42" height="13" rx="5.5" fill="#c9731a"/>
+          <rect x="30" y="12" width="4.2" height="46" rx="2.1" fill="#fbf7ef" opacity=".92"/>
         </svg>
       </div>
       <p class="eyebrow">404</p>
@@ -96,12 +98,12 @@
       <div class="footer-brand">
         <a class="brand" href="./" aria-label="Tiffin Finder home">
           <svg class="logo" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-            <rect width="64" height="64" rx="14" fill="#3b1642"/>
-            <path d="M24 17c0-7 16-7 16 0" fill="none" stroke="#f8f1e7" stroke-width="3" stroke-linecap="round"/>
-            <rect x="17" y="17" width="30" height="11" rx="4" fill="#f2b33d"/>
-            <rect x="15" y="30" width="34" height="11" rx="4" fill="#e8a317"/>
-            <rect x="13" y="43" width="38" height="12" rx="5" fill="#c98700"/>
-            <rect x="30" y="13" width="4" height="44" rx="2" fill="#f8f1e7" opacity=".92"/>
+            <rect width="64" height="64" rx="14" fill="#1f5c3a"/>
+            <path d="M24 17c0-7 16-7 16 0" fill="none" stroke="#fbf7ef" stroke-width="3" stroke-linecap="round"/>
+            <rect x="17" y="17" width="30" height="11" rx="4" fill="#f4b35e"/>
+            <rect x="15" y="30" width="34" height="11" rx="4" fill="#e8912d"/>
+            <rect x="13" y="43" width="38" height="12" rx="5" fill="#c9731a"/>
+            <rect x="30" y="13" width="4" height="44" rx="2" fill="#fbf7ef" opacity=".92"/>
           </svg>
           <span class="wordmark">Tiffin Finder</span>
         </a>

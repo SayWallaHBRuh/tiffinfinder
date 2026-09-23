@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Generate Tiffin Finder PWA icons.
 
-Draws the stacked-tiffin ("dabba") mark on an aubergine ground and writes:
-  icons/icon-192.png        192x192, purpose "any"
-  icons/icon-512.png        512x512, purpose "any"
-  icons/maskable-512.png    512x512, purpose "maskable" (mark inside the 80% safe zone)
-  icons/apple-touch-icon.png 180x180
+Draws the saffron stacked-tiffin ("dabba") mark on a leaf-green ground and writes:
+  icons/icon-192.png         192x192, purpose "any": leaf-green rounded square, transparent corners
+  icons/icon-512.png         512x512, purpose "any": leaf-green rounded square, transparent corners
+  icons/maskable-512.png     512x512, purpose "maskable": full-bleed green, mark inside the 80% safe zone
+  icons/apple-touch-icon.png 180x180, solid full-bleed green (iOS applies its own mask)
 
 Uses Pillow when available; otherwise falls back to a small pure-Python
 rasterizer and PNG encoder (zlib + struct) so the script has no dependencies.
@@ -24,12 +24,15 @@ import zlib
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT_DIR = os.path.normpath(os.path.join(HERE, "..", "icons"))
 
-# Brand colours (match styles.css tokens)
-AUBERGINE = (0x3B, 0x16, 0x42)
-CREAM = (0xF8, 0xF1, 0xE7)
-TURMERIC_LIGHT = (0xF2, 0xB3, 0x3D)
-TURMERIC = (0xE8, 0xA3, 0x17)
-TURMERIC_DEEP = (0xC9, 0x87, 0x00)
+# Brand colours (match styles.css tokens and icons/icon.svg)
+LEAF = (0x1F, 0x5C, 0x3A)            # --brand
+CREAM = (0xFB, 0xF7, 0xEF)           # --on-brand / --dabba-cream
+SAFFRON_LIGHT = (0xF4, 0xB3, 0x5E)   # top tier
+SAFFRON = (0xE8, 0x91, 0x2D)         # --accent
+SAFFRON_DEEP = (0xC9, 0x73, 0x1A)    # bottom tier
+
+# Corner radius of the rounded-square ground, in the 64-unit design grid (icon.svg rx="14").
+CORNER_UNITS = 14.0
 
 
 def mark_shapes(size: float, scale: float):
@@ -51,9 +54,9 @@ def mark_shapes(size: float, scale: float):
     shapes = [
         # handle: half-circle arc centred at (32, 17) radius 8, stroke 3
         ("arc", u(32), u(17), s(8), s(3.0), CREAM),
-        ("rrect", u(17), u(17), s(30), s(11), s(4), TURMERIC_LIGHT),
-        ("rrect", u(15), u(30), s(34), s(11), s(4), TURMERIC),
-        ("rrect", u(13), u(43), s(38), s(12), s(5), TURMERIC_DEEP),
+        ("rrect", u(17), u(17), s(30), s(11), s(4), SAFFRON_LIGHT),
+        ("rrect", u(15), u(30), s(34), s(11), s(4), SAFFRON),
+        ("rrect", u(13), u(43), s(38), s(12), s(5), SAFFRON_DEEP),
         # vertical strap
         ("rrect", u(30), u(13), s(4), s(44), s(2), CREAM),
     ]
@@ -63,13 +66,18 @@ def mark_shapes(size: float, scale: float):
 # --------------------------------------------------------------------------
 # Pillow path
 # --------------------------------------------------------------------------
-def render_with_pillow(size: int, scale: float, path: str) -> None:
+def render_with_pillow(size: int, scale: float, path: str, rounded: bool) -> None:
     from PIL import Image, ImageDraw  # type: ignore
 
     ss = 4  # supersample for smooth edges
     big = size * ss
-    img = Image.new("RGB", (big, big), AUBERGINE)
-    draw = ImageDraw.Draw(img)
+    if rounded:
+        img = Image.new("RGBA", (big, big), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(img)
+        draw.rounded_rectangle([0, 0, big - 1, big - 1], radius=big * CORNER_UNITS / 64.0, fill=LEAF + (255,))
+    else:
+        img = Image.new("RGB", (big, big), LEAF)
+        draw = ImageDraw.Draw(img)
     for shape in mark_shapes(big, scale):
         if shape[0] == "rrect":
             _, x, y, w, h, r, colour = shape
@@ -117,13 +125,17 @@ def _inside_arc(px: float, py: float, cx: float, cy: float, radius: float, width
     return radius - half <= d <= radius + half
 
 
-def render_pure_python(size: int, scale: float, path: str) -> None:
+def render_pure_python(size: int, scale: float, path: str, rounded: bool) -> None:
     ss = 3  # 3x3 supersampling
     samples = ss * ss
-    bg = AUBERGINE
-    # canvas as list of rows of [r,g,b] floats
-    canvas = [[list(bg) for _ in range(size)] for _ in range(size)]
-    shapes = mark_shapes(float(size), scale)
+    # canvas as rows of premultiplied [r, g, b, a] floats (a in 0..1)
+    if rounded:
+        canvas = [[[0.0, 0.0, 0.0, 0.0] for _ in range(size)] for _ in range(size)]
+        ground = [("rrect", 0.0, 0.0, float(size), float(size), size * CORNER_UNITS / 64.0, LEAF)]
+    else:
+        canvas = [[[float(LEAF[0]), float(LEAF[1]), float(LEAF[2]), 1.0] for _ in range(size)] for _ in range(size)]
+        ground = []
+    shapes = ground + mark_shapes(float(size), scale)
 
     for shape in shapes:
         if shape[0] == "rrect":
@@ -155,31 +167,42 @@ def render_pure_python(size: int, scale: float, path: str) -> None:
                         if test(px + ox, sy):
                             hits += 1
                 if hits:
+                    # source-over with coverage `a`, in premultiplied space
                     a = hits / samples
                     cell = row[px]
                     cell[0] = cell[0] * (1 - a) + colour[0] * a
                     cell[1] = cell[1] * (1 - a) + colour[1] * a
                     cell[2] = cell[2] * (1 - a) + colour[2] * a
+                    cell[3] = cell[3] * (1 - a) + a
+
+    def clamp(v: float) -> int:
+        return int(round(max(0.0, min(255.0, v))))
 
     rows = []
     for row in canvas:
         b = bytearray()
         for cell in row:
-            b.append(int(round(max(0, min(255, cell[0])))))
-            b.append(int(round(max(0, min(255, cell[1])))))
-            b.append(int(round(max(0, min(255, cell[2])))))
+            alpha = cell[3]
+            if rounded:
+                if alpha <= 0.0:
+                    b.extend((0, 0, 0, 0))
+                else:
+                    b.extend((clamp(cell[0] / alpha), clamp(cell[1] / alpha), clamp(cell[2] / alpha), clamp(alpha * 255.0)))
+            else:
+                b.extend((clamp(cell[0]), clamp(cell[1]), clamp(cell[2])))
         rows.append(bytes(b))
-    write_png(path, size, size, rows)
+    write_png(path, size, size, rows, alpha=rounded)
 
 
-def write_png(path: str, width: int, height: int, rows: list[bytes]) -> None:
+def write_png(path: str, width: int, height: int, rows: list[bytes], alpha: bool = False) -> None:
     raw = b"".join(b"\x00" + row for row in rows)
 
     def chunk(tag: bytes, data: bytes) -> bytes:
         return (struct.pack(">I", len(data)) + tag + data
                 + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF))
 
-    ihdr = struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0)  # 8-bit RGB
+    colour_type = 6 if alpha else 2  # 8-bit RGBA or RGB
+    ihdr = struct.pack(">IIBBBBB", width, height, 8, colour_type, 0, 0, 0)
     png = (b"\x89PNG\r\n\x1a\n"
            + chunk(b"IHDR", ihdr)
            + chunk(b"IDAT", zlib.compress(raw, 9))
@@ -199,15 +222,16 @@ def main() -> int:
         renderer = render_pure_python
         print("Pillow not available; using the pure-Python renderer.")
 
+    # (file, size, mark scale, rounded-square ground with transparent corners)
     targets = [
-        ("icon-192.png", 192, 0.92),
-        ("icon-512.png", 512, 0.92),
-        ("maskable-512.png", 512, 0.72),
-        ("apple-touch-icon.png", 180, 0.92),
+        ("icon-192.png", 192, 0.92, True),
+        ("icon-512.png", 512, 0.92, True),
+        ("maskable-512.png", 512, 0.72, False),
+        ("apple-touch-icon.png", 180, 0.92, False),
     ]
-    for name, size, scale in targets:
+    for name, size, scale, rounded in targets:
         out = os.path.join(OUT_DIR, name)
-        renderer(size, scale, out)
+        renderer(size, scale, out, rounded)
         print(f"wrote {out} ({size}x{size})")
     return 0
 

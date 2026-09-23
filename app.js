@@ -81,8 +81,16 @@
 
   function syncThemeUI() {
     var current = effectiveTheme();
-    var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', current === 'dark' ? '#17101c' : '#3b1642');
+    // Pages ship one theme-color per colour scheme (media-scoped). With a manual
+    // override, both carry the chosen theme's colour so the browser chrome
+    // matches whatever the OS scheme is; without one, each keeps its own.
+    var forced = root.hasAttribute('data-theme');
+    var metas = document.querySelectorAll('meta[name="theme-color"]');
+    Array.prototype.forEach.call(metas, function (meta) {
+      var media = meta.getAttribute('media') || '';
+      var theme = forced ? current : (media.indexOf('dark') !== -1 ? 'dark' : (media ? 'light' : current));
+      meta.setAttribute('content', theme === 'dark' ? '#101a14' : '#1f5c3a');
+    });
     if (dom.themeToggle) {
       dom.themeToggle.setAttribute('aria-label', current === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
       dom.themeToggle.setAttribute('title', current === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
@@ -166,9 +174,18 @@
     return svg;
   }
 
+  /* A kitchen's hue in the data can be anywhere on the wheel. Fold it onto
+     food colours (chilli, masala, saffron, haldi gold, then cardamom and mint
+     greens) so every tile reads as something you would eat. */
+  function foodHue(hue) {
+    var h = ((Number(hue) || 30) % 360 + 360) % 360;
+    var t = h / 360;
+    return Math.round(t < 0.62 ? 4 + (t / 0.62) * 46 : 88 + ((t - 0.62) / 0.38) * 58);
+  }
+
   /* Illustrated "dabba" (stacked tiffin) mark in a kitchen's accent hue */
   function dabbaMark(hue, size) {
-    var h = Number(hue) || 30;
+    var h = foodHue(hue);
     var svg = svgEl('svg', {
       viewBox: '0 0 64 64',
       width: size || 44,
@@ -177,10 +194,10 @@
       focusable: 'false',
       class: 'dabba'
     });
-    var light = 'hsl(' + h + ' 72% 62%)';
-    var base = 'hsl(' + h + ' 58% 46%)';
-    var dark = 'hsl(' + h + ' 52% 32%)';
-    var deep = 'hsl(' + h + ' 48% 24%)';
+    var light = 'hsl(' + h + ' 66% 61%)';
+    var base = 'hsl(' + h + ' 56% 46%)';
+    var dark = 'hsl(' + h + ' 50% 32%)';
+    var deep = 'hsl(' + h + ' 46% 23%)';
     svg.appendChild(svgEl('path', { d: 'M23 16c0-8 18-8 18 0', fill: 'none', stroke: deep, 'stroke-width': '3.2', 'stroke-linecap': 'round' }));
     svg.appendChild(svgEl('rect', { x: 15, y: 16, width: 34, height: 12, rx: 4.5, fill: light }));
     svg.appendChild(svgEl('rect', { x: 13, y: 30, width: 38, height: 12, rx: 4.5, fill: base }));
@@ -195,7 +212,7 @@
 
   function dabbaTile(hue, large) {
     var tile = el('div', { class: 'dabba-tile' + (large ? ' large' : '') });
-    tile.style.setProperty('--hue', String(Number(hue) || 30));
+    tile.style.setProperty('--hue', String(foodHue(hue)));
     tile.appendChild(dabbaMark(hue, large ? 64 : 32));
     return tile;
   }
@@ -672,7 +689,7 @@
 
     /* Header card: tile beside [Sample tag, name, meta line] */
     var head = el('header', { class: 'k-head' });
-    head.style.setProperty('--hue', String(Number(k.hue) || 30));
+    head.style.setProperty('--hue', String(foodHue(k.hue)));
     var top = el('div', { class: 'k-head-top' });
     top.appendChild(dabbaTile(k.hue, true));
     var titleBlock = el('div', { class: 'k-head-title' });
