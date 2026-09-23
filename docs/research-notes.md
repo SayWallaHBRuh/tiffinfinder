@@ -33,7 +33,7 @@ The City spells it **King's Heights**, with an apostrophe. The earlier sample da
 
 ## Map pins (base community)
 
-Each sample kitchen has a `base_community` (city + slug) that places its pin on the map. It is always one of that kitchen's own delivery communities, never an address. The communities were chosen so that pins don't overlap on a phone-sized map (at least about 42 px apart at 328 px wide) and so that several kitchens share a pin in the busiest areas. The map shapes and their sources are described in `docs/map-data.md`.
+Each sample kitchen has a `base_community` (city + slug) that places its pin on the map. For delivery kitchens it is one of that kitchen's own delivery communities. Pickup kitchens also have a `pickup` object; sample pickup spots are made-up points inside the base community, with no street text (see `tools/sample_pickup.py`). The communities were chosen so that pins don't overlap on a phone-sized map (at least about 42 px apart at 328 px wide) and so that several kitchens share a pin in the busiest areas. The map shapes and their sources are described in `docs/map-data.md`.
 
 Airdrie's open-data neighbourhood layer spells the name **"Kings Heights"**, without the apostrophe. Pins are matched by slug (`kings-heights`), which is the same for both spellings, so the City planning-page spelling **"King's Heights"** stays in the kitchen data.
 

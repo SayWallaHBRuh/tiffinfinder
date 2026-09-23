@@ -11,7 +11,9 @@
   var DISHES_URL = './data/dishes.json';
   /* Map view (see "Map" below). The files are fetched only when the map is
      first opened. One coordinate frame for the SVG, the pins and the label:
-     Calgary as drawn, Airdrie moved by AIRDRIE_OFFSET to sit just north. */
+     Calgary as drawn, Airdrie moved by AIRDRIE_OFFSET to sit just north.
+     Pickup points in kitchens.json use each city file's own frame, so an
+     Airdrie point gets AIRDRIE_OFFSET added here too. */
   var MAP_URLS = { calgary: './data/map/calgary.json', airdrie: './data/map/airdrie.json' };
   var MAP_VB = { x: 0, y: -380, w: 1000, h: 1663 };
   var AIRDRIE_OFFSET = [497, -360];
@@ -60,11 +62,13 @@
     /* A ?cuisine= value waiting for the cuisine options to exist (they are
        built from the data, so they arrive after the first render). */
     pendingCuisine: '',
-    /* ?near=<community slug>: kitchens that deliver to one community. Held
-       here, not in the form; shown as the removable pill above the list. */
+    /* ?near=<community slug>: kitchens with pickup or delivery in one
+       community. Held here, not in the form; shown as the removable pill
+       above the list. */
     near: '',
-    /* slug -> {slug, name, quadrant, count}, built from the delivery areas.
-       No prototype, so a slug such as "constructor" is never "found". */
+    /* slug -> {slug, name, quadrant, count}, built from the delivery areas
+       and the pickup communities. No prototype, so a slug such as
+       "constructor" is never "found". */
     communities: Object.create(null),
     /* {byTerm, re} from data/dishes.json, or null (menus show plain text). */
     glossary: null,
@@ -86,15 +90,30 @@
       built: false,
       canvas: null,
       label: null,
-      /* One pin per base community, north to south; pinsFor is the
+      /* Markers, north to south (see ensurePins): one per pickup kitchen at
+         its pickup point, plus one per base community for delivery-only
+         kitchens, each with its own button. markersFor is the
          state.kitchens array they were built from. */
-      pins: [],
-      pinsFor: null,
+      markers: [],
+      markersFor: null,
+      /* What shows after close markers join into count badges (see
+         layoutMarkers): {key, kind, node, members, matching, x, y, name,
+         zone, areaKeys}, north to south. */
+      targets: [],
+      /* The last list and filters drawn, so a resize can lay the pins out
+         again, and the stage size they were laid out for. */
+      lastList: [],
+      lastF: null,
+      stageW: 0,
+      stageH: 0,
       popped: false,
+      /* The open card's target (one of targets), or null. */
       openPin: null,
       cardSheet: false,
       zoomKey: null,
-      nearPath: null
+      nearPath: null,
+      /* Paths shaded as "delivers here" (is-serves). */
+      servesPaths: []
     }
   };
   var dom = {};
@@ -243,7 +262,9 @@
       shield: ['M12 3l8 3v6c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V6z', 'M9 12l2 2 4-4'],
       list: ['M9 6h11', 'M9 12h11', 'M9 18h11', 'M4.5 6h.01', 'M4.5 12h.01', 'M4.5 18h.01'],
       map: ['M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z', 'M9 4v14', 'M15 6v14'],
-      close: ['M6 6l12 12', 'M18 6L6 18']
+      close: ['M6 6l12 12', 'M18 6L6 18'],
+      bag: ['M5 8h14l-1.2 12.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z', 'M9 8V6.5a3 3 0 0 1 6 0V8'],
+      truck: ['M3 6h11v10H3z', 'M14 10h4l3 3.5V16h-7', 'M7.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z', 'M17.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z']
     };
     (paths[name] || []).forEach(function (d) { svg.appendChild(svgEl('path', { d: d })); });
     return svg;
@@ -292,6 +313,14 @@
     svg.appendChild(svgEl('rect', { x: 6, y: 7, width: 12, height: 4, rx: 1.5, fill: 'currentColor' }));
     svg.appendChild(svgEl('rect', { x: 5, y: 12, width: 14, height: 4, rx: 1.5, fill: 'currentColor' }));
     svg.appendChild(svgEl('rect', { x: 4, y: 17, width: 16, height: 4.5, rx: 1.8, fill: 'currentColor' }));
+    return svg;
+  }
+
+  /* A little carry bag in the pin colour, for a pickup spot. */
+  function bagGlyph() {
+    var svg = svgEl('svg', { viewBox: '0 0 24 24', 'aria-hidden': 'true', focusable: 'false', class: 'map-pin-glyph' });
+    svg.appendChild(svgEl('path', { d: 'M5 9h14l-1.1 11a1 1 0 0 1-1 .9H7.1a1 1 0 0 1-1-.9z', fill: 'currentColor' }));
+    svg.appendChild(svgEl('path', { d: 'M9 9V7a3 3 0 0 1 6 0v2', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8', 'stroke-linecap': 'round' }));
     return svg;
   }
 
@@ -381,18 +410,117 @@
   var NEAR_RE = /^[a-z0-9-]{1,60}$/;
   var HOOD_ORDER = ['NE', 'NW', 'SE', 'SW', 'Airdrie'];
 
+  /* Pickup and delivery. A kitchen's "pickup" is {precision, label, point,
+     lat, lon, notes}: the label is only the place ("Saddletowne Circle NE",
+     "Sample location · Saddle Ridge"); the app adds "Pickup at / near / in".
+     point is in the city map file's own frame. lat and lon are used only
+     for the directions link (see directionsHref). */
+  var PICKUP_PRECISIONS = ['exact', 'intersection', 'community'];
+  var SERVICE_LABEL = { pickup: 'Pickup', delivery: 'Delivery', both: 'Pickup & delivery' };
+  var SAMPLE_LABEL_RE = /^sample location\s*·\s*/i;
+
+  function isFiniteNumber(n) {
+    return typeof n === 'number' && isFinite(n);
+  }
+
+  function isValidPickup(p) {
+    if (!p || typeof p !== 'object') return false;
+    if (PICKUP_PRECISIONS.indexOf(p.precision) === -1) return false;
+    if (typeof p.label !== 'string') return false;
+    var len = p.label.trim().length;
+    if (len < 1 || len > 80) return false;
+    return Array.isArray(p.point) && p.point.length === 2 && isFiniteNumber(p.point[0]) && isFiniteNumber(p.point[1]);
+  }
+
+  /* Settle k.service from what the data actually backs: a declared value
+     stands only when its data is there ('pickup' needs a valid pickup,
+     'delivery' needs a delivery area, 'both' needs both); otherwise it
+     falls back to what exists. A kitchen with neither is dropped (false).
+     A delivery-only kitchen's pickup is cleared, so nothing reads it. */
+  function normalizeService(k) {
+    var hasP = isValidPickup(k.pickup);
+    var hasD = k.delivery.areas.some(function (a) { return typeof a === 'string' && !!a.trim(); });
+    var declared = k.service;
+    var service = '';
+    if (declared === 'pickup' && hasP) service = 'pickup';
+    else if (declared === 'delivery' && hasD) service = 'delivery';
+    else if (declared === 'both' && hasP && hasD) service = 'both';
+    else if (hasP && hasD) service = 'both';
+    else if (hasP) service = 'pickup';
+    else if (hasD) service = 'delivery';
+    if (!service) return false;
+    k.service = service;
+    if (service === 'delivery') k.pickup = null;
+    return true;
+  }
+
+  function hasPickup(k) {
+    return k.service !== 'delivery';
+  }
+
+  function hasDelivery(k) {
+    return k.service !== 'pickup';
+  }
+
+  /* The delivery areas that count: none for a pickup-only kitchen. */
+  function deliveryAreas(k) {
+    return hasDelivery(k) ? k.delivery.areas : [];
+  }
+
+  /* The community a pickup kitchen's spot is in (its base community), or ''. */
+  function pickupSlug(k) {
+    var b = k.base_community;
+    return (hasPickup(k) && b && typeof b === 'object' && typeof b.slug === 'string') ? b.slug : '';
+  }
+
+  /* "Pickup at 12 Example Way", "Pickup near Saddletowne Circle NE" or
+     "Pickup in Saddle Ridge" (a neighbourhood-only spot uses the kitchen's
+     own community name). */
+  function pickupLine(k) {
+    var p = hasPickup(k) ? k.pickup : null;
+    if (!p) return '';
+    var label = p.label.trim();
+    if (p.precision === 'exact') return 'Pickup at ' + label;
+    if (p.precision === 'intersection') return 'Pickup near ' + label;
+    return 'Pickup in ' + (k.area || label);
+  }
+
+  /* A Google Maps directions link, only for a spot the kitchen shared as an
+     exact address or nearest intersection, with coordinates that fall in
+     the Calgary and Airdrie area. A neighbourhood-only spot never gets one,
+     even if coordinates exist. */
+  function directionsHref(k) {
+    var p = hasPickup(k) ? k.pickup : null;
+    if (!p || (p.precision !== 'exact' && p.precision !== 'intersection')) return '';
+    var lat = p.lat;
+    var lon = p.lon;
+    if (!isFiniteNumber(lat) || !isFiniteNumber(lon)) return '';
+    if (lat < 50.6 || lat > 51.5 || lon < -114.5 || lon > -113.6) return '';
+    return 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(lat.toFixed(6) + ',' + lon.toFixed(6));
+  }
+
+  /* "Pickup", "Delivery" or "Pickup & delivery", with a bag and/or a truck. */
+  function serviceChip(k) {
+    var chip = el('span', { class: 'svc-chip', 'data-service': k.service });
+    if (hasPickup(k)) chip.appendChild(icon('bag', 14));
+    if (hasDelivery(k)) chip.appendChild(icon('truck', 14));
+    chip.appendChild(el('span', { text: SERVICE_LABEL[k.service] || '' }));
+    return chip;
+  }
+
   /* ---------------------------------------------------------------------
      Data
   --------------------------------------------------------------------- */
   function isValidKitchen(k) {
-    return k && typeof k === 'object' &&
+    return !!(k && typeof k === 'object' &&
       typeof k.slug === 'string' && k.slug.length > 0 &&
       typeof k.name === 'string' &&
       k.price && typeof k.price === 'object' &&
       k.menu && Array.isArray(k.menu.items) &&
       k.contact && typeof k.contact === 'object' &&
       k.delivery && Array.isArray(k.delivery.areas) &&
-      k.permit && typeof k.permit === 'object';
+      k.permit && typeof k.permit === 'object' &&
+      normalizeService(k));
   }
 
   /* Offline with no saved copy, the service worker answers with a 503 whose
@@ -434,15 +562,19 @@
       });
   }
 
-  /* Every community a kitchen delivers to, keyed by slug. The quadrant comes
-     from the first kitchen seen (the data files each community under one
-     quadrant); count is how many kitchens deliver there, pending included,
-     so it equals the result count with only that ?near= on. */
+  /* Every community a kitchen serves, keyed by slug: the areas it delivers
+     to, plus its own community when it offers pickup. The name is the
+     kitchen's own spelling; the quadrant comes from the first kitchen seen
+     (the data files each community under one quadrant); count is how many
+     kitchens serve it, pending included, so it equals the result count
+     with only that ?near= on. */
   function buildCommunities(list) {
     var index = Object.create(null);
     list.forEach(function (k) {
       var seen = Object.create(null);
-      k.delivery.areas.forEach(function (area) {
+      var names = deliveryAreas(k).slice();
+      if (typeof k.area === 'string' && pickupSlug(k) && communitySlug(k.area) === pickupSlug(k)) names.push(k.area);
+      names.forEach(function (area) {
         if (typeof area !== 'string') return;
         var slug = communitySlug(area);
         if (!slug || seen[slug]) return;
@@ -679,7 +811,7 @@
       card.appendChild(peek);
     }
 
-    card.appendChild(permitBadge(kitchen.permit));
+    card.appendChild(el('div', { class: 'card-badges' }, [serviceChip(kitchen), permitBadge(kitchen.permit)]));
 
     var foot = el('div', { class: 'card-foot' });
     var price = el('div', { class: 'price' });
@@ -754,11 +886,13 @@
   --------------------------------------------------------------------- */
   function readFilters() {
     var form = dom.filters;
-    if (!form) return { q: '', quadrant: '', near: state.near, cuisine: '', price: '', veg: false, halal: false, jain: false };
+    if (!form) return { q: '', quadrant: '', service: '', near: state.near, cuisine: '', price: '', veg: false, halal: false, jain: false };
     var quad = form.querySelector('input[name="quadrant"]:checked');
+    var svc = form.querySelector('input[name="service"]:checked');
     return {
       q: normalizeSearch(form.elements.q && form.elements.q.value),
       quadrant: quad ? quad.value : '',
+      service: (svc && (svc.value === 'pickup' || svc.value === 'delivery')) ? svc.value : '',
       near: state.near,
       cuisine: form.elements.cuisine ? form.elements.cuisine.value : '',
       price: form.elements.price ? form.elements.price.value : '',
@@ -774,13 +908,20 @@
     if (k.halal) parts.push('halal');
     if (k.jain) parts.push('jain');
     k.menu.items.forEach(function (item) { parts.push(item.dish || ''); });
-    k.delivery.areas.forEach(function (a) { parts.push(a); });
+    deliveryAreas(k).forEach(function (a) { if (typeof a === 'string') parts.push(a); });
+    /* The pickup place, without the "Sample location ·" prefix, so "sample"
+       doesn't find only the kitchens that offer pickup. */
+    if (hasPickup(k) && k.pickup) parts.push(k.pickup.label.replace(SAMPLE_LABEL_RE, ''), 'pickup pick up');
+    if (hasDelivery(k)) parts.push('delivery delivers');
     return normalizeSearch(parts.join(' '));
   }
 
   function matches(k, f) {
     if (f.quadrant && k.quadrant !== f.quadrant) return false;
-    if (f.near && !k.delivery.areas.some(function (a) { return communitySlug(a) === f.near; })) return false;
+    if (f.service === 'pickup' && !hasPickup(k)) return false;
+    if (f.service === 'delivery' && !hasDelivery(k)) return false;
+    /* ?near=: pickup or delivery in that community. */
+    if (f.near && pickupSlug(k) !== f.near && !deliveryAreas(k).some(function (a) { return communitySlug(a) === f.near; })) return false;
     if (f.cuisine && k.cuisine !== f.cuisine) return false;
     if (f.price && priceBand(k) !== f.price) return false;
     if (f.veg && !k.veg_only) return false;
@@ -794,6 +935,7 @@
     var n = 0;
     if (f.q) n += 1;
     if (f.quadrant) n += 1;
+    if (f.service) n += 1;
     if (f.near) n += 1;
     if (f.cuisine) n += 1;
     if (f.price) n += 1;
@@ -906,14 +1048,14 @@
     renderResults();
   }
 
-  /* "Delivers to <community>" above the list, only once the data has loaded
-     and the ?near= slug is a community a kitchen delivers to. */
+  /* "Pickup or delivery in <community>" above the list, only once the data
+     has loaded and the ?near= slug is a community a kitchen serves. */
   function renderNearPill() {
     if (!dom.filterPills) return;
     var c = (state.loaded && !state.error && state.near) ? state.communities[state.near] : null;
     if (c && dom.nearPill && dom.nearPillName) {
       dom.nearPillName.textContent = c.name;
-      dom.nearPill.setAttribute('aria-label', 'Remove filter: delivers to ' + c.name);
+      dom.nearPill.setAttribute('aria-label', 'Remove filter: pickup or delivery in ' + c.name);
       dom.filterPills.hidden = false;
     } else {
       dom.filterPills.hidden = true;
@@ -983,15 +1125,15 @@
 
   /* ---------------------------------------------------------------------
      Filters in the address
-     The browse view mirrors the form as ?q=&area=&near=&cuisine=&price=
-     &veg=1&halal=1&jain=1, so a filtered list can be reloaded, shared, or
+     The browse view mirrors the form as ?q=&area=&service=&near=&cuisine=
+     &price=&veg=1&halal=1&jain=1, so a filtered list can be reloaded, shared, or
      come back on Back. User changes replace the current history entry
      (never push); render() reads the address back into the form. near= is
      a community slug held in state.near (the pill), not a form control.
      view=map (state.mode, the List / Map switch) comes last; the list is
      the default and has no view= at all.
   --------------------------------------------------------------------- */
-  var FILTER_KEYS = ['q', 'area', 'near', 'cuisine', 'price', 'veg', 'halal', 'jain', 'view'];
+  var FILTER_KEYS = ['q', 'area', 'service', 'near', 'cuisine', 'price', 'veg', 'halal', 'jain', 'view'];
   var DIET_KEYS = ['veg', 'halal', 'jain'];
   var PRICE_BANDS = ['low', 'mid', 'high'];
   var QUERY_MAX = 100;
@@ -1005,6 +1147,8 @@
     if (q) params.append('q', q);
     var quad = form.querySelector('input[name="quadrant"]:checked');
     if (quad && quad.value) params.append('area', quad.value);
+    var svc = form.querySelector('input[name="service"]:checked');
+    if (svc && (svc.value === 'pickup' || svc.value === 'delivery')) params.append('service', svc.value);
     /* Kept before the data loads too (like pendingCuisine below): it is only
        checked against the communities once they exist. */
     if (state.near) params.append('near', state.near);
@@ -1080,6 +1224,11 @@
     });
     if (!match) match = document.getElementById('quad-all');
     if (match) match.checked = true;
+
+    /* service=pickup or service=delivery, in any case; anything else is All. */
+    var service = (params.get('service') || '').toLowerCase();
+    var serviceRadio = document.getElementById(service === 'pickup' ? 'service-pickup' : (service === 'delivery' ? 'service-delivery' : 'service-all'));
+    if (serviceRadio) serviceRadio.checked = true;
 
     if (form.elements.price) {
       var price = (params.get('price') || '').toLowerCase();
@@ -1219,9 +1368,18 @@
      data/map/airdrie.json hold ready-made SVG paths; they are fetched the
      first time the map opens. One frame is shared by the SVG, the pins and
      the Airdrie label (MAP_VB): Calgary as drawn, Airdrie shifted north by
-     AIRDRIE_OFFSET. Each kitchen has a base_community (city + slug, one of
-     its own delivery areas); kitchens sharing one share a pin, placed on the
-     community's label point. Never on an address.
+     AIRDRIE_OFFSET.
+     The map is built around pickup. A kitchen that offers pickup gets its
+     own saffron pin at its pickup.point: the spot it chose to share, at the
+     precision it chose (the sample kitchens use made-up points inside their
+     neighbourhood). The point has to fall inside the kitchen's
+     base_community. A delivery-only kitchen has no spot to show, so it
+     joins an outlined pin on its base community's label point (one of its
+     own delivery areas), shared with any other delivery-only kitchens
+     there.
+     Pins whose centres would sit closer than 44px on screen join into one
+     numbered pin (layoutMarkers), recomputed on every filter, zoom and
+     resize; its card lists every kitchen in it. Zooming in pulls them apart.
      The canvas zooms with a CSS transform to the chosen quadrant's box; pins
      and the label are HTML at percentage positions that move with the same
      timing, so they stay 44px targets and stay on the map while it zooms.
@@ -1239,6 +1397,9 @@
   /* The pointerdown that closed a card on the map must not also zoom. */
   var swallowMapClickUntil = 0;
   var resizeFrame = 0;
+  /* Two pins closer than this (in screen pixels) join into one. */
+  var PIN_HIT = 44;
+  var MERGE_PASSES = 6;
   /* The error pane's own wording (read from index.html in cacheDom), for
      any failure that isn't "offline". */
   var mapErrorCopy = {
@@ -1475,7 +1636,12 @@
     });
     pins.addEventListener('click', onMapPinsClick);
     pins.addEventListener('keydown', onMapPinsKeydown);
-    var help = el('p', { class: 'visually-hidden', id: 'map-pins-help', text: 'Pins are in order from north to south. Arrow keys move between pins.' });
+    /* Pointing at or focusing a pin shades where its kitchens deliver. */
+    pins.addEventListener('pointerover', onPinsEnter);
+    pins.addEventListener('focusin', onPinsEnter);
+    pins.addEventListener('pointerout', onPinsLeave);
+    pins.addEventListener('focusout', onPinsLeave);
+    var help = el('p', { class: 'visually-hidden', id: 'map-pins-help', text: 'Pins are in order from north to south. Arrow keys move between pins. A pin with a number holds kitchens close together.' });
 
     var frag = document.createDocumentFragment();
     frag.appendChild(svg);
@@ -1489,25 +1655,88 @@
     m.built = true;
   }
 
-  /* One pin per base community, built again only when the kitchen list
-     itself changes. A kitchen whose base_community is missing, or isn't a
-     map community it delivers to, is left off (and counted in #map-missing). */
+  /* Even-odd ray cast: is (x, y) inside an SVG path of the map files
+     ("M x y L x y x y … Z", one subpath per ring)? Holes count as outside. */
+  function pointInPath(path, x, y) {
+    var inside = false;
+    String(path || '').split('M').forEach(function (ring) {
+      var nums = ring.match(/-?(?:\d+\.?\d*|\.\d+)/g);
+      if (!nums || nums.length < 6) return;
+      var n = Math.floor(nums.length / 2);
+      for (var i = 0, j = n - 1; i < n; j = i++) {
+        var xi = Number(nums[2 * i]);
+        var yi = Number(nums[2 * i + 1]);
+        var xj = Number(nums[2 * j]);
+        var yj = Number(nums[2 * j + 1]);
+        if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
+      }
+    });
+    return inside;
+  }
+
+  /* The markers, built again only when the kitchen list itself changes.
+     Each has its own button, in north-to-south order that never changes.
+     A kitchen is left off (and counted in #map-missing) when its
+     base_community is missing, isn't in the matching map file, or its
+     quadrant doesn't match the city; a pickup kitchen also when its area
+     isn't that community or its point falls outside it; a delivery-only
+     kitchen also when the community isn't one of its delivery areas. */
   function ensurePins() {
     var m = state.map;
-    if (m.status !== 'ready' || !m.built || !state.loaded || state.error || m.pinsFor === state.kitchens) return;
+    if (m.status !== 'ready' || !m.built || !state.loaded || state.error || m.markersFor === state.kitchens) return;
     closeMapCardNow();
+    clearServes();
     var byKey = Object.create(null);
-    var pins = [];
+    var markers = [];
+
+    function marker(key, kind, x, y, name, zone, areaKey) {
+      return {
+        key: key,
+        kind: kind,
+        x: x,
+        y: y,
+        kitchens: [],
+        name: name,
+        zone: zone,
+        areaKey: areaKey,
+        index: 0,
+        node: null,
+        dot: null,
+        face: '',
+        matching: [],
+        out: true,
+        merged: false,
+        pos: null
+      };
+    }
+
     state.kitchens.forEach(function (k) {
       var b = k.base_community;
       if (!b || typeof b !== 'object') return;
       if (b.city !== 'calgary' && b.city !== 'airdrie') return;
-      if ((b.city === 'airdrie') !== (k.quadrant === 'Airdrie')) return;
+      var airdrie = b.city === 'airdrie';
+      if (airdrie !== (k.quadrant === 'Airdrie')) return;
       if (typeof b.slug !== 'string') return;
-      var key = b.city + ':' + b.slug;
-      var area = m.areas[key];
+      var areaKey = b.city + ':' + b.slug;
+      var area = m.areas[areaKey];
       if (!area) return;
-      /* The kitchen's own spelling of the area ("King's Heights"). */
+      var zone = airdrie ? 'Airdrie' : area.quadrant;
+
+      if (hasPickup(k)) {
+        if (typeof k.area !== 'string' || communitySlug(k.area) !== b.slug) return;
+        /* The point is in the city file's own frame, like area.path. */
+        var px = k.pickup.point[0];
+        var py = k.pickup.point[1];
+        if (!pointInPath(area.path, px, py)) return;
+        var mk = marker('pickup:' + k.slug, 'pickup',
+          px + (airdrie ? AIRDRIE_OFFSET[0] : 0), py + (airdrie ? AIRDRIE_OFFSET[1] : 0),
+          k.area.trim(), zone, areaKey);
+        mk.kitchens.push(k);
+        markers.push(mk);
+        return;
+      }
+
+      /* Delivery only: the kitchen's own spelling of the area ("King's Heights"). */
       var areaName = '';
       k.delivery.areas.some(function (name) {
         if (typeof name === 'string' && communitySlug(name) === b.slug) {
@@ -1517,56 +1746,246 @@
         return false;
       });
       if (!areaName) return;
-      var pin = byKey[key];
-      if (!pin) {
-        pin = byKey[key] = {
-          key: key,
-          name: areaName,
-          zone: b.city === 'airdrie' ? 'Airdrie' : area.quadrant,
-          x: area.x,
-          y: area.y,
-          kitchens: [],
-          matching: [],
-          out: true,
-          face: '',
-          node: null,
-          dot: null
-        };
-        pins.push(pin);
+      var key = 'area:' + areaKey;
+      if (!byKey[key]) {
+        byKey[key] = marker(key, 'area', area.x, area.y, areaName, zone, areaKey);
+        markers.push(byKey[key]);
       }
-      pin.kitchens.push(k);
+      byKey[key].kitchens.push(k);
     });
-    pins.sort(function (a, b) { return (a.y - b.y) || (a.x - b.x); });
+    markers.sort(function (a, b) { return (a.y - b.y) || (a.x - b.x); });
 
     var frag = document.createDocumentFragment();
-    pins.forEach(function (pin, i) {
+    markers.forEach(function (mk, i) {
       var dot = el('span', { class: 'map-pin-dot', 'aria-hidden': 'true' });
       var node = el('button', {
         type: 'button',
-        class: 'map-pin',
-        'data-pin': pin.key,
-        'data-label': pin.name,
+        class: 'map-pin is-out',
+        'data-kind': mk.kind,
+        'data-pin': mk.key,
+        'data-label': mk.kind === 'pickup' ? mk.kitchens[0].name : mk.name,
         'aria-haspopup': 'dialog',
         'aria-controls': 'map-card',
-        'aria-expanded': 'false'
+        'aria-expanded': 'false',
+        'aria-hidden': 'true',
+        tabindex: '-1'
       }, dot);
       node.style.setProperty('--i', String(i));
-      pin.node = node;
-      pin.dot = dot;
+      mk.index = i;
+      mk.node = node;
+      mk.dot = dot;
       frag.appendChild(node);
     });
     if (dom.mapPins) dom.mapPins.replaceChildren(frag);
-    m.pins = pins;
-    m.pinsFor = state.kitchens;
+    m.markers = markers;
+    m.targets = [];
+    m.markersFor = state.kitchens;
   }
 
-  /* A single kitchen shows the tiffin; two or more show how many match. */
-  function setPinFace(pin, n) {
-    var face = n >= 2 ? String(n) : 'glyph';
-    if (pin.face === face) return;
-    pin.face = face;
-    if (face === 'glyph') pin.dot.replaceChildren(tiffinGlyph());
-    else pin.dot.textContent = face;
+  /* 'bag' (pickup), 'tiffin' (one delivery-only kitchen) or a count. */
+  function setPinFace(mk, face) {
+    if (mk.face === face) return;
+    mk.face = face;
+    if (face === 'bag') mk.dot.replaceChildren(bagGlyph());
+    else if (face === 'tiffin') mk.dot.replaceChildren(tiffinGlyph());
+    else mk.dot.textContent = face;
+  }
+
+  /* A single marker's face for its matching kitchens. */
+  function markerFace(mk, n) {
+    if (mk.kind === 'pickup') return 'bag';
+    return n === 1 ? 'tiffin' : String(n);
+  }
+
+  /* "Saddle Ridge", "Saddle Ridge and Martindale" or
+     "Saddle Ridge, Martindale and 2 more". */
+  function clusterName(members) {
+    var names = [];
+    members.forEach(function (mk) {
+      if (names.indexOf(mk.name) === -1) names.push(mk.name);
+    });
+    if (names.length <= 1) return names[0] || '';
+    if (names.length === 2) return names[0] + ' and ' + names[1];
+    return names[0] + ', ' + names[1] + ' and ' + (names.length - 2) + ' more';
+  }
+
+  /* Lay the markers out for zoom z (quadrant key) and the matching slugs:
+     hide what doesn't match or sits off a zoomed stage, join markers whose
+     centres are closer than PIN_HIT on screen, and show one pin per group.
+     The northernmost member's button stands for the group; the others
+     glide into it while they fade. Buttons are never reordered. */
+  function layoutMarkers(z, key, matching) {
+    var m = state.map;
+    var W = dom.mapStage.clientWidth;
+    var H = dom.mapStage.clientHeight;
+    var canGroup = W > 0 && H > 0;
+    m.stageW = W;
+    m.stageH = H;
+
+    function recentre(g) {
+      var sx = 0;
+      var sy = 0;
+      g.members.forEach(function (mk) {
+        sx += mk.px;
+        sy += mk.py;
+      });
+      g.cx = sx / g.members.length;
+      g.cy = sy / g.members.length;
+    }
+
+    /* 1–2. Which markers show, and a greedy first grouping. */
+    var groups = [];
+    m.markers.forEach(function (mk) {
+      var hits = mk.kitchens.filter(function (k) { return matching[k.slug]; });
+      var pos = stagePos(mk.x, mk.y, z);
+      /* Zoomed in, a pin that would sit on the stage's edge is left out. */
+      var offStage = !!key && (pos.left < 1 || pos.left > 99 || pos.top < 1 || pos.top > 99);
+      mk.matching = hits;
+      mk.pos = pos;
+      mk.out = hits.length === 0 || offStage;
+      mk.merged = false;
+      if (mk.out) return;
+      mk.px = pos.left / 100 * W;
+      mk.py = pos.top / 100 * H;
+      if (canGroup) {
+        for (var i = 0; i < groups.length; i++) {
+          if (Math.hypot(groups[i].cx - mk.px, groups[i].cy - mk.py) < PIN_HIT) {
+            groups[i].members.push(mk);
+            recentre(groups[i]);
+            return;
+          }
+        }
+      }
+      groups.push({ members: [mk], cx: mk.px, cy: mk.py });
+    });
+
+    /* Then groups that ended up close join too, until none are. */
+    if (canGroup) {
+      for (var pass = 0; pass < MERGE_PASSES; pass++) {
+        var joined = false;
+        for (var a = 0; a < groups.length; a++) {
+          for (var b = a + 1; b < groups.length; b++) {
+            if (Math.hypot(groups[a].cx - groups[b].cx, groups[a].cy - groups[b].cy) < PIN_HIT) {
+              groups[a].members = groups[a].members.concat(groups[b].members);
+              groups.splice(b, 1);
+              recentre(groups[a]);
+              joined = true;
+              b = a;
+            }
+          }
+        }
+        if (!joined) break;
+      }
+    }
+
+    /* 3. One target per group, north to south by its representative. */
+    var targets = groups.map(function (g) {
+      var members = g.members.slice().sort(function (p, q) { return p.index - q.index; });
+      var lead = members[0];
+      var matchingKitchens = [];
+      var areaKeys = [];
+      var sx = 0;
+      var sy = 0;
+      members.forEach(function (mk) {
+        matchingKitchens = matchingKitchens.concat(mk.matching);
+        if (areaKeys.indexOf(mk.areaKey) === -1) areaKeys.push(mk.areaKey);
+        sx += mk.x;
+        sy += mk.y;
+      });
+      var cluster = members.length > 1;
+      return {
+        key: cluster ? 'cluster:' + lead.key : lead.key,
+        kind: cluster ? 'cluster' : lead.kind,
+        node: lead.node,
+        members: members,
+        matching: matchingKitchens,
+        x: sx / members.length,
+        y: sy / members.length,
+        name: cluster ? clusterName(members) : lead.name,
+        zone: lead.zone,
+        areaKeys: areaKeys,
+        out: false
+      };
+    });
+    targets.sort(function (p, q) { return p.members[0].index - q.members[0].index; });
+    m.targets = targets;
+
+    /* 4. Apply to the buttons. */
+    targets.forEach(function (t) {
+      var lead = t.members[0];
+      var node = t.node;
+      var pos = stagePos(t.x, t.y, z);
+      var n = t.matching.length;
+      node.classList.remove('is-out', 'is-merged');
+      node.classList.toggle('is-cluster', t.kind === 'cluster');
+      node.removeAttribute('tabindex');
+      node.removeAttribute('aria-hidden');
+      node.style.setProperty('--x', fmt(pos.left) + '%');
+      node.style.setProperty('--y', fmt(pos.top) + '%');
+      node.classList.toggle('tip-below', pos.top < 12);
+      if (t.kind === 'cluster') {
+        setPinFace(lead, String(n));
+        node.setAttribute('data-label', n + ' kitchens');
+        node.setAttribute('aria-label', n + ' kitchens close together near ' + t.name + ' — show them');
+      } else if (t.kind === 'pickup') {
+        var k = t.matching[0];
+        setPinFace(lead, 'bag');
+        node.setAttribute('data-label', k.name);
+        node.setAttribute('aria-label', k.name + ' — ' + pickupLine(k));
+      } else {
+        setPinFace(lead, markerFace(lead, n));
+        node.setAttribute('data-label', t.name);
+        node.setAttribute('aria-label', t.name + ' — ' + n + ' delivery-only ' + plural(n, 'kitchen', 'kitchens'));
+      }
+      /* The rest glide into the badge while they fade. */
+      t.members.slice(1).forEach(function (mk) {
+        mk.merged = true;
+        mk.node.classList.add('is-out', 'is-merged');
+        mk.node.setAttribute('tabindex', '-1');
+        mk.node.setAttribute('aria-hidden', 'true');
+        mk.node.style.setProperty('--x', fmt(pos.left) + '%');
+        mk.node.style.setProperty('--y', fmt(pos.top) + '%');
+      });
+    });
+
+    /* Markers that don't match, or sit off the zoomed stage. A marker fading
+       out keeps its face; it changes only while visible. */
+    m.markers.forEach(function (mk) {
+      if (!mk.out) return;
+      var node = mk.node;
+      node.classList.add('is-out');
+      node.classList.remove('is-merged');
+      node.setAttribute('tabindex', '-1');
+      node.setAttribute('aria-hidden', 'true');
+      node.style.setProperty('--x', fmt(mk.pos.left) + '%');
+      node.style.setProperty('--y', fmt(mk.pos.top) + '%');
+      node.classList.toggle('tip-below', mk.pos.top < 12);
+      if (!mk.face) setPinFace(mk, markerFace(mk, mk.kitchens.length));
+    });
+  }
+
+  /* 5. After a layout, an open card follows its button to the new target
+     (and is rebuilt), or closes without moving focus when that button was
+     merged into another pin or hidden. With no card open, any shading
+     left from pointing at a pin is cleared. */
+  function followOpenCard() {
+    var m = state.map;
+    if (!m.openPin) {
+      clearServes();
+      return;
+    }
+    var old = m.openPin;
+    var next = null;
+    for (var i = 0; i < m.targets.length; i++) {
+      if (m.targets[i].node === old.node) next = m.targets[i];
+    }
+    if (next) {
+      selectPath(old, false);
+      m.openPin = next;
+      refreshMapCard();
+    } else {
+      closeMapCardNow();
+    }
   }
 
   function endZoom() {
@@ -1620,6 +2039,9 @@
   function renderMap(list, f) {
     var m = state.map;
     if (!dom.mapStage || !dom.mapView) return;
+    /* Kept for a resize, which lays the same result out again. */
+    m.lastList = list;
+    m.lastF = f;
     var key = (f && f.quadrant && Object.prototype.hasOwnProperty.call(ZOOM_TITLE, f.quadrant)) ? f.quadrant : '';
     if (dom.mapTitle) dom.mapTitle.textContent = ZOOM_TITLE[key];
     if (dom.mapReset) dom.mapReset.hidden = !key;
@@ -1659,31 +2081,10 @@
     m.label.style.setProperty('--x', fmt(at.left) + '%');
     m.label.style.setProperty('--y', fmt(at.top) + '%');
 
-    m.pins.forEach(function (pin) {
-      pin.kitchens.forEach(function (k) { onMap[k.slug] = true; });
-      var hits = pin.kitchens.filter(function (k) { return matching[k.slug]; });
-      var pos = stagePos(pin.x, pin.y, z);
-      /* Zoomed in, a pin that would sit on the stage's edge is left out. */
-      var offStage = !!key && (pos.left < 1 || pos.left > 99 || pos.top < 1 || pos.top > 99);
-      var out = hits.length === 0 || offStage;
-      var node = pin.node;
-      pin.matching = hits;
-      pin.out = out;
-      node.classList.toggle('is-out', out);
-      if (out) {
-        node.setAttribute('tabindex', '-1');
-        node.setAttribute('aria-hidden', 'true');
-      } else {
-        node.removeAttribute('tabindex');
-        node.removeAttribute('aria-hidden');
-      }
-      node.style.setProperty('--x', fmt(pos.left) + '%');
-      node.style.setProperty('--y', fmt(pos.top) + '%');
-      node.classList.toggle('tip-below', pos.top < 12);
-      /* A pin fading out keeps its face; it changes only while visible. */
-      if (!out || !pin.face) setPinFace(pin, hits.length);
-      node.setAttribute('aria-label', pin.name + ' — ' + hits.length + ' ' + plural(hits.length, 'kitchen', 'kitchens'));
+    m.markers.forEach(function (mk) {
+      mk.kitchens.forEach(function (k) { onMap[k.slug] = true; });
     });
+    layoutMarkers(z, key, matching);
 
     if (instant) {
       /* Commit the new positions with transitions off, then turn them back
@@ -1726,19 +2127,16 @@
     }
 
     /* The pins drop in once, the first time they show. */
-    if (!m.popped && m.pins.length && dom.mapPins) {
+    if (!m.popped && m.markers.length && dom.mapPins) {
       m.popped = true;
       if (!prefersReducedMotion()) {
         var pinsBox = dom.mapPins;
         pinsBox.classList.add('is-popping');
-        setTimeout(function () { pinsBox.classList.remove('is-popping'); }, 120 + m.pins.length * 55 + 620);
+        setTimeout(function () { pinsBox.classList.remove('is-popping'); }, 120 + m.markers.length * 55 + 620);
       }
     }
 
-    if (m.openPin) {
-      if (m.openPin.out) closeMapCardNow();
-      else refreshMapCard();
-    }
+    followOpenCard();
   }
 
   /* Tap part of the map (with "All" quadrants on) to zoom to its quadrant:
@@ -1789,12 +2187,19 @@
     return !!(window.matchMedia && window.matchMedia('(max-width: 719.98px)').matches);
   }
 
-  function pinForNode(node) {
-    var pins = state.map.pins;
-    for (var i = 0; i < pins.length; i++) {
-      if (pins[i].node === node) return pins[i];
+  /* The visible target a button stands for (merged and hidden buttons
+     stand for none). */
+  function targetForNode(node) {
+    var targets = state.map.targets;
+    for (var i = 0; i < targets.length; i++) {
+      if (targets[i].node === node) return targets[i];
     }
     return null;
+  }
+
+  /* Still on the map: its button is showing. */
+  function targetShown(t) {
+    return !!(t && t.node && !t.node.classList.contains('is-out') && document.body.contains(t.node));
   }
 
   function onMapPinsClick(event) {
@@ -1802,10 +2207,10 @@
     if (!(target instanceof Element)) return;
     var node = target.closest('.map-pin');
     if (!node) return;
-    var pin = pinForNode(node);
-    if (!pin || pin.out) return;
-    if (state.map.openPin === pin) closeMapCard(true);
-    else openMapCard(pin);
+    var t = targetForNode(node);
+    if (!t) return;
+    if (state.map.openPin === t) closeMapCard(true);
+    else openMapCard(t);
   }
 
   /* Arrow keys move to the nearest visible pin in that direction (distance
@@ -1822,7 +2227,8 @@
     var target = event.target;
     if (!(target instanceof Element) || !target.classList.contains('map-pin')) return;
     if (event.altKey || event.ctrlKey || event.metaKey) return;
-    var visible = state.map.pins.filter(function (p) { return !p.out; });
+    /* Every target is visible; x and y are in frame units. */
+    var visible = state.map.targets;
     if (!visible.length) return;
     var next = null;
     if (event.key === 'Home') {
@@ -1831,7 +2237,7 @@
       next = visible[visible.length - 1];
     } else if (PIN_ARROWS[event.key]) {
       var arrow = PIN_ARROWS[event.key];
-      var current = pinForNode(target);
+      var current = targetForNode(target);
       if (!current) return;
       var best = Infinity;
       visible.forEach(function (p) {
@@ -1854,34 +2260,56 @@
     if (next) focusQuietly(next.node);
   }
 
+  /* "Delivers to Saddle Ridge, Martindale +2 more" */
+  function deliversLine(k) {
+    var areas = deliveryAreas(k).filter(function (a) { return typeof a === 'string' && a.trim(); }).map(function (a) { return a.trim(); });
+    var rest = areas.length - 2;
+    return 'Delivers to ' + areas.slice(0, 2).join(', ') + (rest > 0 ? ' +' + rest + ' more' : '');
+  }
+
   /* The preview card's content, all built with el(). */
-  function fillMapCard(pin) {
-    var n = pin.matching.length;
-    var total = pin.kitchens.length;
-    var kicker = pin.zone === 'Airdrie' ? 'Airdrie' : (QUADRANT_LABEL[pin.zone] ? QUADRANT_LABEL[pin.zone] + ' Calgary' : 'Calgary');
-    var sub = n === total
-      ? n + ' ' + plural(n, 'kitchen serves', 'kitchens serve') + ' this neighbourhood'
-      : n + ' of ' + total + ' kitchens here match your filters';
+  function fillMapCard(t) {
+    var n = t.matching.length;
+    var total = 0;
+    t.members.forEach(function (mk) { total += mk.kitchens.length; });
+    var kicker = t.zone === 'Airdrie' ? 'Airdrie' : (QUADRANT_LABEL[t.zone] ? QUADRANT_LABEL[t.zone] + ' Calgary' : 'Calgary');
+    var sub;
+    if (t.kind === 'pickup') {
+      sub = 'Pickup spot';
+    } else if (t.kind === 'area') {
+      sub = n === total
+        ? n + ' delivery-only ' + plural(n, 'kitchen', 'kitchens') + ' based here'
+        : n + ' of ' + total + ' delivery-only kitchens based here match your filters';
+    } else {
+      sub = n + ' kitchens close together';
+    }
 
     var close = el('button', { type: 'button', class: 'icon-btn map-card-close', 'aria-label': 'Close preview' }, icon('close', 20));
     close.addEventListener('click', function () { closeMapCard(true); });
     var head = el('div', { class: 'map-card-head' }, [
       el('div', null, [
         el('p', { class: 'map-card-kicker', text: kicker }),
-        el('h3', { class: 'map-card-title', id: 'map-card-title', tabindex: '-1', text: pin.name }),
+        el('h3', { class: 'map-card-title', id: 'map-card-title', tabindex: '-1', text: t.name }),
         el('p', { class: 'map-card-sub', text: sub })
       ]),
       close
     ]);
 
     var list = el('ul', { class: 'map-card-list' + (n >= 2 ? ' is-compact' : '') });
-    pin.matching.forEach(function (k) {
+    t.matching.forEach(function (k) {
       var price = el('span', { class: 'map-kitchen-price' }, [el('strong', { text: money(k.price.day) }), ' /day']);
-      var link = el('a', { class: 'btn btn-primary btn-small', href: kitchenHref(k.slug), 'data-route': '' }, [
+      var actions = el('div', { class: 'map-kitchen-actions' }, el('a', { class: 'btn btn-primary btn-small', href: kitchenHref(k.slug), 'data-route': '' }, [
         'See this week’s menu',
         el('span', { class: 'visually-hidden', text: ' from ' + k.name })
-      ]);
-      list.appendChild(el('li', { class: 'map-kitchen' }, [
+      ]));
+      var directions = directionsHref(k);
+      if (directions) {
+        actions.appendChild(el('a', { class: 'btn btn-secondary btn-small', href: directions, target: '_blank', rel: 'noopener noreferrer' }, [
+          'Get directions',
+          el('span', { class: 'visually-hidden', text: ' to ' + k.name + ' (opens Google Maps in a new tab)' })
+        ]));
+      }
+      list.appendChild(el('li', { class: 'map-kitchen', 'data-slug': k.slug }, [
         dabbaTile(k.hue, false),
         el('div', { class: 'map-kitchen-body' }, [
           el('p', { class: 'map-kitchen-name' }, [el('span', { text: k.name }), k.sample ? sampleTag() : null]),
@@ -1890,13 +2318,83 @@
             el('span', { class: 'q-chip', 'data-q': k.quadrant, text: k.quadrant }),
             price
           ]),
+          serviceChip(k),
+          hasPickup(k) ? el('p', { class: 'map-kitchen-where' }, [icon('bag', 14), el('span', { text: pickupLine(k) })]) : null,
+          hasDelivery(k) ? el('p', { class: 'map-kitchen-where' }, [icon('truck', 14), el('span', { text: deliversLine(k) })]) : null,
           permitBadge(k.permit),
-          link
+          actions
         ])
       ]));
     });
 
     dom.mapCard.replaceChildren(el('div', { class: 'map-card-handle', 'aria-hidden': 'true' }), head, list);
+  }
+
+  /* "Delivers here" shading (is-serves): every community the given
+     kitchens deliver to. Pickup-only kitchens shade nothing. Paths keep
+     their order (is-near and is-selected strokes stay on top). */
+  function clearServes() {
+    var m = state.map;
+    m.servesPaths.forEach(function (path) { path.classList.remove('is-serves'); });
+    m.servesPaths = [];
+  }
+
+  function highlightServes(kitchens) {
+    var m = state.map;
+    clearServes();
+    (kitchens || []).forEach(function (k) {
+      if (!hasDelivery(k)) return;
+      var prefix = k.quadrant === 'Airdrie' ? 'airdrie:' : 'calgary:';
+      deliveryAreas(k).forEach(function (area) {
+        if (typeof area !== 'string') return;
+        var path = m.paths[prefix + communitySlug(area)];
+        if (!path || path.classList.contains('is-serves')) return;
+        path.classList.add('is-serves');
+        m.servesPaths.push(path);
+      });
+    });
+  }
+
+  /* Back to the open card's kitchens, or nothing. */
+  function restoreServes() {
+    var t = state.map.openPin;
+    if (t) highlightServes(t.matching);
+    else clearServes();
+  }
+
+  /* Pointer over, or focus on, a visible pin: shade its kitchens' areas. */
+  function onPinsEnter(event) {
+    if (refocusingPin && event.type === 'focusin') return;
+    var node = event.target instanceof Element ? event.target.closest('.map-pin') : null;
+    if (!node || node.classList.contains('is-out')) return;
+    var t = targetForNode(node);
+    if (t) highlightServes(t.matching);
+  }
+
+  function onPinsLeave(event) {
+    var from = event.target instanceof Element ? event.target.closest('.map-pin') : null;
+    var to = event.relatedTarget instanceof Element ? event.relatedTarget.closest('.map-pin') : null;
+    /* Moving within the same pin, or on to another visible pin (which
+       shades its own), changes nothing here. */
+    if (to && (to === from || !to.classList.contains('is-out'))) return;
+    restoreServes();
+  }
+
+  /* Inside the open card: a kitchen's row shades only that kitchen's areas;
+     anywhere else, or leaving the card, goes back to the whole card. */
+  function onMapCardEnter(event) {
+    if (!state.map.openPin) return;
+    var row = event.target instanceof Element ? event.target.closest('li.map-kitchen') : null;
+    var k = row ? findKitchen(row.getAttribute('data-slug') || '') : null;
+    if (k) highlightServes([k]);
+    else restoreServes();
+  }
+
+  function onMapCardLeave(event) {
+    if (!state.map.openPin || !dom.mapCard) return;
+    var to = event.relatedTarget;
+    if (to instanceof Element && dom.mapCard.contains(to)) return;
+    restoreServes();
   }
 
   /* Popover beside the pin, inside #map-view: to the right, or to the left
@@ -1938,22 +2436,27 @@
     }
   }
 
-  function selectPath(pin, on) {
-    var path = state.map.paths[pin.key];
-    if (!path) return;
-    path.classList.toggle('is-selected', on);
-    if (on && path.parentNode) path.parentNode.appendChild(path);
+  /* Outline the communities a target's pins stand in (its base
+     communities), drawn last so the stroke is on top. */
+  function selectPath(t, on) {
+    (t.areaKeys || []).forEach(function (key) {
+      var path = state.map.paths[key];
+      if (!path) return;
+      path.classList.toggle('is-selected', on);
+      if (on && path.parentNode) path.parentNode.appendChild(path);
+    });
   }
 
   function openMapCard(pin) {
     var m = state.map;
     var card = dom.mapCard;
-    if (!card || !pin || pin.out) return;
+    if (!card || !pin || !targetShown(pin)) return;
     closeMapCardNow();
     m.openPin = pin;
     pin.node.classList.add('is-active');
     pin.node.setAttribute('aria-expanded', 'true');
     selectPath(pin, true);
+    highlightServes(pin.matching);
 
     card.classList.remove('is-open');
     card.hidden = false;
@@ -1979,15 +2482,16 @@
     card.addEventListener('focusout', onMapCardFocusOut);
   }
 
-  /* Rebuild an open card after a filter change (kitchens may have dropped
-     out of it). Focus stays where it was; if it was inside the card, it
-     goes back to the card's heading. */
+  /* Rebuild an open card after a filter change or a new layout (kitchens
+     may have dropped out of it, or joined it). Focus stays where it was;
+     if it was inside the card, it goes back to the card's heading. */
   function refreshMapCard() {
     var pin = state.map.openPin;
     if (!pin || !dom.mapCard) return;
     var hadFocus = dom.mapCard.contains(document.activeElement);
     fillMapCard(pin);
     selectPath(pin, true);
+    highlightServes(pin.matching);
     placeMapCard();
     if (hadFocus) focusQuietly(document.getElementById('map-card-title'));
   }
@@ -1996,6 +2500,7 @@
     document.removeEventListener('keydown', onMapCardKeydown);
     document.removeEventListener('pointerdown', onMapOutsidePointer, true);
     if (dom.mapCard) dom.mapCard.removeEventListener('focusout', onMapCardFocusOut);
+    clearServes();
     if (!pin) return;
     pin.node.classList.remove('is-active');
     pin.node.setAttribute('aria-expanded', 'false');
@@ -2018,7 +2523,20 @@
     cardTimer = setTimeout(function () {
       if (token === cardToken) card.hidden = true;
     }, delay);
-    if (restore && !pin.out) focusQuietly(pin.node);
+    /* Focus going back to the pin doesn't shade its areas again: closing
+       clears the shading. */
+    if (restore && targetShown(pin)) focusPinQuietly(pin.node);
+  }
+
+  var refocusingPin = false;
+
+  function focusPinQuietly(node) {
+    refocusingPin = true;
+    try {
+      focusQuietly(node);
+    } finally {
+      refocusingPin = false;
+    }
   }
 
   /* Hide at once, without the transition or moving focus: a filter hid the
@@ -2067,7 +2585,7 @@
     }
     function onClick() {
       finish();
-      if (!pin.out && !state.map.openPin && document.body.contains(pin.node)) focusQuietly(pin.node);
+      if (!state.map.openPin && targetShown(pin)) focusPinQuietly(pin.node);
     }
     document.addEventListener('click', onClick, true);
     /* A press that turns into a scroll never clicks. */
@@ -2082,13 +2600,32 @@
     closeMapCard(false);
   }
 
-  /* While a card is open: re-place the popover, or close it if the screen
-     crossed between popover and sheet sizes. One check per frame. */
+  /* One check per frame on resize. When the map is showing and its stage
+     changed size, lay the pins out again (close pins join or split at the
+     new size), jumping rather than gliding. Then, while a card is open,
+     re-place the popover, or close it if the screen crossed between
+     popover and sheet sizes. */
   function onMapResize() {
-    if (!state.map.openPin || resizeFrame) return;
+    if (resizeFrame) return;
     resizeFrame = requestAnimationFrame(function () {
       resizeFrame = 0;
       var m = state.map;
+      var showing = state.mode === 'map' && m.status === 'ready' && m.built && m.lastF &&
+        dom.mapView && !dom.mapView.hidden && dom.mapStage && parseRoute().view === 'browse';
+      if (showing && (dom.mapStage.clientWidth !== m.stageW || dom.mapStage.clientHeight !== m.stageH)) {
+        var stage = dom.mapStage;
+        stage.classList.add('is-instant');
+        renderMap(m.lastList, m.lastF);
+        void stage.offsetWidth;
+        var restored = false;
+        var restore = function () {
+          if (restored) return;
+          restored = true;
+          stage.classList.remove('is-instant');
+        };
+        requestAnimationFrame(restore);
+        setTimeout(restore, 60);
+      }
       if (!m.openPin) return;
       if (isSheetMode() !== m.cardSheet) closeMapCardNow();
       else if (!m.cardSheet) placeMapCard();
@@ -2219,11 +2756,10 @@
     var top = el('div', { class: 'k-head-top' });
     top.appendChild(dabbaTile(k.hue, true));
     var titleBlock = el('div', { class: 'k-head-title' });
-    if (k.sample) {
-      var tags = el('div', { class: 'card-tags' });
-      tags.appendChild(sampleTag());
-      titleBlock.appendChild(tags);
-    }
+    var tags = el('div', { class: 'card-tags' });
+    if (k.sample) tags.appendChild(sampleTag());
+    tags.appendChild(serviceChip(k));
+    titleBlock.appendChild(tags);
     titleBlock.appendChild(el('h1', { text: k.name, id: 'kitchen-heading', tabindex: '-1' }));
     titleBlock.appendChild(el('p', { class: 'card-meta', text: metaLine(k, true) }));
     top.appendChild(titleBlock);
@@ -2308,29 +2844,71 @@
     prices.appendChild(dl);
     container.appendChild(prices);
 
+    /* Pickup (appended into the side rail below): where, how exactly the
+       kitchen chose to share it, when, and a way to the map. */
+    var pickup = null;
+    if (hasPickup(k)) {
+      var spot = k.pickup;
+      var spotLabel = spot.label.trim();
+      pickup = el('section', { class: 'k-section k-pickup', 'aria-labelledby': 'pickup-heading' });
+      pickup.appendChild(el('h2', { id: 'pickup-heading', text: 'Pickup' }));
+      pickup.appendChild(el('p', { class: 'k-pickup-line' }, [icon('bag', 18), el('strong', { text: pickupLine(k) })]));
+      /* A neighbourhood-only label that says more than "Pickup in <area>". */
+      if (spot.precision === 'community' && k.area && spotLabel !== k.area) pickup.appendChild(el('p', { class: 'fine', text: spotLabel }));
+      var explain;
+      if (k.sample) explain = 'Sample listing: this pickup spot is made up, somewhere inside ' + (k.area || 'its neighbourhood') + '.';
+      else if (spot.precision === 'community') explain = 'This kitchen shares its neighbourhood only. It will tell you the exact spot when you order.';
+      else explain = 'Shown as the kitchen chose to share it.';
+      pickup.appendChild(el('p', { class: 'fine', text: explain }));
+      if (typeof spot.notes === 'string' && spot.notes.trim()) pickup.appendChild(el('p', { class: 'fine', text: spot.notes.trim() }));
+      var pickupActions = el('div', { class: 'k-pickup-actions' });
+      var directions = directionsHref(k);
+      if (directions) {
+        pickupActions.appendChild(el('a', { class: 'btn btn-secondary btn-small', href: directions, target: '_blank', rel: 'noopener noreferrer' }, [
+          icon('pin', 16),
+          el('span', { text: 'Get directions' }),
+          el('span', { class: 'visually-hidden', text: ' (opens Google Maps in a new tab)' })
+        ]));
+      }
+      var baseSlug = k.base_community && k.base_community.slug;
+      if (typeof baseSlug === 'string' && NEAR_RE.test(baseSlug)) {
+        pickupActions.appendChild(el('a', {
+          class: 'btn btn-ghost btn-small',
+          href: './?view=map&near=' + encodeURIComponent(baseSlug),
+          'data-route': '',
+          'data-near': ''
+        }, [icon('map', 16), el('span', { text: 'See it on the map' })]));
+      }
+      if (pickupActions.firstChild) pickup.appendChild(pickupActions);
+    }
+
     /* Delivery (appended into the side rail below) */
-    var delivery = el('section', { class: 'k-section k-delivery', 'aria-labelledby': 'delivery-heading' });
-    delivery.appendChild(el('h2', { id: 'delivery-heading', text: 'Delivery areas' }));
-    /* Each area links to "who delivers to X": ?near= only, so the list's
-       other filters reset. data-near makes navigate() land on the results. */
-    var areas = el('ul', { class: 'chips', 'aria-label': 'Delivery areas' });
-    k.delivery.areas.forEach(function (area) {
-      var li = el('li');
-      var a = el('a', {
-        class: 'chip chip-link',
-        href: './?near=' + encodeURIComponent(communitySlug(area)),
-        'data-route': '',
-        'data-near': '',
-        'aria-label': 'Kitchens that deliver to ' + area
+    var delivery = null;
+    if (hasDelivery(k)) {
+      delivery = el('section', { class: 'k-section k-delivery', 'aria-labelledby': 'delivery-heading' });
+      delivery.appendChild(el('h2', { id: 'delivery-heading', text: 'Delivery areas' }));
+      /* Each area links to "who serves X": ?near= only, so the list's other
+         filters reset. data-near makes navigate() land on the results. */
+      var areas = el('ul', { class: 'chips', 'aria-label': 'Delivery areas' });
+      deliveryAreas(k).forEach(function (area) {
+        if (typeof area !== 'string' || !area.trim()) return;
+        var li = el('li');
+        var a = el('a', {
+          class: 'chip chip-link',
+          href: './?near=' + encodeURIComponent(communitySlug(area)),
+          'data-route': '',
+          'data-near': '',
+          'aria-label': 'Kitchens with pickup or delivery in ' + area
+        });
+        a.appendChild(icon('pin', 14));
+        a.appendChild(el('span', { text: area }));
+        li.appendChild(a);
+        areas.appendChild(li);
       });
-      a.appendChild(icon('pin', 14));
-      a.appendChild(el('span', { text: area }));
-      li.appendChild(a);
-      areas.appendChild(li);
-    });
-    delivery.appendChild(areas);
-    delivery.appendChild(el('p', { class: 'fine', text: 'Tap an area to see every kitchen that delivers there.' }));
-    if (k.delivery.notes) delivery.appendChild(el('p', { class: 'fine', text: k.delivery.notes }));
+      delivery.appendChild(areas);
+      delivery.appendChild(el('p', { class: 'fine', text: 'Tap an area to see every kitchen that serves it.' }));
+      if (k.delivery.notes) delivery.appendChild(el('p', { class: 'fine', text: k.delivery.notes }));
+    }
 
     /* Permit */
     var permit = el('section', { class: 'k-section k-permit', 'aria-labelledby': 'permit-heading' });
@@ -2346,9 +2924,10 @@
     permit.appendChild(permitLink);
     container.appendChild(permit);
 
-    /* Side rail: order bar + delivery. Sticky column on desktop; on phones
-       the wrapper dissolves (display: contents) so the order bar sticks to
-       the bottom of the screen on its own. */
+    /* Side rail: order bar, then pickup and delivery (whichever the kitchen
+       offers). Sticky column on desktop; on phones the wrapper dissolves
+       (display: contents) so the order bar sticks to the bottom of the
+       screen on its own, and pickup and delivery flow before the permit. */
     var side = el('div', { class: 'k-side' });
     var order = el('aside', { class: 'order-bar' + (verified ? '' : ' is-pending'), 'aria-labelledby': 'order-heading' });
     order.appendChild(el('h2', { id: 'order-heading', text: verified ? 'Order directly with the kitchen' : 'Ordering not open yet' }));
@@ -2384,7 +2963,8 @@
       order.appendChild(notice);
     }
     side.appendChild(order);
-    side.appendChild(delivery);
+    if (pickup) side.appendChild(pickup);
+    if (delivery) side.appendChild(delivery);
     container.appendChild(side);
     if (hadFocus) focusQuietly(document.getElementById('kitchen-heading'));
   }
@@ -3234,6 +3814,12 @@
     if (mapEmptyReset) mapEmptyReset.addEventListener('click', resetFilters);
     if (dom.mapReset) dom.mapReset.addEventListener('click', onMapReset);
     if (dom.mapStage) dom.mapStage.addEventListener('click', onMapStageClick);
+    if (dom.mapCard) {
+      dom.mapCard.addEventListener('pointerover', onMapCardEnter);
+      dom.mapCard.addEventListener('focusin', onMapCardEnter);
+      dom.mapCard.addEventListener('pointerout', onMapCardLeave);
+      dom.mapCard.addEventListener('focusout', onMapCardLeave);
+    }
     window.addEventListener('resize', onMapResize);
 
     /* The tiffin illustration in each empty / error state. */

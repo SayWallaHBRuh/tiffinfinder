@@ -41,3 +41,15 @@
 - Map shapes come from the City of Calgary's and City of Airdrie's open data, credited under the map.
 - The kitchens page and privacy page now mention the map and that it never shows addresses.
 - The kitchens are still made-up samples for testing, each marked "Sample".
+
+## Round 5 — 2026-09-23
+
+- The map is now built around pickup, because most home tiffin kitchens don't deliver. Kitchens that offer pickup get their own saffron pin with a little bag on it.
+- Delivery-only kitchens show as an outlined pin on their neighbourhood. When pins are close together they join into one numbered pin; tap it to see each kitchen.
+- A kitchen's preview shows whether it does pickup, delivery or both, and where to pick up. Kitchens that share an exact spot or nearest intersection get a "Get directions" button that opens Google Maps. The sample kitchens don't have one.
+- Opening a kitchen that delivers lightly shades the neighbourhoods it delivers to on the map.
+- New "Pickup / Delivery" filter. It works on the list and the map, and is remembered in the web address.
+- Each kitchen card and page now shows "Pickup", "Delivery" or "Pickup & delivery". Kitchen pages have a Pickup section with a "See it on the map" link.
+- Searching now finds pickup spots too. Tapping a neighbourhood shows kitchens that offer pickup there as well as those that deliver.
+- The kitchens page, privacy page and terms now explain that each kitchen chooses how its pickup spot is shown (exact address, nearest intersection or neighbourhood only), can change it at any time, and that Tiffin Finder never shows more than that.
+- The kitchens are still made-up samples for testing, each marked "Sample". Their pickup spots are made-up points inside their neighbourhood, with no street locations.

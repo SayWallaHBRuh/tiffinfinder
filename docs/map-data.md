@@ -51,7 +51,12 @@ Using the data under these licences does not mean either City endorses Tiffin Fi
 
 ## How kitchens get a pin
 
-Each kitchen in `data/kitchens.json` has a `base_community`, for example `{"city": "calgary", "slug": "redstone"}`. It must be one of that kitchen's own delivery areas and a community in the matching map file (the app checks both, and leaves a kitchen off the map if either check fails). Kitchens that share a base community share one pin, which shows how many kitchens are there. The pin sits on the community's label point. It is never a kitchen's address, and Tiffin Finder never publishes addresses.
+The map is built around pickup, because most home tiffin kitchens don't deliver. Each kitchen in `data/kitchens.json` has a `base_community`, for example `{"city": "calgary", "slug": "redstone"}`, which must be a community in the matching map file (Airdrie kitchens use `airdrie`), and an `area` with the same slug.
+
+- **Pickup pins.** A kitchen that offers pickup (`"service": "pickup"` or `"both"`) gets its own saffron pin at `pickup.point`. The point is in the city file's own coordinates (`calgary.json` for Calgary, the raw `airdrie.json` frame for Airdrie; the app adds the Airdrie offset, the same way it does for label points). It must fall inside the base community's shape, or the kitchen is left off the map and counted in the note under it ("N matching kitchens aren't on the map yet"); the list still shows it. The pin shows the spot the kitchen chose to share, at the precision it chose (exact address, nearest intersection or neighbourhood only), and never more. The sample kitchens use made-up points inside their neighbourhood, placed by `python tools/sample_pickup.py`, with no street locations.
+- **Delivery-only pins.** A kitchen that only delivers has no spot to show. Its base community must be one of its own delivery areas, and it joins an outlined pin on that community's label point, shared with any other delivery-only kitchens based there.
+- **Count badges.** When two pins would sit closer than 44px on screen, they join into one numbered pin (at the average of their positions), worked out again after every filter, zoom and window resize. Tapping it opens one preview listing every kitchen in it. Zooming in to a quadrant spreads pins further apart.
+- **Delivery shading.** Opening, pointing at or focusing a pin lightly shades the communities its kitchens deliver to. Pickup-only kitchens shade nothing.
 
 Airdrie's open data spells one neighbourhood "Kings Heights". The kitchen data follows the City's planning pages and writes "King's Heights". Both become the slug `kings-heights`, so they match without renaming anything (see `docs/research-notes.md`).
 

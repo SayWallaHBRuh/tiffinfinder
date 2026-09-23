@@ -3,7 +3,8 @@
     "sample_data": true,
     "notice": "Sample listings for design and testing. Real kitchens are added only after permit verification and with their permission.",
     "generated": "2026-09-23",
-    "currency": "CAD"
+    "currency": "CAD",
+    "pickup_note": "Sample pickup points are made-up spots inside each kitchen's neighbourhood. No street locations."
   },
   "kitchens": [
     {
@@ -17,6 +18,18 @@
       "base_community": {
         "city": "calgary",
         "slug": "saddle-ridge"
+      },
+      "service": "both",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Saddle Ridge",
+        "point": [
+          794.9,
+          271.8
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup Monday to Friday by arrangement."
       },
       "veg_only": false,
       "halal": false,
@@ -68,7 +81,7 @@
           "Taradale",
           "Falconridge"
         ],
-        "notes": "Delivery Monday to Friday between 11:30 and 1:00. Pickup available."
+        "notes": "Delivery Monday to Friday between 11:30 and 1:00."
       },
       "permit": {
         "status": "verified",
@@ -84,11 +97,13 @@
       "hue": 96,
       "cuisine": "Gujarati",
       "quadrant": "NE",
-      "area": "Cityscape",
+      "area": "Redstone",
       "base_community": {
         "city": "calgary",
         "slug": "redstone"
       },
+      "service": "delivery",
+      "pickup": null,
       "veg_only": true,
       "halal": false,
       "jain": false,
@@ -155,10 +170,22 @@
       "hue": 168,
       "cuisine": "Pakistani",
       "quadrant": "NE",
-      "area": "Taradale",
+      "area": "Saddle Ridge",
       "base_community": {
         "city": "calgary",
         "slug": "saddle-ridge"
+      },
+      "service": "pickup",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Saddle Ridge",
+        "point": [
+          813.7,
+          288.4
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup Monday to Friday around noon. Order by 8 pm the night before."
       },
       "veg_only": false,
       "halal": true,
@@ -204,13 +231,8 @@
         "phone": "403-555-0103"
       },
       "delivery": {
-        "areas": [
-          "Taradale",
-          "Saddle Ridge",
-          "Martindale",
-          "Coral Springs"
-        ],
-        "notes": "Delivery Monday to Friday around noon. Order by 8 pm the night before."
+        "areas": [],
+        "notes": ""
       },
       "permit": {
         "status": "verified",
@@ -226,10 +248,22 @@
       "hue": 350,
       "cuisine": "South Indian",
       "quadrant": "NE",
-      "area": "Falconridge",
+      "area": "Whitehorn",
       "base_community": {
         "city": "calgary",
         "slug": "whitehorn"
+      },
+      "service": "pickup",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Whitehorn",
+        "point": [
+          748.8,
+          446.5
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup Monday to Friday, 11:30 to 1:00."
       },
       "veg_only": true,
       "halal": false,
@@ -275,13 +309,8 @@
         "phone": "403-555-0104"
       },
       "delivery": {
-        "areas": [
-          "Falconridge",
-          "Castleridge",
-          "Whitehorn",
-          "Rundle"
-        ],
-        "notes": "Delivery Monday to Friday, 11:30 to 1:00."
+        "areas": [],
+        "notes": ""
       },
       "permit": {
         "status": "pending"
@@ -295,10 +324,22 @@
       "hue": 212,
       "cuisine": "Bengali",
       "quadrant": "NE",
-      "area": "Skyview Ranch",
+      "area": "Redstone",
       "base_community": {
         "city": "calgary",
         "slug": "redstone"
+      },
+      "service": "pickup",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Redstone",
+        "point": [
+          780.5,
+          164.7
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup Monday to Friday, 12:00 to 1:00, or after 5 pm on request."
       },
       "veg_only": false,
       "halal": false,
@@ -344,13 +385,8 @@
         "phone": "403-555-0105"
       },
       "delivery": {
-        "areas": [
-          "Skyview Ranch",
-          "Cityscape",
-          "Redstone",
-          "Saddle Ridge"
-        ],
-        "notes": "Delivery Monday to Friday, 12:00 to 1:00. Pickup after 5 pm on request."
+        "areas": [],
+        "notes": ""
       },
       "permit": {
         "status": "verified",
@@ -366,10 +402,22 @@
       "hue": 44,
       "cuisine": "South Indian",
       "quadrant": "NW",
-      "area": "Nolan Hill",
+      "area": "Evanston",
       "base_community": {
         "city": "calgary",
         "slug": "evanston"
+      },
+      "service": "pickup",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Evanston",
+        "point": [
+          446.4,
+          124.6
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup Monday to Friday, 11:45 to 1:15."
       },
       "veg_only": true,
       "halal": false,
@@ -415,13 +463,8 @@
         "phone": "403-555-0106"
       },
       "delivery": {
-        "areas": [
-          "Nolan Hill",
-          "Sage Hill",
-          "Kincora",
-          "Evanston"
-        ],
-        "notes": "Delivery Monday to Friday, 11:45 to 1:15."
+        "areas": [],
+        "notes": ""
       },
       "permit": {
         "status": "verified",
@@ -437,10 +480,22 @@
       "hue": 122,
       "cuisine": "Punjabi",
       "quadrant": "NW",
-      "area": "Panorama Hills",
+      "area": "Hamptons",
       "base_community": {
         "city": "calgary",
         "slug": "hamptons"
+      },
+      "service": "pickup",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Hamptons",
+        "point": [
+          377.3,
+          249.3
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup Monday to Friday, 11:30 to 1:00. Weekly plan minimum."
       },
       "veg_only": true,
       "halal": false,
@@ -486,13 +541,8 @@
         "phone": "403-555-0107"
       },
       "delivery": {
-        "areas": [
-          "Panorama Hills",
-          "Country Hills",
-          "Hidden Valley",
-          "Hamptons"
-        ],
-        "notes": "Delivery Monday to Friday, 11:30 to 1:00. Weekly plan minimum."
+        "areas": [],
+        "notes": ""
       },
       "permit": {
         "status": "verified",
@@ -508,11 +558,13 @@
       "hue": 262,
       "cuisine": "Afghan",
       "quadrant": "SE",
-      "area": "Mahogany",
+      "area": "Seton",
       "base_community": {
         "city": "calgary",
         "slug": "seton"
       },
+      "service": "delivery",
+      "pickup": null,
       "veg_only": false,
       "halal": true,
       "jain": false,
@@ -579,10 +631,22 @@
       "hue": 18,
       "cuisine": "Jain",
       "quadrant": "SW",
-      "area": "Evergreen",
+      "area": "Shawnessy",
       "base_community": {
         "city": "calgary",
         "slug": "shawnessy"
+      },
+      "service": "both",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Shawnessy",
+        "point": [
+          524.9,
+          1042.4
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup Monday to Friday by arrangement."
       },
       "veg_only": true,
       "halal": false,
@@ -634,7 +698,7 @@
           "Shawnessy",
           "Somerset"
         ],
-        "notes": "Delivery Monday to Friday, 11:30 to 1:00. Pickup available."
+        "notes": "Delivery Monday to Friday, 11:30 to 1:00."
       },
       "permit": {
         "status": "pending"
@@ -653,6 +717,8 @@
         "city": "airdrie",
         "slug": "kings-heights"
       },
+      "service": "delivery",
+      "pickup": null,
       "veg_only": false,
       "halal": true,
       "jain": false,
@@ -719,10 +785,22 @@
       "hue": 8,
       "cuisine": "Hyderabadi",
       "quadrant": "NE",
-      "area": "Cornerstone",
+      "area": "Redstone",
       "base_community": {
         "city": "calgary",
         "slug": "redstone"
+      },
+      "service": "pickup",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Redstone",
+        "point": [
+          789.4,
+          149.7
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup Monday to Friday, 11:30 to 1:00. Order by 8 pm the night before."
       },
       "veg_only": false,
       "halal": true,
@@ -768,14 +846,8 @@
         "phone": "403-555-0111"
       },
       "delivery": {
-        "areas": [
-          "Cornerstone",
-          "Redstone",
-          "Cityscape",
-          "Skyview Ranch",
-          "Saddle Ridge"
-        ],
-        "notes": "Delivery Monday to Friday, 11:30 to 1:00. Order by 8 pm the night before."
+        "areas": [],
+        "notes": ""
       },
       "permit": {
         "status": "verified",
@@ -791,10 +863,22 @@
       "hue": 330,
       "cuisine": "Nepali",
       "quadrant": "NE",
-      "area": "Martindale",
+      "area": "Saddle Ridge",
       "base_community": {
         "city": "calgary",
         "slug": "saddle-ridge"
+      },
+      "service": "both",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Saddle Ridge",
+        "point": [
+          791.7,
+          296.1
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup Monday to Friday by arrangement."
       },
       "veg_only": false,
       "halal": false,
@@ -847,7 +931,7 @@
           "Falconridge",
           "Castleridge"
         ],
-        "notes": "Delivery Monday to Friday, 12:00 to 1:30. Pickup available."
+        "notes": "Delivery Monday to Friday, 12:00 to 1:30."
       },
       "permit": {
         "status": "verified",
@@ -867,6 +951,18 @@
       "base_community": {
         "city": "calgary",
         "slug": "redstone"
+      },
+      "service": "pickup",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Redstone",
+        "point": [
+          771.0,
+          153.4
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup Monday to Friday, 12:00 to 1:30. Weekly and monthly plans."
       },
       "veg_only": true,
       "halal": false,
@@ -912,14 +1008,8 @@
         "phone": "403-555-0113"
       },
       "delivery": {
-        "areas": [
-          "Redstone",
-          "Cornerstone",
-          "Coventry Hills",
-          "Harvest Hills",
-          "Skyview Ranch"
-        ],
-        "notes": "Delivery Monday to Friday, 12:00 to 1:30. Weekly and monthly plans."
+        "areas": [],
+        "notes": ""
       },
       "permit": {
         "status": "verified",
@@ -935,10 +1025,22 @@
       "hue": 300,
       "cuisine": "Filipino",
       "quadrant": "NE",
-      "area": "Pineridge",
+      "area": "Whitehorn",
       "base_community": {
         "city": "calgary",
         "slug": "whitehorn"
+      },
+      "service": "both",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Whitehorn",
+        "point": [
+          756.1,
+          416.6
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup after 5 pm, Monday to Friday."
       },
       "veg_only": false,
       "halal": false,
@@ -991,7 +1093,7 @@
           "Temple",
           "Monterey Park"
         ],
-        "notes": "Delivery Monday to Friday, 11:30 to 1:00. Pickup after 5 pm on request."
+        "notes": "Delivery Monday to Friday, 11:30 to 1:00."
       },
       "permit": {
         "status": "verified",
@@ -1011,6 +1113,18 @@
       "base_community": {
         "city": "calgary",
         "slug": "evanston"
+      },
+      "service": "pickup",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Evanston",
+        "point": [
+          457.5,
+          150.5
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup Monday to Friday, 12:00 to 1:30. Order by 9 pm the night before."
       },
       "veg_only": false,
       "halal": true,
@@ -1056,14 +1170,8 @@
         "phone": "403-555-0115"
       },
       "delivery": {
-        "areas": [
-          "Evanston",
-          "Kincora",
-          "Sage Hill",
-          "Nolan Hill",
-          "Carrington"
-        ],
-        "notes": "Delivery Monday to Friday, 12:00 to 1:30. Order by 9 pm the night before."
+        "areas": [],
+        "notes": ""
       },
       "permit": {
         "status": "verified",
@@ -1083,6 +1191,18 @@
       "base_community": {
         "city": "calgary",
         "slug": "hamptons"
+      },
+      "service": "pickup",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Hamptons",
+        "point": [
+          363.6,
+          231.5
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup Monday to Friday, 11:45 to 1:15."
       },
       "veg_only": false,
       "halal": false,
@@ -1128,14 +1248,8 @@
         "phone": "403-555-0116"
       },
       "delivery": {
-        "areas": [
-          "Hamptons",
-          "Edgemont",
-          "Hidden Valley",
-          "Panorama Hills",
-          "Country Hills"
-        ],
-        "notes": "Delivery Monday to Friday, 11:45 to 1:15."
+        "areas": [],
+        "notes": ""
       },
       "permit": {
         "status": "pending"
@@ -1154,6 +1268,8 @@
         "city": "calgary",
         "slug": "royal-oak"
       },
+      "service": "delivery",
+      "pickup": null,
       "veg_only": true,
       "halal": false,
       "jain": false,
@@ -1226,6 +1342,18 @@
         "city": "calgary",
         "slug": "copperfield"
       },
+      "service": "both",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Copperfield",
+        "point": [
+          864.1,
+          1021.2
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup Monday to Friday by arrangement."
+      },
       "veg_only": false,
       "halal": false,
       "jain": false,
@@ -1276,7 +1404,7 @@
           "New Brighton",
           "Mahogany"
         ],
-        "notes": "Delivery Monday to Friday, 11:30 to 1:00. Pickup available."
+        "notes": "Delivery Monday to Friday, 11:30 to 1:00."
       },
       "permit": {
         "status": "verified",
@@ -1296,6 +1424,18 @@
       "base_community": {
         "city": "calgary",
         "slug": "forest-lawn"
+      },
+      "service": "pickup",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Forest Lawn",
+        "point": [
+          739.9,
+          607.8
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup Monday to Friday, 11:30 to 1:00."
       },
       "veg_only": true,
       "halal": false,
@@ -1341,14 +1481,8 @@
         "phone": "403-555-0119"
       },
       "delivery": {
-        "areas": [
-          "Forest Lawn",
-          "Dover",
-          "Erin Woods",
-          "Applewood Park",
-          "Riverbend"
-        ],
-        "notes": "Delivery Monday to Friday, 11:30 to 1:00."
+        "areas": [],
+        "notes": ""
       },
       "permit": {
         "status": "pending"
@@ -1366,6 +1500,18 @@
       "base_community": {
         "city": "calgary",
         "slug": "seton"
+      },
+      "service": "pickup",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Seton",
+        "point": [
+          798.1,
+          1186.8
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup Monday to Friday, 12:00 to 1:30. Order by 8 pm the night before."
       },
       "veg_only": false,
       "halal": true,
@@ -1411,14 +1557,8 @@
         "phone": "403-555-0120"
       },
       "delivery": {
-        "areas": [
-          "Seton",
-          "Auburn Bay",
-          "Cranston",
-          "Walden",
-          "Legacy"
-        ],
-        "notes": "Delivery Monday to Friday, 12:00 to 1:30. Order by 8 pm the night before."
+        "areas": [],
+        "notes": ""
       },
       "permit": {
         "status": "verified",
@@ -1438,6 +1578,18 @@
       "base_community": {
         "city": "calgary",
         "slug": "signal-hill"
+      },
+      "service": "pickup",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Signal Hill",
+        "point": [
+          319.3,
+          674.0
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup Monday to Friday, 12:00 to 1:30. Order by 9 pm the night before."
       },
       "veg_only": false,
       "halal": true,
@@ -1483,14 +1635,8 @@
         "phone": "403-555-0121"
       },
       "delivery": {
-        "areas": [
-          "Signal Hill",
-          "Westgate",
-          "Glenbrook",
-          "Christie Park",
-          "Aspen Woods"
-        ],
-        "notes": "Delivery Monday to Friday, 12:00 to 1:30. Order by 9 pm the night before."
+        "areas": [],
+        "notes": ""
       },
       "permit": {
         "status": "verified",
@@ -1510,6 +1656,18 @@
       "base_community": {
         "city": "calgary",
         "slug": "shawnessy"
+      },
+      "service": "both",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Shawnessy",
+        "point": [
+          504.3,
+          1049.5
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup Monday to Friday by arrangement."
       },
       "veg_only": false,
       "halal": false,
@@ -1562,7 +1720,7 @@
           "Silverado",
           "Evergreen"
         ],
-        "notes": "Delivery Monday to Friday, 11:45 to 1:15. Pickup available."
+        "notes": "Delivery Monday to Friday, 11:45 to 1:15."
       },
       "permit": {
         "status": "verified",
@@ -1582,6 +1740,18 @@
       "base_community": {
         "city": "calgary",
         "slug": "woodbine"
+      },
+      "service": "pickup",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Woodbine",
+        "point": [
+          402.3,
+          940.7
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup Monday to Friday, 11:30 to 1:00."
       },
       "veg_only": false,
       "halal": true,
@@ -1627,14 +1797,8 @@
         "phone": "403-555-0123"
       },
       "delivery": {
-        "areas": [
-          "Woodbine",
-          "Woodlands",
-          "Cedarbrae",
-          "Braeside",
-          "Palliser"
-        ],
-        "notes": "Delivery Monday to Friday, 11:30 to 1:00."
+        "areas": [],
+        "notes": ""
       },
       "permit": {
         "status": "verified",
@@ -1654,6 +1818,18 @@
       "base_community": {
         "city": "airdrie",
         "slug": "williamstown"
+      },
+      "service": "pickup",
+      "pickup": {
+        "precision": "community",
+        "label": "Sample location · Williamstown",
+        "point": [
+          117.3,
+          99.9
+        ],
+        "lat": null,
+        "lon": null,
+        "notes": "Pickup Monday to Friday, 11:30 to 1:00."
       },
       "veg_only": true,
       "halal": false,
@@ -1699,14 +1875,8 @@
         "phone": "403-555-0124"
       },
       "delivery": {
-        "areas": [
-          "Williamstown",
-          "Reunion",
-          "Sagewood",
-          "Midtown",
-          "Hillcrest"
-        ],
-        "notes": "Delivery Monday to Friday, 11:30 to 1:00. Airdrie only."
+        "areas": [],
+        "notes": ""
       },
       "permit": {
         "status": "verified",

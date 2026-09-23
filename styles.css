@@ -73,11 +73,20 @@
   --map-near-line: #8a4a0b;
   --map-inset: #fffdf8;
   --map-inset-line: #e4dccb;
-  --pin-bg: #1f5c3a;
-  --pin-ink: #fbf7ef;
   --pin-ring: #ffffff;
-  --pin-active-bg: #e8912d;
-  --pin-active-ink: #17271d;
+  /* Pins (section 9d): saffron pickup pins with a dark ring, outlined
+     delivery-only pins, dark count badges. */
+  --pin-pickup-bg: #e8912d;
+  --pin-pickup-ink: #17271d;
+  --pin-pickup-ring: #8a4a0b;
+  --pin-area-bg: #ffffff;
+  --pin-area-line: #1f5c3a;
+  --pin-area-ink: #1f5c3a;
+  --pin-cluster-bg: #17271d;
+  --pin-cluster-ink: #fbf7ef;
+  --pin-active-ring: #17271d;
+  --map-serves-fill: #a8d5b5;
+  --map-serves-line: #1f5c3a;
 
   --shadow-1: 0 1px 2px rgb(23 39 29 / 0.06), 0 8px 24px -14px rgb(23 39 29 / 0.22);
   --shadow-2: 0 2px 4px rgb(23 39 29 / 0.08), 0 22px 44px -20px rgb(23 39 29 / 0.32);
@@ -170,11 +179,18 @@
     --map-near-line: #f5b266;
     --map-inset: #131f18;
     --map-inset-line: #2a3b31;
-    --pin-bg: #f0a04a;
-    --pin-ink: #17120a;
     --pin-ring: #101a14;
-    --pin-active-bg: #eef2ec;
-    --pin-active-ink: #101a14;
+    --pin-pickup-bg: #f0a04a;
+    --pin-pickup-ink: #17120a;
+    --pin-pickup-ring: #101a14;
+    --pin-area-bg: #18261e;
+    --pin-area-line: #7fcba2;
+    --pin-area-ink: #7fcba2;
+    --pin-cluster-bg: #eef2ec;
+    --pin-cluster-ink: #101a14;
+    --pin-active-ring: #eef2ec;
+    --map-serves-fill: #2e5e43;
+    --map-serves-line: #7fcba2;
 
     --shadow-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 28px -14px rgb(0 0 0 / 0.6);
     --shadow-2: 0 2px 4px rgb(0 0 0 / 0.35), 0 24px 48px -20px rgb(0 0 0 / 0.7);
@@ -245,11 +261,18 @@
   --map-near-line: #f5b266;
   --map-inset: #131f18;
   --map-inset-line: #2a3b31;
-  --pin-bg: #f0a04a;
-  --pin-ink: #17120a;
   --pin-ring: #101a14;
-  --pin-active-bg: #eef2ec;
-  --pin-active-ink: #101a14;
+  --pin-pickup-bg: #f0a04a;
+  --pin-pickup-ink: #17120a;
+  --pin-pickup-ring: #101a14;
+  --pin-area-bg: #18261e;
+  --pin-area-line: #7fcba2;
+  --pin-area-ink: #7fcba2;
+  --pin-cluster-bg: #eef2ec;
+  --pin-cluster-ink: #101a14;
+  --pin-active-ring: #eef2ec;
+  --map-serves-fill: #2e5e43;
+  --map-serves-line: #7fcba2;
 
   --shadow-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 28px -14px rgb(0 0 0 / 0.6);
   --shadow-2: 0 2px 4px rgb(0 0 0 / 0.35), 0 24px 48px -20px rgb(0 0 0 / 0.7);
@@ -1045,6 +1068,13 @@ main[tabindex="-1"]:focus {
   appearance: none;
 }
 
+/* Quadrant chips above Pickup / Delivery chips. */
+.chip-stack {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
 .chip-group {
   margin: 0;
   padding: 0;
@@ -1107,6 +1137,7 @@ main[tabindex="-1"]:focus {
 .chip-group label {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
   min-height: 44px;
   padding: 8px 16px;
   border-radius: var(--radius-pill);
@@ -1129,6 +1160,12 @@ main[tabindex="-1"]:focus {
 
 .chip-group label:active {
   transform: scale(0.97);
+}
+
+.chip-group label svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
 }
 
 .chip-group input:checked + label {
@@ -1314,8 +1351,12 @@ main[tabindex="-1"]:focus {
     grid-area: search;
   }
 
-  .chip-group {
+  .chip-stack {
     grid-area: chips;
+    justify-items: end;
+  }
+
+  .chip-stack .chip-group {
     justify-content: flex-end;
   }
 
@@ -1598,8 +1639,10 @@ main[tabindex="-1"]:focus {
 .card-tags {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: flex-end;
   gap: 6px;
+  min-width: 0;
 }
 
 .tag {
@@ -1812,6 +1855,45 @@ main[tabindex="-1"]:focus {
 .badge-pending {
   background: var(--pending-soft);
   color: var(--pending);
+}
+
+/* "Pickup", "Delivery" or "Pickup & delivery" beside the permit badge.
+   Text contrast: 5.8:1 (pickup) and 5.5:1 (delivery) in light, 7.6:1 and
+   6.5:1 in dark. */
+.card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+
+.svc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 24px;
+  padding: 2px 9px 2px 7px;
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.svc-chip svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+
+.svc-chip[data-service="pickup"],
+.svc-chip[data-service="both"] {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+.svc-chip[data-service="delivery"] {
+  background: var(--verified-soft);
+  color: var(--verified);
 }
 
 .card-foot {
@@ -2186,6 +2268,35 @@ main[tabindex="-1"]:focus {
 /* The menu's "Week of…" line stays tucked under its heading. */
 .k-section h2 + .sub {
   margin-top: -8px;
+}
+
+/* Pickup section: where, in bold beside a bag, then fine print and two
+   buttons (directions only for a spot shared exactly or as an intersection). */
+.k-pickup-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.k-pickup-line svg {
+  flex: none;
+  margin-top: 3px;
+  color: var(--accent-ink);
+}
+
+.k-pickup-line strong {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.k-pickup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 /* "How permits work": a faint saffron underline that goes solid on hover. */
@@ -3019,16 +3130,26 @@ main[tabindex="-1"]:focus {
   fill-opacity: 0.76;
 }
 
-.map-area.is-near {
+/* Where the open (or pointed-at) kitchens deliver. Before .is-near and
+   .is-selected, so those win on the same community. .map-canvas lifts
+   these three above the quadrant fills (same specificity, later rule). */
+.map-canvas .map-area.is-serves {
+  fill: var(--map-serves-fill);
+  fill-opacity: 1;
+  stroke: var(--map-serves-line);
+  stroke-width: 1.5;
+}
+
+.map-canvas .map-area.is-near {
   fill: var(--map-near-fill);
   fill-opacity: 1;
   stroke: var(--map-near-line);
   stroke-width: 2;
 }
 
-.map-area.is-selected {
+.map-canvas .map-area.is-selected {
   fill-opacity: 1;
-  stroke: var(--pin-bg);
+  stroke: var(--ink-2);
   stroke-width: 2;
 }
 
@@ -3109,16 +3230,38 @@ main[tabindex="-1"]:focus {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: var(--pin-bg);
-  color: var(--pin-ink);
-  box-shadow: 0 0 0 2.5px var(--pin-ring), 0 6px 14px -4px rgb(0 0 0 / 0.35);
   font: 700 0.95rem/1 var(--font-display);
-  transition: transform var(--dur-2) var(--ease-spring), opacity var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
+  transition: transform var(--dur-2) var(--ease-spring), opacity var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out), box-shadow var(--dur-1) var(--ease-out), width var(--dur-2) var(--ease-spring), height var(--dur-2) var(--ease-spring);
 }
 
 .map-pin-dot svg {
   width: 17px;
   height: 17px;
+}
+
+/* Pickup: a saffron pin with a bag, a dark ring (3:1 or more against every
+   map tint) and a thin halo. */
+.map-pin[data-kind="pickup"] .map-pin-dot {
+  background: var(--pin-pickup-bg);
+  color: var(--pin-pickup-ink);
+  box-shadow: 0 0 0 2px var(--pin-pickup-ring), 0 0 0 3.5px var(--pin-ring), 0 6px 14px -4px rgb(0 0 0 / 0.35);
+}
+
+/* Delivery only: an outlined pin on the kitchen's neighbourhood. */
+.map-pin[data-kind="area"] .map-pin-dot {
+  background: var(--pin-area-bg);
+  color: var(--pin-area-ink);
+  box-shadow: inset 0 0 0 2.5px var(--pin-area-line), 0 0 0 2px var(--pin-ring), 0 6px 14px -4px rgb(0 0 0 / 0.35);
+}
+
+/* Close pins joined into one: a slightly larger dark count badge. After
+   the kind rules, so it wins whatever the representative's kind. */
+.map-pin.is-cluster .map-pin-dot {
+  width: 34px;
+  height: 34px;
+  background: var(--pin-cluster-bg);
+  color: var(--pin-cluster-ink);
+  box-shadow: 0 0 0 2.5px var(--pin-ring), 0 6px 14px -4px rgb(0 0 0 / 0.35);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -3138,12 +3281,10 @@ main[tabindex="-1"]:focus {
   z-index: 3;
 }
 
-/* The open pin swaps colours and takes the pin colour as its ring, which
-   keeps its edge at 3:1 or more against every tint in both themes. */
+/* The open pin keeps its kind's colours, grows a little and gets a second,
+   ink-coloured ring outside its halo. */
 .map-pin.is-active .map-pin-dot {
-  background: var(--pin-active-bg);
-  color: var(--pin-active-ink);
-  box-shadow: 0 0 0 2.5px var(--pin-bg), 0 8px 18px -4px rgb(0 0 0 / 0.4);
+  box-shadow: 0 0 0 2.5px var(--pin-ring), 0 0 0 5px var(--pin-active-ring), 0 8px 18px -4px rgb(0 0 0 / 0.4);
   transform: scale(1.14);
 }
 
@@ -3347,6 +3488,52 @@ main[tabindex="-1"]:focus {
   background: var(--map-airdrie);
 }
 
+/* The three pin looks, small, beside what they mean. */
+.map-legend-pins {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 6px;
+}
+
+.map-legend-pins li {
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.45;
+}
+
+.map-key {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin: 0 2px;
+  border-radius: 50%;
+}
+
+.map-key svg {
+  width: 12px;
+  height: 12px;
+}
+
+.map-key[data-kind="pickup"] {
+  background: var(--pin-pickup-bg);
+  color: var(--pin-pickup-ink);
+  box-shadow: 0 0 0 1.5px var(--pin-pickup-ring);
+}
+
+.map-key[data-kind="area"] {
+  background: var(--pin-area-bg);
+  color: var(--pin-area-ink);
+  box-shadow: inset 0 0 0 2px var(--pin-area-line);
+}
+
+.map-key[data-kind="cluster"] {
+  background: var(--pin-cluster-bg);
+  color: var(--pin-cluster-ink);
+  font: 700 0.72rem/1 var(--font-display);
+}
+
 .map-hint {
   margin: 0;
   font-size: 0.88rem;
@@ -3542,7 +3729,35 @@ main[tabindex="-1"]:focus {
   color: var(--ink);
 }
 
-.map-kitchen .btn {
+.map-kitchen-body .svc-chip {
+  margin-bottom: 4px;
+}
+
+/* "Pickup in Saddle Ridge" / "Delivers to Saddle Ridge, Martindale +2 more" */
+.map-kitchen-where {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 2px 0;
+  font-size: 0.88rem;
+  color: var(--ink-2);
+}
+
+.map-kitchen-where svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 3px;
+}
+
+.map-kitchen-body .badge {
+  margin-top: 4px;
+}
+
+.map-kitchen-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-top: 8px;
 }
 
@@ -4348,8 +4563,14 @@ main[tabindex="-1"]:focus {
     animation: none;
   }
 
-  .map-pin:not(.is-active):hover .map-pin-dot {
+  .map-pin:not(.is-active):hover .map-pin-dot,
+  .map-pin.is-cluster:not(.is-active):hover .map-pin-dot {
     transform: none;
+  }
+
+  /* Joined and filtered pins leave at once, with no lingering hit area. */
+  .map-pin.is-out {
+    transition-delay: 0s !important;
   }
 
   .seg::before {
