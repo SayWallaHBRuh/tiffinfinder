@@ -76,3 +76,11 @@
 - The home page no longer flickers while it loads.
 - The kitchen count now says "waiting for a permit check".
 - The kitchens are still made-up samples for testing, each marked "Sample".
+
+## Round 8 — 2026-09-23
+
+- The "How to get permitted" page is now a step-by-step guide checked against official Alberta Health Services, Government of Alberta and City of Calgary pages on 23 September 2026, with a numbered checklist, what the home-food exemption does and doesn't cover, the two routes to a permitted kitchen, the fees and timelines those pages list, how to look up a kitchen's public inspection record, who to call, and a list of every source. It's still general information, not legal advice.
+- The For kitchens page links to it: "Not permitted yet? See how to get permitted".
+- Map previews now show the "Trial week" price and whether a kitchen is taking new customers, has a waitlist or is full, like the kitchen cards.
+- Every page now tells browsers to load only Tiffin Finder's own files and Google Fonts, and to share less of your browsing with other sites. Nothing looks different.
+- The kitchens are still made-up samples for testing, each marked "Sample".

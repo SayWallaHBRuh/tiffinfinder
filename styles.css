@@ -3982,8 +3982,19 @@ main[tabindex="-1"]:focus {
   color: var(--ink);
 }
 
-.map-kitchen-body .svc-chip {
-  margin-bottom: 4px;
+/* The service chip sits in the meta line (see fillMapCard), so the flex
+   gap spaces it; no margin of its own. */
+.map-kitchen-meta .svc-chip {
+  margin: 0;
+}
+
+/* The preview's "Trial week $N": a touch smaller than the card's, sharing
+   the meta line's second row with the service chip when the line wraps.
+   Same tokens, same 5.8:1 / 7.5:1 as the card chip. */
+.map-kitchen-meta .trial-chip {
+  min-height: 22px;
+  padding: 1px 8px;
+  font-size: 0.74rem;
 }
 
 /* "Pickup in Saddle Ridge" / "Delivers to Saddle Ridge, Martindale +2 more" */
@@ -4003,8 +4014,56 @@ main[tabindex="-1"]:focus {
   margin-top: 3px;
 }
 
-.map-kitchen-body .badge {
-  margin-top: 4px;
+/* The preview's badge row: the same three chips as a card (badge, diet,
+   capacity), sized down so a cluster card stays compact. Colours and
+   contrast are the card chips' own (section 7). */
+.map-kitchen-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  margin-top: 6px;
+}
+
+.map-kitchen-badges .badge,
+.map-kitchen-badges .diet-chip,
+.map-kitchen-badges .status-pill {
+  min-height: 24px;
+  padding-block: 2px;
+  font-size: 0.76rem;
+}
+
+.map-kitchen-badges .badge {
+  padding-inline: 7px 9px;
+  gap: 5px;
+}
+
+.map-kitchen-badges .badge svg {
+  width: 13px;
+  height: 13px;
+}
+
+.map-kitchen-badges .diet-chip {
+  padding-inline: 9px;
+}
+
+.map-kitchen-badges .status-pill {
+  padding-inline: 8px 9px;
+  gap: 6px;
+}
+
+.map-kitchen-badges .status-pill::before {
+  width: 7px;
+  height: 7px;
+  box-shadow: 0 0 0 2px var(--verified-soft);
+}
+
+.map-kitchen-badges .status-pill[data-capacity="waitlist"]::before {
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.map-kitchen-badges .status-pill[data-capacity="full"]::before {
+  box-shadow: 0 0 0 2px var(--danger-soft);
 }
 
 .map-kitchen-actions {
@@ -4621,6 +4680,28 @@ main[tabindex="-1"]:focus {
   color: var(--on-brand-accent);
 }
 
+/* "Not permitted yet? See how to get permitted" (kitchens.html).
+   --on-brand-muted on the green band: 5.4:1+ light, 6.5:1+ dark;
+   --on-brand-accent: 5.2:1+ light, 6:1+ dark. The link is a 44px target. */
+.page-hero-link {
+  margin: 0;
+  color: var(--on-brand-muted);
+  font-weight: 600;
+}
+
+.page-hero-link a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--on-brand-accent);
+  font-weight: 800;
+  text-underline-offset: 3px;
+}
+
+.page-hero-link a:hover {
+  color: var(--on-brand);
+}
+
 .prose {
   max-width: 70ch;
   margin-inline: auto;
@@ -4740,6 +4821,11 @@ main[tabindex="-1"]:focus {
 }
 
 .contact-card .num-big {
+  /* A 44px tap target, only as wide as the number. */
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  min-height: 44px;
   font-family: var(--font-display);
   font-size: 1.6rem;
   font-weight: 700;
@@ -4784,6 +4870,117 @@ main[tabindex="-1"]:focus {
 .pitch-card .glyph svg {
   width: 22px;
   height: 22px;
+}
+
+/* Permit guide (permitted.html): what the home-food exemption covers and
+   doesn't, the two routes, fees as listed, sources. Tokens only. */
+.cover-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  margin: 18px 0;
+}
+
+.cover-card {
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--verified);
+  box-shadow: var(--shadow-1);
+}
+
+.cover-card[data-kind="no"] {
+  border-top-color: var(--danger);
+}
+
+.cover-card h3 {
+  margin: 0 0 8px;
+  font-size: 1.08rem;
+}
+
+.cover-card ul {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+.route-card ul {
+  margin: 4px 0 10px;
+  padding-left: 1.2em;
+}
+
+/* Two classes, so it outranks .pitch-card p and .prose p (margin, colour).
+   --accent-ink on --surface: 6.8:1 light, 8.6:1 dark. */
+.route-card .route-label {
+  margin: 12px 0 0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.fee-list {
+  margin: 18px 0;
+  display: grid;
+  gap: 10px;
+}
+
+.fee-row {
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.fee-row dt {
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.fee-row dd {
+  margin: 4px 0 0;
+  color: var(--ink-2);
+}
+
+/* Fine source lines. --muted: 5.6:1 on --surface and 5.3:1 on --bg in
+   light, 5.9:1 and 6.7:1 in dark. Two classes, so they outrank
+   .fee-row dd and .prose p. */
+.fee-row .fee-source,
+.prose .source-note {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.source-list {
+  padding-left: 1.4em;
+}
+
+.source-list li {
+  margin-bottom: 0.7em;
+}
+
+.source-url {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.prose .source-note a,
+.fee-source a {
+  overflow-wrap: anywhere;
+}
+
+/* A phone number never breaks across lines. */
+.prose a[href^="tel:"] {
+  white-space: nowrap;
+}
+
+.contact-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
 }
 
 .contact-form {
@@ -5017,6 +5214,10 @@ main[tabindex="-1"]:focus {
 
 .page-hero-inner > :nth-child(3) {
   animation-delay: 120ms;
+}
+
+.page-hero-inner > :nth-child(4) {
+  animation-delay: 180ms;
 }
 
 @media (prefers-reduced-motion: reduce) {

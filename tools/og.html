@@ -2,133 +2,18 @@
 <html lang="en-CA">
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="robots" content="noindex">
   <meta name="viewport" content="width=1200">
   <title>Tiffin Finder — link preview (1200×630)</title>
   <!-- Render template for ../og-image.png (Open Graph / Twitter card).
-       Self-contained: Google Fonts plus this inline style, no scripts.
+       Self-contained: Google Fonts plus og.css, no scripts.
        Render with headless Edge at exactly 1200x630; see README.md. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&display=swap">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; }
-
-    html,
-    body {
-      margin: 0;
-      width: 1200px;
-      height: 630px;
-      overflow: hidden;
-    }
-
-    body {
-      position: relative;
-      background:
-        radial-gradient(640px 420px at 88% 18%, rgb(232 145 45 / 0.30), transparent 70%),
-        radial-gradient(520px 360px at 0% 110%, rgb(250 210 154 / 0.14), transparent 70%),
-        linear-gradient(160deg, #22603c, #154129);
-      color: #fbf7ef;
-      font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
-      font-optical-sizing: auto;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: geometricPrecision;
-    }
-
-    svg { display: block; }
-
-    /* Left column: brand, eyebrow, headline, sub-line. */
-    .copy {
-      position: absolute;
-      left: 88px;
-      top: 84px;
-      width: 700px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .brand svg {
-      width: 52px;
-      height: 52px;
-      flex: none;
-    }
-
-    .wordmark {
-      font-family: "Fraunces", Georgia, serif;
-      font-weight: 700;
-      font-size: 38px;
-      line-height: 1;
-      letter-spacing: -0.01em;
-      color: #fbf7ef;
-    }
-
-    .eyebrow {
-      margin: 36px 0 0;
-      font-weight: 800;
-      font-size: 20px;
-      line-height: 1.2;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: #fad29a;
-    }
-
-    h1 {
-      margin: 16px 0 0;
-      font-family: "Fraunces", Georgia, serif;
-      font-weight: 600;
-      font-size: 72px;
-      line-height: 1.04;
-      letter-spacing: -0.012em;
-      color: #fbf7ef;
-    }
-
-    .sub {
-      margin: 22px 0 0;
-      max-width: 620px;
-      font-weight: 600;
-      font-size: 26px;
-      line-height: 1.38;
-      color: #cfe0d4;
-    }
-
-    .pill {
-      position: absolute;
-      left: 88px;
-      bottom: 72px;
-      padding: 10px 22px;
-      border-radius: 999px;
-      background: #e8912d;
-      color: #17271d;
-      font-weight: 800;
-      font-size: 22px;
-      line-height: 1.2;
-      letter-spacing: 0.01em;
-    }
-
-    /* Right art: a faint cream disc holding the stacked tiffin.
-       Centred at (930, 330); 420px wide so it stays inside the 60px safe margin. */
-    .art {
-      position: absolute;
-      left: 720px;
-      top: 120px;
-      width: 420px;
-      height: 420px;
-      border-radius: 50%;
-      background: rgb(251 247 239 / 0.07);
-      display: grid;
-      place-items: center;
-    }
-
-    .art svg {
-      width: 300px;
-      height: 300px;
-      filter: drop-shadow(0 18px 28px rgb(8 28 16 / 0.35));
-    }
-  </style>
+  <link rel="stylesheet" href="./og.css">
 </head>
 <body>
   <div class="copy">

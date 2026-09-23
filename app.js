@@ -2640,7 +2640,12 @@
 
     var list = el('ul', { class: 'map-card-list' + (n >= 2 ? ' is-compact' : '') });
     t.matching.forEach(function (k) {
-      var price = el('span', { class: 'map-kitchen-price' }, [el('strong', { text: money(k.price.day) }), ' /day']);
+      /* No day price, no "/day" at all: never a bare " /day", and never
+         "$0 /day" for a missing (null) or zero price. Same rule as
+         planPrices: a number above 0. */
+      var day = k.price ? k.price.day : null;
+      var dayPrice = (isFiniteNumber(day) && day > 0) ? money(day) : '';
+      var price = dayPrice ? el('span', { class: 'map-kitchen-price' }, [el('strong', { text: dayPrice }), ' /day']) : null;
       var actions = el('div', { class: 'map-kitchen-actions' }, el('a', { class: 'btn btn-primary btn-small', href: kitchenHref(k.slug), 'data-route': '' }, [
         'See this week’s menu',
         el('span', { class: 'visually-hidden', text: ' from ' + k.name })
@@ -2656,15 +2661,22 @@
         dabbaTile(k.hue, false),
         el('div', { class: 'map-kitchen-body' }, [
           el('p', { class: 'map-kitchen-name' }, [el('span', { text: k.name }), k.sample ? sampleTag() : null]),
+          /* The service chip rides in the meta line, just before the trial
+             week (always last): when the line wraps, the two chips share the
+             second row instead of each taking a row, so a phone-sized preview
+             grows by at most one row. */
           el('p', { class: 'map-kitchen-meta' }, [
             el('span', { text: k.cuisine || '' }),
             el('span', { class: 'q-chip', 'data-q': k.quadrant, text: k.quadrant }),
-            price
+            price,
+            serviceChip(k),
+            trialChip(k)
           ]),
-          serviceChip(k),
           hasPickup(k) ? el('p', { class: 'map-kitchen-where' }, [icon('bag', 14), el('span', { text: pickupLine(k) })]) : null,
           hasDelivery(k) ? el('p', { class: 'map-kitchen-where' }, [icon('truck', 14), el('span', { text: deliversLine(k) })]) : null,
-          permitBadge(k),
+          /* Same helpers and order as kitchenCard: the badge (Sample listing
+             or the permit), the diet chip, then the capacity. At most three. */
+          el('div', { class: 'map-kitchen-badges' }, [permitBadge(k), dietChip(k), statusPill(k)]),
           actions
         ])
       ]));
