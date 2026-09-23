@@ -29,12 +29,15 @@ The home page (`./`) reads these from the address:
 - Otherwise it shows the list, with any filters: `?q=<search>&area=NE|NW|SE|SW|Airdrie&near=<community>&cuisine=<name>&price=low|mid|high&veg=1&halal=1&jain=1`. Filters left at their default are left out, so the plain list is just `./`. Changing a filter updates the address in place (no extra Back steps), so a filtered list can be reloaded or shared.
 - `near=<community>` shows the kitchens that deliver to that community, for example `./?near=saddle-ridge`, with a "Delivers to Saddle Ridge" pill above the list that removes it. The community is written in lowercase letters and numbers, with apostrophes removed and any other characters, such as spaces, turned into a single hyphen ("King's Heights" becomes `kings-heights`, "McKenzie Towne" becomes `mckenzie-towne`). A community no kitchen delivers to is ignored. The delivery areas on each kitchen's page and the "Browse by neighbourhood" section on the home page link to it.
 - Search also matches delivery communities, ignoring case, apostrophes and hyphens, so `saddle-ridge` and `kings heights` both work.
+- `view=map` opens the map instead of the list, for example `./?view=map&area=NE`. Filters apply to the map too, and a quadrant zooms it in. The list is the default, so it has no `view=` at all. The "List" / "Map" switch above the results updates the address in place like a filter, so the "All kitchens" tab and a kitchen's back link return to the map when it was showing. `?k=` always wins over `view=map`, and any other `view=` value (except `following`) shows the list.
 
 ## Data
 
 - `data/kitchens.json` is **sample data**: fictional kitchens with 403-555-01xx numbers, labelled "Sample" on every card.
 - `data/dishes.json` is the dish glossary shown on kitchen pages: a dish name on a menu that matches one of an entry's `terms` gets a dotted underline and opens that entry's one-line description. If the file can't load, menus show as plain text.
 - `docs/research-notes.md` lists the sources for community names, quadrants and dish descriptions. Delivery communities must come from the lists named there, with each community in one quadrant only.
+- `data/map/calgary.json` and `data/map/airdrie.json` are the map shapes (Calgary communities and Airdrie neighbourhoods as ready-made SVG paths), from the City of Calgary's and City of Airdrie's open data. `docs/map-data.md` explains where they come from, their licences and how to refresh them. The map must always show the two credit lines under it ("Contains information licensed under the Open Government Licence – City of Calgary." and "Contains information licensed under the Open Data Licence – City of Airdrie."), and must not use either City's logo.
+- Each kitchen has a `base_community` (`{"city": "calgary" | "airdrie", "slug": "<community>"}`) that places its pin on the map. It must be one of the kitchen's own delivery areas and a community in the matching map file; the app checks both and leaves a kitchen off the map (with a note under it) if either check fails. A pin sits on the middle of that community, never on an address.
 
 ## Paths
 
@@ -42,7 +45,7 @@ All paths are relative (no leading `/`), so the same files work at the custom do
 
 ## Offline
 
-After the first visit, the service worker (`sw.js`) keeps the app shell on the device. Opening a page that isn't saved while there's no connection shows `offline.html` ("You're offline", with Try again). Both data files (`data/kitchens.json` and `data/dishes.json`) are network-first: the latest copy when online, the last saved copy when not. If there is no saved kitchen list, the page shows a "You're offline" state that retries by itself when the connection comes back; if there is no saved glossary, menus show as plain text. The very first visit needs a connection: until the service worker is installed, the browser shows its own offline page.
+After the first visit, the service worker (`sw.js`) keeps the app shell on the device. Opening a page that isn't saved while there's no connection shows `offline.html` ("You're offline", with Try again). Both data files (`data/kitchens.json` and `data/dishes.json`) are network-first: the latest copy when online, the last saved copy when not. If there is no saved kitchen list, the page shows a "You're offline" state that retries by itself when the connection comes back; if there is no saved glossary, menus show as plain text. The map files (`data/map/*.json`) are network-first too, but they are not part of the saved app shell: they are downloaded only when someone first opens the map, and saved from then on. Opening the map for the first time with no connection shows a "You're offline" message on the map, with Try again and a button back to the list. The very first visit needs a connection: until the service worker is installed, the browser shows its own offline page.
 
 ## Link previews
 

@@ -9,6 +9,23 @@
 
   var DATA_URL = './data/kitchens.json';
   var DISHES_URL = './data/dishes.json';
+  /* Map view (see "Map" below). The files are fetched only when the map is
+     first opened. One coordinate frame for the SVG, the pins and the label:
+     Calgary as drawn, Airdrie moved by AIRDRIE_OFFSET to sit just north. */
+  var MAP_URLS = { calgary: './data/map/calgary.json', airdrie: './data/map/airdrie.json' };
+  var MAP_VB = { x: 0, y: -380, w: 1000, h: 1663 };
+  var AIRDRIE_OFFSET = [497, -360];
+  var AIRDRIE_PANEL = [497, -360, 865, -37];
+  var AIRDRIE_LABEL_AT = [485, -352];
+  var ZOOM_MS = 620;
+  var MAP_PATH_RE = /^[MLZ0-9 .\-]+$/;
+  var ZOOM_TITLE = { '': 'Calgary and Airdrie', NE: 'Northeast Calgary', NW: 'Northwest Calgary', SE: 'Southeast Calgary', SW: 'Southwest Calgary', Airdrie: 'Airdrie' };
+  /* What the map says when its files can't be loaded with no connection
+     (and no saved copy). Any other failure keeps the copy in index.html. */
+  var MAP_OFFLINE_COPY = {
+    title: 'You’re offline',
+    text: 'The map needs a connection the first time you open it. Reconnect and tap Try again, or use the list.'
+  };
   var KEYS = {
     theme: 'tf.theme',
     follows: 'tf.follows',
@@ -50,7 +67,35 @@
        No prototype, so a slug such as "constructor" is never "found". */
     communities: Object.create(null),
     /* {byTerm, re} from data/dishes.json, or null (menus show plain text). */
-    glossary: null
+    glossary: null,
+    /* How the browse view shows kitchens: 'list' (the cards) or 'map'.
+       Read from ?view=map; see applyFiltersFromURL. */
+    mode: 'list',
+    map: {
+      status: 'idle', /* 'idle' | 'loading' | 'ready' | 'error' */
+      offline: false,
+      /* 'calgary:<slug>' / 'airdrie:<slug>' -> {city, slug, name, quadrant,
+         cls, path, x, y}; x, y is the label point in the shared frame. */
+      areas: Object.create(null),
+      order: [],
+      /* Same keys -> the SVG path element, once drawn. */
+      paths: Object.create(null),
+      /* 'NE' | 'NW' | 'SE' | 'SW' | 'Airdrie' -> [x0, y0, x1, y1]. */
+      bounds: {},
+      outline: '',
+      built: false,
+      canvas: null,
+      label: null,
+      /* One pin per base community, north to south; pinsFor is the
+         state.kitchens array they were built from. */
+      pins: [],
+      pinsFor: null,
+      popped: false,
+      openPin: null,
+      cardSheet: false,
+      zoomKey: null,
+      nearPath: null
+    }
   };
   var dom = {};
   var deferredInstallPrompt = null;
@@ -195,7 +240,10 @@
       info: ['M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z', 'M12 11v5', 'M12 8h.01'],
       pin: ['M12 21s-6-5.4-6-11a6 6 0 0 1 12 0c0 5.6-6 11-6 11z', 'M12 10.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z'],
       bell: ['M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z', 'M10 21a2 2 0 0 0 4 0'],
-      shield: ['M12 3l8 3v6c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V6z', 'M9 12l2 2 4-4']
+      shield: ['M12 3l8 3v6c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V6z', 'M9 12l2 2 4-4'],
+      list: ['M9 6h11', 'M9 12h11', 'M9 18h11', 'M4.5 6h.01', 'M4.5 12h.01', 'M4.5 18h.01'],
+      map: ['M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z', 'M9 4v14', 'M15 6v14'],
+      close: ['M6 6l12 12', 'M18 6L6 18']
     };
     (paths[name] || []).forEach(function (d) { svg.appendChild(svgEl('path', { d: d })); });
     return svg;
@@ -234,6 +282,16 @@
     svg.appendChild(svgEl('rect', { x: 14, y: 46.5, width: 10, height: 2.4, rx: 1.2, fill: '#ffffff', opacity: '0.28' }));
     svg.appendChild(svgEl('rect', { x: 30, y: 12, width: 4.2, height: 46, rx: 2.1, fill: 'var(--dabba-cream)', opacity: '0.92' }));
     svg.appendChild(svgEl('circle', { cx: 32.1, cy: 55, r: 1.6, fill: deep }));
+    return svg;
+  }
+
+  /* A small stacked tiffin in the pin colour, for pins with one kitchen. */
+  function tiffinGlyph() {
+    var svg = svgEl('svg', { viewBox: '0 0 24 24', 'aria-hidden': 'true', focusable: 'false', class: 'map-pin-glyph' });
+    svg.appendChild(svgEl('path', { d: 'M9 7c0-3.2 6-3.2 6 0', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8', 'stroke-linecap': 'round' }));
+    svg.appendChild(svgEl('rect', { x: 6, y: 7, width: 12, height: 4, rx: 1.5, fill: 'currentColor' }));
+    svg.appendChild(svgEl('rect', { x: 5, y: 12, width: 14, height: 4, rx: 1.5, fill: 'currentColor' }));
+    svg.appendChild(svgEl('rect', { x: 4, y: 17, width: 16, height: 4.5, rx: 1.8, fill: 'currentColor' }));
     return svg;
   }
 
@@ -769,6 +827,7 @@
   function renderResults() {
     if (!dom.results) return;
     var status = dom.resultsStatus;
+    var isMap = applyMode();
     dom.resultsEmpty.hidden = true;
     dom.resultsError.hidden = true;
 
@@ -780,6 +839,8 @@
         dom.results.replaceChildren(sk);
       }
       dom.results.setAttribute('aria-busy', 'true');
+      /* The grid is hidden in map mode; the map shows its own placeholder. */
+      if (isMap) showMapSkeleton();
       renderNearPill();
       return;
     }
@@ -807,9 +868,42 @@
     else text += ' listed';
     setStatus(status, text, !fresh);
     if (dom.filters) dom.filters.classList.toggle('has-active', active > 0);
-    dom.resultsEmpty.hidden = n > 0;
+    /* On the map, "nothing matches" shows over the map instead (#map-empty). */
+    dom.resultsEmpty.hidden = n > 0 || isMap;
+    if (isMap) renderMap(list, f);
     markCurrentHood();
     renderNearPill();
+  }
+
+  /* List or map: the switch's pressed state, which of the two shows, and the
+     map's first load. The map stays hidden when the kitchens failed to load
+     (the list's error state explains why). Returns true in map mode. */
+  function applyMode() {
+    var isMap = state.mode === 'map';
+    if (dom.modeList) dom.modeList.setAttribute('aria-pressed', isMap ? 'false' : 'true');
+    if (dom.modeMap) dom.modeMap.setAttribute('aria-pressed', isMap ? 'true' : 'false');
+    if (dom.modeSeg) dom.modeSeg.dataset.mode = isMap ? 'map' : 'list';
+    dom.results.hidden = isMap;
+    if (dom.mapView) {
+      var hide = !isMap || (state.loaded && state.error);
+      /* Shown again after being hidden: the next zoom jumps, not animates. */
+      if (dom.mapView.hidden && !hide) mapJustShown = true;
+      dom.mapView.hidden = hide;
+      if (isMap && state.map.status === 'idle') loadMap();
+      /* The card belongs to a map on screen with its kitchens loaded. */
+      if (hide || !state.loaded) closeMapCardNow();
+    }
+    return isMap;
+  }
+
+  /* The List / Map switch. Like a filter, it replaces the address (never
+     pushes), and focus stays on the pressed button. */
+  function setMode(mode) {
+    var next = mode === 'map' ? 'map' : 'list';
+    if (state.mode === next) return;
+    state.mode = next;
+    syncFiltersToURL();
+    renderResults();
   }
 
   /* "Delivers to <community>" above the list, only once the data has loaded
@@ -894,8 +988,10 @@
      come back on Back. User changes replace the current history entry
      (never push); render() reads the address back into the form. near= is
      a community slug held in state.near (the pill), not a form control.
+     view=map (state.mode, the List / Map switch) comes last; the list is
+     the default and has no view= at all.
   --------------------------------------------------------------------- */
-  var FILTER_KEYS = ['q', 'area', 'near', 'cuisine', 'price', 'veg', 'halal', 'jain'];
+  var FILTER_KEYS = ['q', 'area', 'near', 'cuisine', 'price', 'veg', 'halal', 'jain', 'view'];
   var DIET_KEYS = ['veg', 'halal', 'jain'];
   var PRICE_BANDS = ['low', 'mid', 'high'];
   var QUERY_MAX = 100;
@@ -922,6 +1018,9 @@
     DIET_KEYS.forEach(function (key) {
       if (form.elements[key] && form.elements[key].checked) params.append(key, '1');
     });
+    /* Last, so every link back to the list (the tab, the menu, a kitchen's
+       back link) returns to the map when that is what was showing. */
+    if (state.mode === 'map') params.append('view', 'map');
     return params;
   }
 
@@ -990,6 +1089,9 @@
     DIET_KEYS.forEach(function (key) {
       if (form.elements[key]) form.elements[key].checked = isOnValue(params.get(key));
     });
+
+    /* view=map in any case opens the map; anything else is the list. */
+    state.mode = (params.get('view') || '').toLowerCase() === 'map' ? 'map' : 'list';
 
     /* An unknown community is ignored (no pill, no filtering) once the data
        says so; the address keeps it until the next change, like an unknown
@@ -1109,6 +1211,888 @@
       frag.appendChild(group);
     });
     dom.hoodsGrid.replaceChildren(frag);
+  }
+
+  /* ---------------------------------------------------------------------
+     Map (index.html #map-view)
+     The browse view's other mode (?view=map). data/map/calgary.json and
+     data/map/airdrie.json hold ready-made SVG paths; they are fetched the
+     first time the map opens. One frame is shared by the SVG, the pins and
+     the Airdrie label (MAP_VB): Calgary as drawn, Airdrie shifted north by
+     AIRDRIE_OFFSET. Each kitchen has a base_community (city + slug, one of
+     its own delivery areas); kitchens sharing one share a pin, placed on the
+     community's label point. Never on an address.
+     The canvas zooms with a CSS transform to the chosen quadrant's box; pins
+     and the label are HTML at percentage positions that move with the same
+     timing, so they stay 44px targets and stay on the map while it zooms.
+  --------------------------------------------------------------------- */
+  var mapLoad = null;
+  /* The map view was hidden (list mode, or another page) since the last
+     zoom: the next zoom jumps to place instead of animating. */
+  var mapJustShown = false;
+  var zoomTimer = null;
+  var skeletonTimer = null;
+  var cardTimer = null;
+  /* Bumped on every open and close, so a stale timer or frame from an
+     earlier card never acts on the current one. */
+  var cardToken = 0;
+  /* The pointerdown that closed a card on the map must not also zoom. */
+  var swallowMapClickUntil = 0;
+  var resizeFrame = 0;
+  /* The error pane's own wording (read from index.html in cacheDom), for
+     any failure that isn't "offline". */
+  var mapErrorCopy = {
+    title: 'The map didn’t load',
+    text: 'Something went wrong loading the map. Try again in a moment, or use the list.'
+  };
+
+  /* Run fn once the current styles have painted (two frames). Frames stop
+     while a tab is hidden, so a timer makes sure it still runs. */
+  function afterPaint(fn) {
+    var done = false;
+    function run() {
+      if (done) return;
+      done = true;
+      fn();
+    }
+    requestAnimationFrame(function () {
+      requestAnimationFrame(run);
+    });
+    setTimeout(run, 120);
+  }
+
+  /* A timing token from styles.css (such as --dur-2) in milliseconds. */
+  function cssMs(name, fallback) {
+    var raw = '';
+    try { raw = window.getComputedStyle(root).getPropertyValue(name).trim(); } catch (e) { raw = ''; }
+    var n = parseFloat(raw);
+    if (!isFinite(n)) return fallback;
+    return /ms$/.test(raw) ? n : (/s$/.test(raw) ? n * 1000 : n);
+  }
+
+  /* Three decimals is well under a pixel; keeps style strings short. */
+  function fmt(n) {
+    return String(Math.round(n * 1000) / 1000);
+  }
+
+  /* Same pattern as loadData: the service worker's offline 503 carries
+     {meta:{offline:true}}; a TypeError means no connection at all. */
+  function fetchMapFile(url) {
+    return fetch(url, { cache: 'no-cache' }).then(function (res) {
+      if (!res.ok) {
+        return res.json().catch(function () { return null; }).then(function (j) {
+          var e = new Error('HTTP ' + res.status);
+          e.offline = !!(j && j.meta && j.meta.offline);
+          throw e;
+        });
+      }
+      return res.json();
+    });
+  }
+
+  /* One load at a time, and it never rejects: the outcome is in
+     state.map.status. When it settles, the map redraws if it is showing
+     (renderResults never moves focus). */
+  function loadMap() {
+    if (mapLoad) return mapLoad;
+    var m = state.map;
+    m.status = 'loading';
+    mapLoad = Promise.all([fetchMapFile(MAP_URLS.calgary), fetchMapFile(MAP_URLS.airdrie)])
+      .then(function (files) {
+        readMapFiles(files[0], files[1]);
+        m.status = 'ready';
+        m.offline = false;
+      })
+      .catch(function (err) {
+        m.status = 'error';
+        m.offline = !!(err && err.offline) || navigator.onLine === false || err instanceof TypeError;
+      })
+      .then(function () {
+        mapLoad = null;
+        if (parseRoute().view === 'browse' && state.mode === 'map') renderResults();
+      });
+    return mapLoad;
+  }
+
+  function isValidMapArea(c) {
+    return !!c && typeof c === 'object' &&
+      typeof c.slug === 'string' && NEAR_RE.test(c.slug) &&
+      typeof c.name === 'string' &&
+      typeof c.path === 'string' && MAP_PATH_RE.test(c.path) &&
+      Array.isArray(c.label) && c.label.length === 2 &&
+      typeof c.label[0] === 'number' && isFinite(c.label[0]) &&
+      typeof c.label[1] === 'number' && isFinite(c.label[1]);
+  }
+
+  /* Grow a quadrant's box by every point of one path. */
+  function growBounds(bounds, q, path) {
+    var nums = path.match(/-?(?:\d+\.?\d*|\.\d+)/g);
+    if (!nums) return;
+    var b = bounds[q] || (bounds[q] = [Infinity, Infinity, -Infinity, -Infinity]);
+    for (var i = 0; i + 1 < nums.length; i += 2) {
+      var x = Number(nums[i]);
+      var y = Number(nums[i + 1]);
+      if (x < b[0]) b[0] = x;
+      if (y < b[1]) b[1] = y;
+      if (x > b[2]) b[2] = x;
+      if (y > b[3]) b[3] = y;
+    }
+  }
+
+  /* Keep the communities that pass the checks (anything else is skipped),
+     keyed by city + slug: Bayview and Sunridge exist in both cities.
+     Throws when no Calgary shape is usable. */
+  function readMapFiles(cal, air) {
+    var areas = Object.create(null);
+    var order = [];
+    var bounds = {};
+    var calgaryCount = 0;
+
+    function add(city, c, dx, dy) {
+      if (!isValidMapArea(c)) return;
+      var key = city + ':' + c.slug;
+      if (areas[key]) return;
+      var q = (c.quadrant === 'NE' || c.quadrant === 'NW' || c.quadrant === 'SE' || c.quadrant === 'SW') ? c.quadrant : '';
+      areas[key] = {
+        city: city,
+        slug: c.slug,
+        name: c.name,
+        quadrant: q,
+        cls: typeof c.cls === 'string' ? c.cls : '',
+        path: c.path,
+        x: c.label[0] + dx,
+        y: c.label[1] + dy
+      };
+      order.push(key);
+      if (city === 'calgary') {
+        calgaryCount += 1;
+        /* Every class counts towards the box (parks, industry, residual). */
+        if (q) growBounds(bounds, q, c.path);
+      }
+    }
+
+    (cal && Array.isArray(cal.communities) ? cal.communities : []).forEach(function (c) { add('calgary', c, 0, 0); });
+    if (!calgaryCount) {
+      var e = new Error('No map shapes');
+      e.offline = !!(cal && cal.meta && cal.meta.offline);
+      throw e;
+    }
+    (air && Array.isArray(air.communities) ? air.communities : []).forEach(function (c) {
+      add('airdrie', c, AIRDRIE_OFFSET[0], AIRDRIE_OFFSET[1]);
+    });
+    bounds.Airdrie = AIRDRIE_PANEL.slice();
+
+    var outline = air && air.meta && air.meta.city_boundary_path;
+    var m = state.map;
+    m.areas = areas;
+    m.order = order;
+    m.bounds = bounds;
+    m.outline = (typeof outline === 'string' && MAP_PATH_RE.test(outline)) ? outline : '';
+  }
+
+  /* Zoom for a quadrant key ('' = everything): scale s and translate tx, ty
+     in viewBox units, fitting the quadrant's box with a little room and
+     never showing past the map's edges. */
+  function zoomFor(key) {
+    var b = key ? state.map.bounds[key] : null;
+    if (!b || !(b[2] > b[0]) || !(b[3] > b[1])) return { s: 1, tx: 0, ty: 0 };
+    var u0 = b[0] - MAP_VB.x;
+    var v0 = b[1] - MAP_VB.y;
+    var bw = b[2] - b[0];
+    var bh = b[3] - b[1];
+    var s = Math.max(1, Math.min(3, Math.min(MAP_VB.w / bw, MAP_VB.h / bh) * 0.92));
+    var tx = MAP_VB.w / 2 - s * (u0 + bw / 2);
+    var ty = MAP_VB.h / 2 - s * (v0 + bh / 2);
+    tx = Math.min(0, Math.max(MAP_VB.w * (1 - s), tx));
+    ty = Math.min(0, Math.max(MAP_VB.h * (1 - s), ty));
+    return { s: s, tx: tx, ty: ty };
+  }
+
+  /* Where a point of the shared frame sits on the stage, in percent. */
+  function stagePos(x, y, z) {
+    return {
+      left: (z.s * (x - MAP_VB.x) + z.tx) / MAP_VB.w * 100,
+      top: (z.s * (y - MAP_VB.y) + z.ty) / MAP_VB.h * 100
+    };
+  }
+
+  /* 0, 1 or 2 from the slug, so neighbouring communities differ a little. */
+  function slugTone(slug) {
+    var sum = 0;
+    for (var i = 0; i < slug.length; i++) sum += slug.charCodeAt(i);
+    return sum % 3;
+  }
+
+  /* Draw the map once, the first time it is ready: the SVG, the Airdrie
+     label and the (empty) pin group, all before the loading placeholder. */
+  function buildMapSvg() {
+    var m = state.map;
+    if (m.built || !dom.mapStage) return;
+    var svg = svgEl('svg', {
+      class: 'map-canvas',
+      id: 'map-canvas',
+      viewBox: MAP_VB.x + ' ' + MAP_VB.y + ' ' + MAP_VB.w + ' ' + MAP_VB.h,
+      'aria-hidden': 'true',
+      focusable: 'false'
+    });
+    var calgary = svgEl('g', { class: 'map-calgary' });
+    var airdrie = svgEl('g', { class: 'map-airdrie', transform: 'translate(' + AIRDRIE_OFFSET[0] + ' ' + AIRDRIE_OFFSET[1] + ')' });
+    airdrie.appendChild(svgEl('rect', { class: 'map-inset', x: 0, y: 0, width: 368, height: 323, rx: 22 }));
+    if (m.outline) airdrie.appendChild(svgEl('path', { class: 'map-outline', d: m.outline }));
+    m.order.forEach(function (key) {
+      var a = m.areas[key];
+      var inAirdrie = a.city === 'airdrie';
+      var attrs = {
+        class: 'map-area',
+        d: a.path,
+        'data-q': inAirdrie ? 'Airdrie' : a.quadrant,
+        'data-cls': a.cls,
+        'data-key': key,
+        'data-tone': slugTone(a.slug)
+      };
+      if (inAirdrie && a.quadrant) attrs['data-aq'] = a.quadrant;
+      var path = svgEl('path', attrs);
+      m.paths[key] = path;
+      (inAirdrie ? airdrie : calgary).appendChild(path);
+    });
+    svg.appendChild(calgary);
+    svg.appendChild(airdrie);
+    svg.addEventListener('transitionend', function (event) {
+      if (event.target === svg && event.propertyName === 'transform') endZoom();
+    });
+
+    var label = el('div', { class: 'map-label' }, [
+      el('span', { class: 'map-label-name', text: 'Airdrie' }),
+      el('span', { class: 'map-label-sub', text: 'North of Calgary' })
+    ]);
+    var overlay = el('div', { class: 'map-overlay', 'aria-hidden': 'true' }, label);
+    var pins = el('div', {
+      class: 'map-pins',
+      id: 'map-pins',
+      role: 'group',
+      'aria-label': 'Kitchen pins',
+      'aria-describedby': 'map-pins-help'
+    });
+    pins.addEventListener('click', onMapPinsClick);
+    pins.addEventListener('keydown', onMapPinsKeydown);
+    var help = el('p', { class: 'visually-hidden', id: 'map-pins-help', text: 'Pins are in order from north to south. Arrow keys move between pins.' });
+
+    var frag = document.createDocumentFragment();
+    frag.appendChild(svg);
+    frag.appendChild(overlay);
+    frag.appendChild(pins);
+    frag.appendChild(help);
+    dom.mapStage.insertBefore(frag, dom.mapSkeleton || null);
+    m.canvas = svg;
+    m.label = label;
+    dom.mapPins = pins;
+    m.built = true;
+  }
+
+  /* One pin per base community, built again only when the kitchen list
+     itself changes. A kitchen whose base_community is missing, or isn't a
+     map community it delivers to, is left off (and counted in #map-missing). */
+  function ensurePins() {
+    var m = state.map;
+    if (m.status !== 'ready' || !m.built || !state.loaded || state.error || m.pinsFor === state.kitchens) return;
+    closeMapCardNow();
+    var byKey = Object.create(null);
+    var pins = [];
+    state.kitchens.forEach(function (k) {
+      var b = k.base_community;
+      if (!b || typeof b !== 'object') return;
+      if (b.city !== 'calgary' && b.city !== 'airdrie') return;
+      if ((b.city === 'airdrie') !== (k.quadrant === 'Airdrie')) return;
+      if (typeof b.slug !== 'string') return;
+      var key = b.city + ':' + b.slug;
+      var area = m.areas[key];
+      if (!area) return;
+      /* The kitchen's own spelling of the area ("King's Heights"). */
+      var areaName = '';
+      k.delivery.areas.some(function (name) {
+        if (typeof name === 'string' && communitySlug(name) === b.slug) {
+          areaName = name.trim();
+          return true;
+        }
+        return false;
+      });
+      if (!areaName) return;
+      var pin = byKey[key];
+      if (!pin) {
+        pin = byKey[key] = {
+          key: key,
+          name: areaName,
+          zone: b.city === 'airdrie' ? 'Airdrie' : area.quadrant,
+          x: area.x,
+          y: area.y,
+          kitchens: [],
+          matching: [],
+          out: true,
+          face: '',
+          node: null,
+          dot: null
+        };
+        pins.push(pin);
+      }
+      pin.kitchens.push(k);
+    });
+    pins.sort(function (a, b) { return (a.y - b.y) || (a.x - b.x); });
+
+    var frag = document.createDocumentFragment();
+    pins.forEach(function (pin, i) {
+      var dot = el('span', { class: 'map-pin-dot', 'aria-hidden': 'true' });
+      var node = el('button', {
+        type: 'button',
+        class: 'map-pin',
+        'data-pin': pin.key,
+        'data-label': pin.name,
+        'aria-haspopup': 'dialog',
+        'aria-controls': 'map-card',
+        'aria-expanded': 'false'
+      }, dot);
+      node.style.setProperty('--i', String(i));
+      pin.node = node;
+      pin.dot = dot;
+      frag.appendChild(node);
+    });
+    if (dom.mapPins) dom.mapPins.replaceChildren(frag);
+    m.pins = pins;
+    m.pinsFor = state.kitchens;
+  }
+
+  /* A single kitchen shows the tiffin; two or more show how many match. */
+  function setPinFace(pin, n) {
+    var face = n >= 2 ? String(n) : 'glyph';
+    if (pin.face === face) return;
+    pin.face = face;
+    if (face === 'glyph') pin.dot.replaceChildren(tiffinGlyph());
+    else pin.dot.textContent = face;
+  }
+
+  function endZoom() {
+    clearTimeout(zoomTimer);
+    zoomTimer = null;
+    if (state.map.canvas) state.map.canvas.classList.remove('is-zooming');
+  }
+
+  function showMapSkeleton() {
+    if (!dom.mapSkeleton || !dom.mapStage) return;
+    clearTimeout(skeletonTimer);
+    skeletonTimer = null;
+    dom.mapSkeleton.style.opacity = '';
+    dom.mapSkeleton.hidden = false;
+    dom.mapStage.setAttribute('aria-busy', 'true');
+    if (dom.mapError) dom.mapError.hidden = true;
+    if (dom.mapEmpty) dom.mapEmpty.hidden = true;
+  }
+
+  /* Fade the placeholder out, then remove it. */
+  function hideMapSkeleton() {
+    if (!dom.mapSkeleton || !dom.mapStage) return;
+    dom.mapStage.removeAttribute('aria-busy');
+    if (dom.mapSkeleton.hidden || skeletonTimer) return;
+    dom.mapSkeleton.style.opacity = '0';
+    skeletonTimer = setTimeout(function () {
+      skeletonTimer = null;
+      dom.mapSkeleton.hidden = true;
+      dom.mapSkeleton.style.opacity = '';
+    }, prefersReducedMotion() ? 0 : cssMs('--dur-2', 320));
+  }
+
+  function showMapError() {
+    if (!dom.mapError || !dom.mapStage) return;
+    clearTimeout(skeletonTimer);
+    skeletonTimer = null;
+    if (dom.mapSkeleton) {
+      dom.mapSkeleton.hidden = true;
+      dom.mapSkeleton.style.opacity = '';
+    }
+    dom.mapStage.removeAttribute('aria-busy');
+    var copy = state.map.offline ? MAP_OFFLINE_COPY : mapErrorCopy;
+    if (dom.mapErrorTitle) dom.mapErrorTitle.textContent = copy.title;
+    if (dom.mapErrorText) dom.mapErrorText.textContent = copy.text;
+    dom.mapError.hidden = false;
+    if (dom.mapEmpty) dom.mapEmpty.hidden = true;
+  }
+
+  /* Draw the map for the filtered list (called by renderResults in map
+     mode). f is the filter set; f.quadrant picks the zoom. */
+  function renderMap(list, f) {
+    var m = state.map;
+    if (!dom.mapStage || !dom.mapView) return;
+    var key = (f && f.quadrant && Object.prototype.hasOwnProperty.call(ZOOM_TITLE, f.quadrant)) ? f.quadrant : '';
+    if (dom.mapTitle) dom.mapTitle.textContent = ZOOM_TITLE[key];
+    if (dom.mapReset) dom.mapReset.hidden = !key;
+    dom.mapView.classList.toggle('is-zoomed', !!key);
+
+    if (m.status !== 'ready') {
+      if (m.status === 'error') showMapError();
+      else showMapSkeleton();
+      if (dom.mapMissing) dom.mapMissing.hidden = true;
+      return;
+    }
+
+    buildMapSvg();
+    ensurePins();
+    if (dom.mapError) dom.mapError.hidden = true;
+
+    var matching = Object.create(null);
+    list.forEach(function (k) { matching[k.slug] = true; });
+    var onMap = Object.create(null);
+
+    /* Zoom. The first time, and after the map was hidden, it jumps. */
+    var z = zoomFor(key);
+    var instant = m.zoomKey === null || mapJustShown;
+    var zoomChanged = m.zoomKey !== key;
+    mapJustShown = false;
+    m.zoomKey = key;
+    if (instant) {
+      dom.mapStage.classList.add('is-instant');
+      endZoom();
+    } else if (zoomChanged) {
+      m.canvas.classList.add('is-zooming');
+      clearTimeout(zoomTimer);
+      zoomTimer = setTimeout(endZoom, ZOOM_MS + 50);
+    }
+    m.canvas.style.transform = 'translate(' + fmt(z.tx / MAP_VB.w * 100) + '%, ' + fmt(z.ty / MAP_VB.h * 100) + '%) scale(' + fmt(z.s) + ')';
+    var at = stagePos(AIRDRIE_LABEL_AT[0], AIRDRIE_LABEL_AT[1], z);
+    m.label.style.setProperty('--x', fmt(at.left) + '%');
+    m.label.style.setProperty('--y', fmt(at.top) + '%');
+
+    m.pins.forEach(function (pin) {
+      pin.kitchens.forEach(function (k) { onMap[k.slug] = true; });
+      var hits = pin.kitchens.filter(function (k) { return matching[k.slug]; });
+      var pos = stagePos(pin.x, pin.y, z);
+      /* Zoomed in, a pin that would sit on the stage's edge is left out. */
+      var offStage = !!key && (pos.left < 1 || pos.left > 99 || pos.top < 1 || pos.top > 99);
+      var out = hits.length === 0 || offStage;
+      var node = pin.node;
+      pin.matching = hits;
+      pin.out = out;
+      node.classList.toggle('is-out', out);
+      if (out) {
+        node.setAttribute('tabindex', '-1');
+        node.setAttribute('aria-hidden', 'true');
+      } else {
+        node.removeAttribute('tabindex');
+        node.removeAttribute('aria-hidden');
+      }
+      node.style.setProperty('--x', fmt(pos.left) + '%');
+      node.style.setProperty('--y', fmt(pos.top) + '%');
+      node.classList.toggle('tip-below', pos.top < 12);
+      /* A pin fading out keeps its face; it changes only while visible. */
+      if (!out || !pin.face) setPinFace(pin, hits.length);
+      node.setAttribute('aria-label', pin.name + ' — ' + hits.length + ' ' + plural(hits.length, 'kitchen', 'kitchens'));
+    });
+
+    if (instant) {
+      /* Commit the new positions with transitions off, then turn them back
+         on for the next change. */
+      void dom.mapStage.offsetWidth;
+      var stage = dom.mapStage;
+      var restored = false;
+      var restore = function () {
+        if (restored) return;
+        restored = true;
+        stage.classList.remove('is-instant');
+      };
+      requestAnimationFrame(restore);
+      setTimeout(restore, 60);
+    }
+    hideMapSkeleton();
+
+    /* ?near=: outline that community, drawn last so its stroke is on top. */
+    if (m.nearPath) {
+      m.nearPath.classList.remove('is-near');
+      m.nearPath = null;
+    }
+    var near = state.near ? state.communities[state.near] : null;
+    if (near) {
+      var nearPath = m.paths[(near.quadrant === 'Airdrie' ? 'airdrie:' : 'calgary:') + state.near];
+      if (nearPath) {
+        nearPath.classList.add('is-near');
+        if (nearPath.parentNode) nearPath.parentNode.appendChild(nearPath);
+        m.nearPath = nearPath;
+      }
+    }
+
+    if (dom.mapEmpty) dom.mapEmpty.hidden = list.length > 0;
+
+    if (dom.mapMissing) {
+      var missing = 0;
+      list.forEach(function (k) { if (!onMap[k.slug]) missing += 1; });
+      dom.mapMissing.textContent = missing ? missing + ' matching ' + plural(missing, 'kitchen isn’t', 'kitchens aren’t') + ' on the map yet.' : '';
+      dom.mapMissing.hidden = missing === 0;
+    }
+
+    /* The pins drop in once, the first time they show. */
+    if (!m.popped && m.pins.length && dom.mapPins) {
+      m.popped = true;
+      if (!prefersReducedMotion()) {
+        var pinsBox = dom.mapPins;
+        pinsBox.classList.add('is-popping');
+        setTimeout(function () { pinsBox.classList.remove('is-popping'); }, 120 + m.pins.length * 55 + 620);
+      }
+    }
+
+    if (m.openPin) {
+      if (m.openPin.out) closeMapCardNow();
+      else refreshMapCard();
+    }
+  }
+
+  /* Tap part of the map (with "All" quadrants on) to zoom to its quadrant:
+     the same as picking that quadrant above. */
+  function onMapStageClick(event) {
+    var target = event.target;
+    if (!(target instanceof Element)) return;
+    if (target.closest('.map-pin, .map-state')) return;
+    if (swallowMapClickUntil) {
+      var swallow = Date.now() < swallowMapClickUntil;
+      swallowMapClickUntil = 0;
+      if (swallow) return;
+    }
+    var area = target.closest('.map-area, .map-inset, .map-outline');
+    if (!area || !dom.filters) return;
+    var checked = dom.filters.querySelector('input[name="quadrant"]:checked');
+    if (checked && checked.value !== '') return;
+    var q = area.closest('.map-airdrie') ? 'Airdrie' : area.getAttribute('data-q');
+    if (HOOD_ORDER.indexOf(q) === -1) return;
+    var radio = null;
+    Array.prototype.forEach.call(dom.filters.querySelectorAll('input[name="quadrant"]'), function (r) {
+      if (r.value === q) radio = r;
+    });
+    if (!radio) return;
+    radio.checked = true;
+    onFiltersChanged();
+  }
+
+  /* "Show all of Calgary": back to every quadrant. The button hides, so
+     focus lands on the count, which announces the new result. */
+  function onMapReset() {
+    var all = document.getElementById('quad-all');
+    if (all) all.checked = true;
+    onFiltersChanged();
+    focusQuietly(dom.resultsStatus);
+  }
+
+  /* Try again on the map's error pane. The pane gives way to the loading
+     placeholder, so focus moves to the count. */
+  function retryMap() {
+    if (mapLoad) return;
+    state.map.status = 'idle';
+    renderResults();
+    focusQuietly(dom.resultsStatus);
+  }
+
+  function isSheetMode() {
+    return !!(window.matchMedia && window.matchMedia('(max-width: 719.98px)').matches);
+  }
+
+  function pinForNode(node) {
+    var pins = state.map.pins;
+    for (var i = 0; i < pins.length; i++) {
+      if (pins[i].node === node) return pins[i];
+    }
+    return null;
+  }
+
+  function onMapPinsClick(event) {
+    var target = event.target;
+    if (!(target instanceof Element)) return;
+    var node = target.closest('.map-pin');
+    if (!node) return;
+    var pin = pinForNode(node);
+    if (!pin || pin.out) return;
+    if (state.map.openPin === pin) closeMapCard(true);
+    else openMapCard(pin);
+  }
+
+  /* Arrow keys move to the nearest visible pin in that direction (distance
+     along the arrow plus twice the sideways distance); Home and End go to
+     the first and last. Tab still visits every visible pin, north to south. */
+  var PIN_ARROWS = {
+    ArrowUp: { axis: 'y', dir: -1 },
+    ArrowDown: { axis: 'y', dir: 1 },
+    ArrowLeft: { axis: 'x', dir: -1 },
+    ArrowRight: { axis: 'x', dir: 1 }
+  };
+
+  function onMapPinsKeydown(event) {
+    var target = event.target;
+    if (!(target instanceof Element) || !target.classList.contains('map-pin')) return;
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    var visible = state.map.pins.filter(function (p) { return !p.out; });
+    if (!visible.length) return;
+    var next = null;
+    if (event.key === 'Home') {
+      next = visible[0];
+    } else if (event.key === 'End') {
+      next = visible[visible.length - 1];
+    } else if (PIN_ARROWS[event.key]) {
+      var arrow = PIN_ARROWS[event.key];
+      var current = pinForNode(target);
+      if (!current) return;
+      var best = Infinity;
+      visible.forEach(function (p) {
+        if (p === current) return;
+        var dx = p.x - current.x;
+        var dy = p.y - current.y;
+        var along = (arrow.axis === 'x' ? dx : dy) * arrow.dir;
+        if (along <= 4) return;
+        var score = along + 2 * Math.abs(arrow.axis === 'x' ? dy : dx);
+        if (score < best) {
+          best = score;
+          next = p;
+        }
+      });
+    } else {
+      return;
+    }
+    /* Handled keys never scroll the page, even with nowhere to go. */
+    event.preventDefault();
+    if (next) focusQuietly(next.node);
+  }
+
+  /* The preview card's content, all built with el(). */
+  function fillMapCard(pin) {
+    var n = pin.matching.length;
+    var total = pin.kitchens.length;
+    var kicker = pin.zone === 'Airdrie' ? 'Airdrie' : (QUADRANT_LABEL[pin.zone] ? QUADRANT_LABEL[pin.zone] + ' Calgary' : 'Calgary');
+    var sub = n === total
+      ? n + ' ' + plural(n, 'kitchen serves', 'kitchens serve') + ' this neighbourhood'
+      : n + ' of ' + total + ' kitchens here match your filters';
+
+    var close = el('button', { type: 'button', class: 'icon-btn map-card-close', 'aria-label': 'Close preview' }, icon('close', 20));
+    close.addEventListener('click', function () { closeMapCard(true); });
+    var head = el('div', { class: 'map-card-head' }, [
+      el('div', null, [
+        el('p', { class: 'map-card-kicker', text: kicker }),
+        el('h3', { class: 'map-card-title', id: 'map-card-title', tabindex: '-1', text: pin.name }),
+        el('p', { class: 'map-card-sub', text: sub })
+      ]),
+      close
+    ]);
+
+    var list = el('ul', { class: 'map-card-list' + (n >= 2 ? ' is-compact' : '') });
+    pin.matching.forEach(function (k) {
+      var price = el('span', { class: 'map-kitchen-price' }, [el('strong', { text: money(k.price.day) }), ' /day']);
+      var link = el('a', { class: 'btn btn-primary btn-small', href: kitchenHref(k.slug), 'data-route': '' }, [
+        'See this week’s menu',
+        el('span', { class: 'visually-hidden', text: ' from ' + k.name })
+      ]);
+      list.appendChild(el('li', { class: 'map-kitchen' }, [
+        dabbaTile(k.hue, false),
+        el('div', { class: 'map-kitchen-body' }, [
+          el('p', { class: 'map-kitchen-name' }, [el('span', { text: k.name }), k.sample ? sampleTag() : null]),
+          el('p', { class: 'map-kitchen-meta' }, [
+            el('span', { text: k.cuisine || '' }),
+            el('span', { class: 'q-chip', 'data-q': k.quadrant, text: k.quadrant }),
+            price
+          ]),
+          permitBadge(k.permit),
+          link
+        ])
+      ]));
+    });
+
+    dom.mapCard.replaceChildren(el('div', { class: 'map-card-handle', 'aria-hidden': 'true' }), head, list);
+  }
+
+  /* Popover beside the pin, inside #map-view: to the right, or to the left
+     when there is no room, clamped 8px from every edge. */
+  function placeMapCard() {
+    var m = state.map;
+    var pin = m.openPin;
+    var card = dom.mapCard;
+    if (!pin || !card || m.cardSheet) return;
+    var host = dom.mapView.getBoundingClientRect();
+    var r = pin.node.getBoundingClientRect();
+    var cx = r.left + r.width / 2 - host.left;
+    var cy = r.top + r.height / 2 - host.top;
+    var cw = card.offsetWidth;
+    var ch = card.offsetHeight;
+    var left = cx + 26;
+    var side = 'right';
+    if (left + cw > host.width - 8) {
+      left = cx - 26 - cw;
+      side = 'left';
+    }
+    left = Math.max(8, Math.min(left, host.width - cw - 8));
+    var top = Math.max(8, Math.min(cy - ch / 2, Math.max(8, host.height - ch - 8)));
+    card.style.left = Math.round(left) + 'px';
+    card.style.top = Math.round(top) + 'px';
+    card.setAttribute('data-side', side);
+  }
+
+  /* On a phone, scroll so the pin stays visible above the sheet. */
+  function revealPinAboveSheet(pin) {
+    var r = pin.node.getBoundingClientRect();
+    var limit = window.innerHeight - dom.mapCard.offsetHeight - 12;
+    if (r.bottom <= limit) return;
+    var by = Math.round(r.bottom - limit);
+    try {
+      window.scrollBy({ top: by, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    } catch (e) {
+      window.scrollBy(0, by);
+    }
+  }
+
+  function selectPath(pin, on) {
+    var path = state.map.paths[pin.key];
+    if (!path) return;
+    path.classList.toggle('is-selected', on);
+    if (on && path.parentNode) path.parentNode.appendChild(path);
+  }
+
+  function openMapCard(pin) {
+    var m = state.map;
+    var card = dom.mapCard;
+    if (!card || !pin || pin.out) return;
+    closeMapCardNow();
+    m.openPin = pin;
+    pin.node.classList.add('is-active');
+    pin.node.setAttribute('aria-expanded', 'true');
+    selectPath(pin, true);
+
+    card.classList.remove('is-open');
+    card.hidden = false;
+    fillMapCard(pin);
+    m.cardSheet = isSheetMode();
+    if (m.cardSheet) {
+      card.style.left = '';
+      card.style.top = '';
+      card.removeAttribute('data-side');
+    } else {
+      placeMapCard();
+    }
+    var token = ++cardToken;
+    afterPaint(function () {
+      if (token !== cardToken || m.openPin !== pin) return;
+      card.classList.add('is-open');
+      if (m.cardSheet) revealPinAboveSheet(pin);
+    });
+
+    focusQuietly(document.getElementById('map-card-title'));
+    document.addEventListener('keydown', onMapCardKeydown);
+    document.addEventListener('pointerdown', onMapOutsidePointer, true);
+    card.addEventListener('focusout', onMapCardFocusOut);
+  }
+
+  /* Rebuild an open card after a filter change (kitchens may have dropped
+     out of it). Focus stays where it was; if it was inside the card, it
+     goes back to the card's heading. */
+  function refreshMapCard() {
+    var pin = state.map.openPin;
+    if (!pin || !dom.mapCard) return;
+    var hadFocus = dom.mapCard.contains(document.activeElement);
+    fillMapCard(pin);
+    selectPath(pin, true);
+    placeMapCard();
+    if (hadFocus) focusQuietly(document.getElementById('map-card-title'));
+  }
+
+  function releaseMapCard(pin) {
+    document.removeEventListener('keydown', onMapCardKeydown);
+    document.removeEventListener('pointerdown', onMapOutsidePointer, true);
+    if (dom.mapCard) dom.mapCard.removeEventListener('focusout', onMapCardFocusOut);
+    if (!pin) return;
+    pin.node.classList.remove('is-active');
+    pin.node.setAttribute('aria-expanded', 'false');
+    selectPath(pin, false);
+  }
+
+  /* restore: put focus back on the pin (Escape, the X, the pin again, or a
+     tap on the map that isn't another control). */
+  function closeMapCard(restore) {
+    var m = state.map;
+    var pin = m.openPin;
+    var card = dom.mapCard;
+    if (!pin || !card) return;
+    m.openPin = null;
+    releaseMapCard(pin);
+    card.classList.remove('is-open');
+    var token = ++cardToken;
+    var delay = prefersReducedMotion() ? 0 : (m.cardSheet ? cssMs('--dur-3', 520) : cssMs('--dur-2', 320));
+    clearTimeout(cardTimer);
+    cardTimer = setTimeout(function () {
+      if (token === cardToken) card.hidden = true;
+    }, delay);
+    if (restore && !pin.out) focusQuietly(pin.node);
+  }
+
+  /* Hide at once, without the transition or moving focus: a filter hid the
+     pin, the page changed, the list showed, or the screen crossed 720px. */
+  function closeMapCardNow() {
+    var m = state.map;
+    var card = dom.mapCard;
+    if (!card) return;
+    clearTimeout(cardTimer);
+    cardTimer = null;
+    cardToken += 1;
+    var pin = m.openPin;
+    m.openPin = null;
+    releaseMapCard(pin);
+    card.classList.remove('is-open');
+    card.hidden = true;
+  }
+
+  function onMapCardKeydown(event) {
+    if (event.key === 'Escape') closeMapCard(true);
+  }
+
+  /* A press outside the card (and not on a pin, which toggles it) closes
+     it. On the map itself, the click that follows must not zoom. Focus
+     goes back to the pin unless the press was on another control; that
+     waits for the click, because the browser moves focus on mousedown. */
+  function onMapOutsidePointer(event) {
+    var target = event.target;
+    if (!(target instanceof Element)) {
+      closeMapCard(false);
+      return;
+    }
+    if ((dom.mapCard && dom.mapCard.contains(target)) || target.closest('.map-pin')) return;
+    if (dom.mapStage && dom.mapStage.contains(target)) swallowMapClickUntil = Date.now() + 1000;
+    var pin = state.map.openPin;
+    closeMapCard(false);
+    if (pin && !target.closest('a, button, input, select, textarea, label, [tabindex]')) refocusPinOnClick(pin);
+  }
+
+  function refocusPinOnClick(pin) {
+    var done = false;
+    function finish() {
+      if (done) return;
+      done = true;
+      document.removeEventListener('click', onClick, true);
+    }
+    function onClick() {
+      finish();
+      if (!pin.out && !state.map.openPin && document.body.contains(pin.node)) focusQuietly(pin.node);
+    }
+    document.addEventListener('click', onClick, true);
+    /* A press that turns into a scroll never clicks. */
+    setTimeout(finish, 1500);
+  }
+
+  /* Tabbing out of the card (to anything but a pin) closes it. */
+  function onMapCardFocusOut(event) {
+    var to = event.relatedTarget;
+    if (!to || !(to instanceof Element) || !dom.mapCard) return;
+    if (dom.mapCard.contains(to) || to.closest('.map-pin')) return;
+    closeMapCard(false);
+  }
+
+  /* While a card is open: re-place the popover, or close it if the screen
+     crossed between popover and sheet sizes. One check per frame. */
+  function onMapResize() {
+    if (!state.map.openPin || resizeFrame) return;
+    resizeFrame = requestAnimationFrame(function () {
+      resizeFrame = 0;
+      var m = state.map;
+      if (!m.openPin) return;
+      if (isSheetMode() !== m.cardSheet) closeMapCardNow();
+      else if (!m.cardSheet) placeMapCard();
+    });
   }
 
   /* ---------------------------------------------------------------------
@@ -1413,7 +2397,7 @@
     var k = params.get('k');
     if (k) return { view: 'kitchen', slug: k };
     if (params.get('view') === 'following') return { view: 'following' };
-    return { view: 'browse' };
+    return { view: 'browse', mode: (params.get('view') || '').toLowerCase() === 'map' ? 'map' : 'list' };
   }
 
   /* toResults: the link lists kitchens for a community (a delivery chip or a
@@ -1480,6 +2464,13 @@
     if (dom.navBrowse) {
       if (isBrowse) dom.navBrowse.setAttribute('aria-current', 'page');
       else dom.navBrowse.removeAttribute('aria-current');
+    }
+
+    /* Leaving the list: the map's card closes at once, and the map jumps to
+       its zoom (no animation) when it next shows. */
+    if (!isBrowse) {
+      closeMapCardNow();
+      mapJustShown = true;
     }
 
     var title = 'Tiffin Finder — permit-verified home tiffin kitchens in Calgary';
@@ -1833,7 +2824,10 @@
       else if (typeof wide.addListener === 'function') wide.addListener(onWide);
     }
     window.addEventListener('pageshow', function (event) {
-      if (event.persisted) closeNavNow();
+      if (event.persisted) {
+        closeNavNow();
+        closeMapCardNow();
+      }
     });
   }
 
@@ -1995,6 +2989,25 @@
     dom.filterPills = document.getElementById('filter-pills');
     dom.nearPill = document.getElementById('near-pill');
     dom.nearPillName = document.getElementById('near-pill-name');
+
+    dom.modeSeg = document.getElementById('mode-seg');
+    dom.modeList = document.getElementById('mode-list');
+    dom.modeMap = document.getElementById('mode-map');
+    dom.mapView = document.getElementById('map-view');
+    dom.mapStage = document.getElementById('map-stage');
+    dom.mapSkeleton = document.getElementById('map-skeleton');
+    dom.mapError = document.getElementById('map-error');
+    dom.mapErrorTitle = document.getElementById('map-error-title');
+    dom.mapErrorText = document.getElementById('map-error-text');
+    dom.mapEmpty = document.getElementById('map-empty');
+    dom.mapReset = document.getElementById('map-reset');
+    dom.mapTitle = document.getElementById('map-title');
+    dom.mapMissing = document.getElementById('map-missing');
+    dom.mapCard = document.getElementById('map-card');
+    dom.mapPins = null;
+    if (dom.mapErrorTitle && dom.mapErrorText) {
+      mapErrorCopy = { title: dom.mapErrorTitle.textContent, text: dom.mapErrorText.textContent };
+    }
 
     dom.viewFollowing = document.getElementById('view-following');
     dom.followingHeading = document.getElementById('following-heading');
@@ -2194,7 +3207,34 @@
        the connection comes back after a failed load, retry on our own. */
     window.addEventListener('online', function () {
       if (state.error) retryLoad();
+      /* The map's files too, if they failed while the map was open. */
+      if (state.mode === 'map' && state.map.status === 'error') {
+        var fromMapError = !!(dom.mapError && dom.mapError.contains(document.activeElement));
+        state.map.status = 'idle';
+        if (parseRoute().view === 'browse') renderResults();
+        else loadMap();
+        if (fromMapError) focusQuietly(dom.resultsStatus);
+      }
     });
+
+    /* List / Map switch and the map's own controls. The pins' click and
+       keydown listeners are added when the map is first drawn. */
+    if (dom.modeList) dom.modeList.addEventListener('click', function () { setMode('list'); });
+    if (dom.modeMap) dom.modeMap.addEventListener('click', function () { setMode('map'); });
+    var mapRetry = document.getElementById('map-retry');
+    if (mapRetry) mapRetry.addEventListener('click', retryMap);
+    var mapToList = document.getElementById('map-to-list');
+    if (mapToList) {
+      mapToList.addEventListener('click', function () {
+        setMode('list');
+        focusQuietly(dom.modeList);
+      });
+    }
+    var mapEmptyReset = document.getElementById('map-empty-reset');
+    if (mapEmptyReset) mapEmptyReset.addEventListener('click', resetFilters);
+    if (dom.mapReset) dom.mapReset.addEventListener('click', onMapReset);
+    if (dom.mapStage) dom.mapStage.addEventListener('click', onMapStageClick);
+    window.addEventListener('resize', onMapResize);
 
     /* The tiffin illustration in each empty / error state. */
     Array.prototype.forEach.call(document.querySelectorAll('.empty-art[data-hue]'), function (n) {

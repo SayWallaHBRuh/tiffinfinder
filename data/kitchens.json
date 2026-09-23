@@ -14,6 +14,10 @@
       "cuisine": "Punjabi",
       "quadrant": "NE",
       "area": "Saddle Ridge",
+      "base_community": {
+        "city": "calgary",
+        "slug": "saddle-ridge"
+      },
       "veg_only": false,
       "halal": false,
       "jain": false,
@@ -81,6 +85,10 @@
       "cuisine": "Gujarati",
       "quadrant": "NE",
       "area": "Cityscape",
+      "base_community": {
+        "city": "calgary",
+        "slug": "redstone"
+      },
       "veg_only": true,
       "halal": false,
       "jain": false,
@@ -148,6 +156,10 @@
       "cuisine": "Pakistani",
       "quadrant": "NE",
       "area": "Taradale",
+      "base_community": {
+        "city": "calgary",
+        "slug": "saddle-ridge"
+      },
       "veg_only": false,
       "halal": true,
       "jain": false,
@@ -215,6 +227,10 @@
       "cuisine": "South Indian",
       "quadrant": "NE",
       "area": "Falconridge",
+      "base_community": {
+        "city": "calgary",
+        "slug": "whitehorn"
+      },
       "veg_only": true,
       "halal": false,
       "jain": false,
@@ -280,6 +296,10 @@
       "cuisine": "Bengali",
       "quadrant": "NE",
       "area": "Skyview Ranch",
+      "base_community": {
+        "city": "calgary",
+        "slug": "redstone"
+      },
       "veg_only": false,
       "halal": false,
       "jain": false,
@@ -347,6 +367,10 @@
       "cuisine": "South Indian",
       "quadrant": "NW",
       "area": "Nolan Hill",
+      "base_community": {
+        "city": "calgary",
+        "slug": "evanston"
+      },
       "veg_only": true,
       "halal": false,
       "jain": false,
@@ -414,6 +438,10 @@
       "cuisine": "Punjabi",
       "quadrant": "NW",
       "area": "Panorama Hills",
+      "base_community": {
+        "city": "calgary",
+        "slug": "hamptons"
+      },
       "veg_only": true,
       "halal": false,
       "jain": false,
@@ -481,6 +509,10 @@
       "cuisine": "Afghan",
       "quadrant": "SE",
       "area": "Mahogany",
+      "base_community": {
+        "city": "calgary",
+        "slug": "seton"
+      },
       "veg_only": false,
       "halal": true,
       "jain": false,
@@ -548,6 +580,10 @@
       "cuisine": "Jain",
       "quadrant": "SW",
       "area": "Evergreen",
+      "base_community": {
+        "city": "calgary",
+        "slug": "shawnessy"
+      },
       "veg_only": true,
       "halal": false,
       "jain": true,
@@ -613,6 +649,10 @@
       "cuisine": "Pakistani",
       "quadrant": "Airdrie",
       "area": "King's Heights",
+      "base_community": {
+        "city": "airdrie",
+        "slug": "kings-heights"
+      },
       "veg_only": false,
       "halal": true,
       "jain": false,
@@ -680,6 +720,10 @@
       "cuisine": "Hyderabadi",
       "quadrant": "NE",
       "area": "Cornerstone",
+      "base_community": {
+        "city": "calgary",
+        "slug": "redstone"
+      },
       "veg_only": false,
       "halal": true,
       "jain": false,
@@ -748,6 +792,10 @@
       "cuisine": "Nepali",
       "quadrant": "NE",
       "area": "Martindale",
+      "base_community": {
+        "city": "calgary",
+        "slug": "saddle-ridge"
+      },
       "veg_only": false,
       "halal": false,
       "jain": false,
@@ -816,6 +864,10 @@
       "cuisine": "Gujarati",
       "quadrant": "NE",
       "area": "Redstone",
+      "base_community": {
+        "city": "calgary",
+        "slug": "redstone"
+      },
       "veg_only": true,
       "halal": false,
       "jain": true,
@@ -884,6 +936,10 @@
       "cuisine": "Filipino",
       "quadrant": "NE",
       "area": "Pineridge",
+      "base_community": {
+        "city": "calgary",
+        "slug": "whitehorn"
+      },
       "veg_only": false,
       "halal": false,
       "jain": false,
@@ -952,6 +1008,10 @@
       "cuisine": "Pakistani",
       "quadrant": "NW",
       "area": "Evanston",
+      "base_community": {
+        "city": "calgary",
+        "slug": "evanston"
+      },
       "veg_only": false,
       "halal": true,
       "jain": false,
@@ -1020,6 +1080,10 @@
       "cuisine": "Sri Lankan",
       "quadrant": "NW",
       "area": "Hamptons",
+      "base_community": {
+        "city": "calgary",
+        "slug": "hamptons"
+      },
       "veg_only": false,
       "halal": false,
       "jain": false,
@@ -1086,6 +1150,10 @@
       "cuisine": "Gujarati",
       "quadrant": "NW",
       "area": "Royal Oak",
+      "base_community": {
+        "city": "calgary",
+        "slug": "royal-oak"
+      },
       "veg_only": true,
       "halal": false,
       "jain": false,
@@ -1154,6 +1222,10 @@
       "cuisine": "Punjabi",
       "quadrant": "SE",
       "area": "Copperfield",
+      "base_community": {
+        "city": "calgary",
+        "slug": "copperfield"
+      },
       "veg_only": false,
       "halal": false,
       "jain": false,
@@ -1221,6 +1293,10 @@
       "cuisine": "South Indian",
       "quadrant": "SE",
       "area": "Forest Lawn",
+      "base_community": {
+        "city": "calgary",
+        "slug": "forest-lawn"
+      },
       "veg_only": true,
       "halal": false,
       "jain": false,
@@ -1287,6 +1363,10 @@
       "cuisine": "Bengali",
       "quadrant": "SE",
       "area": "Seton",
+      "base_community": {
+        "city": "calgary",
+        "slug": "seton"
+      },
       "veg_only": false,
       "halal": true,
       "jain": false,
@@ -1355,6 +1435,10 @@
       "cuisine": "Afghan",
       "quadrant": "SW",
       "area": "Signal Hill",
+      "base_community": {
+        "city": "calgary",
+        "slug": "signal-hill"
+      },
       "veg_only": false,
       "halal": true,
       "jain": false,
@@ -1423,6 +1507,10 @@
       "cuisine": "South Indian",
       "quadrant": "SW",
       "area": "Shawnessy",
+      "base_community": {
+        "city": "calgary",
+        "slug": "shawnessy"
+      },
       "veg_only": false,
       "halal": false,
       "jain": false,
@@ -1491,6 +1579,10 @@
       "cuisine": "Pakistani",
       "quadrant": "SW",
       "area": "Woodbine",
+      "base_community": {
+        "city": "calgary",
+        "slug": "woodbine"
+      },
       "veg_only": false,
       "halal": true,
       "jain": false,
@@ -1559,6 +1651,10 @@
       "cuisine": "Punjabi",
       "quadrant": "Airdrie",
       "area": "Williamstown",
+      "base_community": {
+        "city": "airdrie",
+        "slug": "williamstown"
+      },
       "veg_only": true,
       "halal": false,
       "jain": false,

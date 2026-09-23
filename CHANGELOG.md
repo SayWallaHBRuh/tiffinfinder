@@ -29,3 +29,15 @@
 - On a kitchen's page, dish names with a dotted underline can be tapped to show a one-line description, such as what haleem or sambar is.
 - Community names and quadrants were checked against the City of Calgary's and City of Airdrie's own lists, which fixed a few areas that were in the wrong quadrant. Sources are noted in docs/research-notes.md.
 - The kitchens are still made-up samples for testing, each marked "Sample".
+
+## Round 4 — 2026-09-23
+
+- New map view. Above the kitchen list you can now switch between "List" and "Map". The map shows Calgary's communities shaded by quadrant, with Airdrie in a small panel to the north.
+- Each pin sits on a neighbourhood a kitchen delivers to, never on anyone's address. Where several kitchens share a neighbourhood, one pin shows how many.
+- Tap a pin for a quick preview: name, cuisine, quadrant, price per day, permit status and a button to see this week's menu. On phones it slides up from the bottom. Escape, the X or tapping elsewhere closes it.
+- Search and filters work on the map too. Choosing a quadrant, or tapping part of the map, zooms in. "Show all of Calgary" zooms back out.
+- The web address remembers the map, so a shared link opens straight on it. The list is still the default.
+- The map downloads only when you first open it, and works offline after that.
+- Map shapes come from the City of Calgary's and City of Airdrie's open data, credited under the map.
+- The kitchens page and privacy page now mention the map and that it never shows addresses.
+- The kitchens are still made-up samples for testing, each marked "Sample".

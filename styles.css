@@ -58,6 +58,27 @@
   --preview-bg: var(--accent-soft);
   --preview-rule: var(--line);
 
+  /* Map (section 9d). Warm tints on one diagonal (NE, SW), greens on the
+     other (NW, SE), so neighbouring quadrants never share a hue family. */
+  --map-bg: #f3ecdf;
+  --map-ne: #f6d3a1;
+  --map-sw: #f2c9b1;
+  --map-nw: #c9e2cf;
+  --map-se: #dde8bf;
+  --map-airdrie: #eadca0;
+  --map-muted: #e9e1d0;
+  --map-park: #dfe8d6;
+  --map-stroke: #fbf7ef;
+  --map-near-fill: #f2b56b;
+  --map-near-line: #8a4a0b;
+  --map-inset: #fffdf8;
+  --map-inset-line: #e4dccb;
+  --pin-bg: #1f5c3a;
+  --pin-ink: #fbf7ef;
+  --pin-ring: #ffffff;
+  --pin-active-bg: #e8912d;
+  --pin-active-ink: #17271d;
+
   --shadow-1: 0 1px 2px rgb(23 39 29 / 0.06), 0 8px 24px -14px rgb(23 39 29 / 0.22);
   --shadow-2: 0 2px 4px rgb(23 39 29 / 0.08), 0 22px 44px -20px rgb(23 39 29 / 0.32);
   --shadow-sheet: 0 -12px 40px -12px rgb(23 39 29 / 0.35);
@@ -73,6 +94,7 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-spring: cubic-bezier(0.34, 1.2, 0.64, 1);
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
   --dur-1: 160ms;
   --dur-2: 320ms;
   --dur-3: 520ms;
@@ -135,6 +157,25 @@
     --preview-bg: var(--surface-2);
     --preview-rule: var(--accent);
 
+    --map-bg: #0d1611;
+    --map-ne: #4d3820;
+    --map-sw: #4a2f24;
+    --map-nw: #1f3a2a;
+    --map-se: #2f3a1f;
+    --map-airdrie: #463e1d;
+    --map-muted: #1b2921;
+    --map-park: #1a2c20;
+    --map-stroke: #0d1611;
+    --map-near-fill: #8a5a22;
+    --map-near-line: #f5b266;
+    --map-inset: #131f18;
+    --map-inset-line: #2a3b31;
+    --pin-bg: #f0a04a;
+    --pin-ink: #17120a;
+    --pin-ring: #101a14;
+    --pin-active-bg: #eef2ec;
+    --pin-active-ink: #101a14;
+
     --shadow-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 28px -14px rgb(0 0 0 / 0.6);
     --shadow-2: 0 2px 4px rgb(0 0 0 / 0.35), 0 24px 48px -20px rgb(0 0 0 / 0.7);
     --shadow-sheet: 0 -12px 40px -12px rgb(0 0 0 / 0.7);
@@ -190,6 +231,25 @@
   --chip-on-ink: #101a14;
   --preview-bg: var(--surface-2);
   --preview-rule: var(--accent);
+
+  --map-bg: #0d1611;
+  --map-ne: #4d3820;
+  --map-sw: #4a2f24;
+  --map-nw: #1f3a2a;
+  --map-se: #2f3a1f;
+  --map-airdrie: #463e1d;
+  --map-muted: #1b2921;
+  --map-park: #1a2c20;
+  --map-stroke: #0d1611;
+  --map-near-fill: #8a5a22;
+  --map-near-line: #f5b266;
+  --map-inset: #131f18;
+  --map-inset-line: #2a3b31;
+  --pin-bg: #f0a04a;
+  --pin-ink: #17120a;
+  --pin-ring: #101a14;
+  --pin-active-bg: #eef2ec;
+  --pin-active-ink: #101a14;
 
   --shadow-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 28px -14px rgb(0 0 0 / 0.6);
   --shadow-2: 0 2px 4px rgb(0 0 0 / 0.35), 0 24px 48px -20px rgb(0 0 0 / 0.7);
@@ -1345,6 +1405,83 @@ main[tabindex="-1"]:focus {
   outline: none;
 }
 
+/* The count and the List / Map switch share one row; the switch wraps
+   under the count when the row is too narrow. */
+.results-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin: 18px 0 14px;
+}
+
+.results-bar .results-status {
+  margin: 0;
+}
+
+/* Two-option switch: a sliding surface marks the pressed button. */
+.seg {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+
+.seg::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+  transition: transform var(--dur-2) var(--ease-out);
+}
+
+.seg[data-mode="map"]::before {
+  transform: translateX(100%);
+}
+
+.seg-btn {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  min-width: 88px;
+  padding: 6px 16px;
+  border: 0;
+  background: none;
+  border-radius: var(--radius-pill);
+  font: 700 0.95rem var(--font-body);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.seg-btn[aria-pressed="true"],
+.seg-btn:hover {
+  color: var(--ink);
+}
+
+.seg-btn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-pill);
+}
+
+.seg-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
 .section-head {
   display: flex;
   flex-wrap: wrap;
@@ -1560,7 +1697,7 @@ main[tabindex="-1"]:focus {
   margin-top: 18px;
 }
 
-.filter-pills:not([hidden]) + .results-status {
+.filter-pills:not([hidden]) + .results-bar {
   margin-top: 10px;
 }
 
@@ -2727,6 +2864,736 @@ main[tabindex="-1"]:focus {
   text-decoration-thickness: 1px;
 }
 
+/* ---------- 9d. Map ------------------------------------------------------ */
+/* The map view (index.html #map-view, drawn by app.js renderMap). One SVG of
+   Calgary's communities with Airdrie in a panel to the north; pins and the
+   Airdrie label are HTML laid over it at percentage positions, so they stay
+   44px targets at any zoom. The canvas zooms with a CSS transform, and pins
+   move with the same duration and easing, so they stay locked to the map.
+   No transform or filter on .map-view: the phone sheet is position: fixed. */
+.map-view {
+  position: relative;
+  margin-top: 4px;
+}
+
+.map-layout {
+  display: grid;
+  gap: 14px;
+}
+
+.map-frame {
+  width: 100%;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: inset 0 1px 0 var(--inset-hi), var(--shadow-1);
+}
+
+/* From 720px the map is as tall as the screen allows (the stage's ratio is
+   1000:1663), never narrower than 440px. */
+@media (min-width: 720px) {
+  .map-frame {
+    width: min(100%, max(440px, calc((100dvh - var(--header-h) - 150px) * 0.6013)));
+    margin-inline: auto;
+  }
+}
+
+@media (min-width: 960px) {
+  .map-layout {
+    grid-template-columns: auto minmax(240px, 300px);
+    justify-content: center;
+    align-items: start;
+    gap: 28px 40px;
+  }
+
+  /* In an auto column a percentage width has nothing to resolve against
+     (the column would shrink to the title bar), so the frame gets a length:
+     the same screen-height rule, capped so the side column still fits. */
+  .map-frame {
+    width: max(440px, min(calc((100dvh - var(--header-h) - 150px) * 0.6013), 620px));
+  }
+
+  .map-side {
+    position: sticky;
+    top: calc(var(--header-h) + 20px);
+  }
+}
+
+.map-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 56px;
+  padding: 6px 8px 6px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.map-title {
+  min-width: 0;
+  margin: 0;
+  font-size: 1.05rem;
+  font-variation-settings: "opsz" 24;
+}
+
+/* On narrow phones the reset button reads "Show all"; the rest of its name
+   stays for assistive tech. */
+@media (max-width: 439.98px) {
+  .map-reset-more {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+.map-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1000 / 1663;
+  overflow: hidden;
+  background: radial-gradient(120% 80% at 50% 40%, var(--surface) 0%, var(--map-bg) 70%);
+  touch-action: manipulation;
+}
+
+.map-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  transform-origin: 0 0;
+  transition: transform 620ms var(--ease-in-out);
+}
+
+.map-canvas.is-zooming {
+  will-change: transform;
+}
+
+.map-area {
+  fill: var(--map-muted);
+  stroke: var(--map-stroke);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  transition: fill var(--dur-1) var(--ease-out);
+}
+
+.map-area[data-cls="residential"][data-q="NE"] {
+  fill: var(--map-ne);
+}
+
+.map-area[data-cls="residential"][data-q="NW"] {
+  fill: var(--map-nw);
+}
+
+.map-area[data-cls="residential"][data-q="SE"] {
+  fill: var(--map-se);
+}
+
+.map-area[data-cls="residential"][data-q="SW"] {
+  fill: var(--map-sw);
+}
+
+.map-area[data-cls="residential"][data-q="Airdrie"],
+.map-area[data-cls="rural_residential"][data-q="Airdrie"] {
+  fill: var(--map-airdrie);
+}
+
+/* industrial, residual and annexation keep --map-muted. */
+.map-area[data-cls="park"] {
+  fill: var(--map-park);
+}
+
+/* A gentle illustrated mosaic: each community picks one of three tones. */
+.map-area[data-tone="1"] {
+  fill-opacity: 0.88;
+}
+
+.map-area[data-tone="2"] {
+  fill-opacity: 0.76;
+}
+
+.map-area.is-near {
+  fill: var(--map-near-fill);
+  fill-opacity: 1;
+  stroke: var(--map-near-line);
+  stroke-width: 2;
+}
+
+.map-area.is-selected {
+  fill-opacity: 1;
+  stroke: var(--pin-bg);
+  stroke-width: 2;
+}
+
+.map-inset {
+  fill: var(--map-inset);
+  stroke: var(--map-inset-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.map-outline {
+  fill: var(--map-muted);
+  fill-opacity: 0.55;
+  stroke: none;
+}
+
+.map-view:not(.is-zoomed) .map-area,
+.map-view:not(.is-zoomed) .map-inset {
+  cursor: zoom-in;
+}
+
+.map-overlay,
+.map-pins {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.map-label {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translateX(-100%);
+  text-align: right;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: left 620ms var(--ease-in-out), top 620ms var(--ease-in-out);
+}
+
+.map-label-name {
+  display: block;
+  font: 600 1rem var(--font-display);
+  color: var(--ink);
+}
+
+.map-label-sub {
+  display: block;
+  font: 600 0.75rem var(--font-body);
+  color: var(--muted);
+}
+
+/* A pin is a 44px button centred on its point; the visible dot is 32px. */
+.map-pin {
+  --x: 50%;
+  --y: 50%;
+  --i: 0;
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  padding: 0;
+  border: 0;
+  background: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  transition: left 620ms var(--ease-in-out), top 620ms var(--ease-in-out), visibility 0s;
+}
+
+.map-pin-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--pin-bg);
+  color: var(--pin-ink);
+  box-shadow: 0 0 0 2.5px var(--pin-ring), 0 6px 14px -4px rgb(0 0 0 / 0.35);
+  font: 700 0.95rem/1 var(--font-display);
+  transition: transform var(--dur-2) var(--ease-spring), opacity var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
+}
+
+.map-pin-dot svg {
+  width: 17px;
+  height: 17px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .map-pin:hover .map-pin-dot {
+    transform: translateY(-2px) scale(1.06);
+  }
+}
+
+/* The pin under the pointer or keyboard sits above its neighbours, so its
+   name label is never covered. */
+.map-pin:hover,
+.map-pin:focus-visible {
+  z-index: 2;
+}
+
+.map-pin.is-active {
+  z-index: 3;
+}
+
+/* The open pin swaps colours and takes the pin colour as its ring, which
+   keeps its edge at 3:1 or more against every tint in both themes. */
+.map-pin.is-active .map-pin-dot {
+  background: var(--pin-active-bg);
+  color: var(--pin-active-ink);
+  box-shadow: 0 0 0 2.5px var(--pin-bg), 0 8px 18px -4px rgb(0 0 0 / 0.4);
+  transform: scale(1.14);
+}
+
+.map-pin:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 0;
+  border-radius: 50%;
+}
+
+/* Filtered out (or off the zoomed area): the dot shrinks and fades, then
+   the button leaves the page's hit testing and tab order. */
+.map-pin.is-out {
+  visibility: hidden;
+  transition: left 620ms var(--ease-in-out), top 620ms var(--ease-in-out), visibility 0s linear 240ms;
+}
+
+.map-pin.is-out .map-pin-dot {
+  opacity: 0;
+  transform: scale(0.4);
+}
+
+/* The neighbourhood's name above the pin on hover or keyboard focus. The
+   text comes from our data through attr(), which is always plain text. */
+.map-pin::after {
+  content: attr(data-label);
+  position: absolute;
+  bottom: calc(100% - 2px);
+  left: 50%;
+  translate: -50% 4px;
+  white-space: nowrap;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--ink);
+  color: var(--bg);
+  font: 700 0.75rem/1.3 var(--font-body);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-1) var(--ease-out), translate var(--dur-2) var(--ease-out);
+}
+
+.map-pin.tip-below::after {
+  bottom: auto;
+  top: calc(100% - 2px);
+}
+
+.map-pin:not(.is-active):focus-visible::after {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .map-pin:not(.is-active):hover::after {
+    opacity: 1;
+    translate: -50% 0;
+  }
+}
+
+/* First appearance: the pins drop in one after another, north to south. */
+.map-pins.is-popping .map-pin-dot {
+  animation: pin-pop 560ms var(--ease-pop) backwards;
+  animation-delay: calc(120ms + var(--i) * 55ms);
+}
+
+@keyframes pin-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.2);
+  }
+
+  60% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Set for one frame when the map first shows, or shows again: jump to the
+   current zoom instead of animating to it. */
+.map-stage.is-instant,
+.map-stage.is-instant * {
+  transition: none !important;
+}
+
+.map-skeleton {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  display: grid;
+  place-items: center;
+  color: var(--ink-2);
+  font-weight: 700;
+  transition: opacity var(--dur-2) var(--ease-out);
+}
+
+.map-state {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  z-index: 4;
+  width: min(300px, calc(100% - 32px));
+  padding: 20px;
+  text-align: center;
+  background: var(--surface);
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-2);
+}
+
+.map-state .dabba {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 10px;
+}
+
+.map-state-title {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+}
+
+.map-state p {
+  margin: 0 0 14px;
+  font-size: 0.95rem;
+}
+
+.map-state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.map-side {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.map-note {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 0;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.map-note svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+  color: var(--verified);
+}
+
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+  color: var(--ink-2);
+}
+
+.map-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.map-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+.map-swatch[data-q="NE"] {
+  background: var(--map-ne);
+}
+
+.map-swatch[data-q="NW"] {
+  background: var(--map-nw);
+}
+
+.map-swatch[data-q="SE"] {
+  background: var(--map-se);
+}
+
+.map-swatch[data-q="SW"] {
+  background: var(--map-sw);
+}
+
+.map-swatch[data-q="Airdrie"] {
+  background: var(--map-airdrie);
+}
+
+.map-hint {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.map-missing {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.map-credit {
+  display: grid;
+  gap: 4px;
+}
+
+.map-credit p {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.map-credit a {
+  color: inherit;
+}
+
+/* Preview card. From 720px a popover beside the pin (app.js placeMapCard
+   sets left/top inside #map-view); on phones a sheet from the bottom. */
+.map-card {
+  position: absolute;
+  z-index: 30;
+  width: min(340px, calc(100% - 16px));
+  max-height: min(70vh, 480px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 14px 16px 12px;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-2);
+  opacity: 0;
+  transform: scale(0.96);
+  transform-origin: left center;
+  transition: opacity var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out);
+}
+
+.map-card[data-side="left"] {
+  transform-origin: right center;
+}
+
+.map-card.is-open {
+  opacity: 1;
+  transform: none;
+}
+
+/* Above the header (z 40), below the toast (z 70) and the sheets (z 80). */
+@media (max-width: 719.98px) {
+  .map-card {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    z-index: 60;
+    width: auto;
+    max-height: 72dvh;
+    padding: 10px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    border-width: 1px 0 0;
+    border-radius: 24px 24px 0 0;
+    box-shadow: var(--shadow-sheet);
+    opacity: 1;
+    transform: translateY(100%);
+    transition: transform var(--dur-3) var(--ease-out);
+  }
+
+  .map-card.is-open {
+    transform: none;
+  }
+}
+
+.map-card-handle {
+  width: 44px;
+  height: 5px;
+  margin: 0 auto 10px;
+  border-radius: 3px;
+  background: var(--line-strong);
+}
+
+@media (min-width: 720px) {
+  .map-card-handle {
+    display: none;
+  }
+}
+
+.map-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.map-card-head > div {
+  min-width: 0;
+}
+
+.map-card-kicker {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.map-card-title {
+  margin: 2px 0 0;
+  font-size: 1.3rem;
+}
+
+/* app.js moves focus here when the card opens: a landing point for screen
+   readers, not a control, so it needs no ring. */
+.map-card-title:focus {
+  outline: none;
+}
+
+.map-card-sub {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.map-card-close {
+  flex: none;
+}
+
+.map-card-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+
+.map-kitchen {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+
+.map-kitchen .dabba-tile {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+}
+
+.map-kitchen-body {
+  display: grid;
+  justify-items: start;
+  min-width: 0;
+}
+
+.map-kitchen-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin: 0;
+  font: 600 1.05rem/1.2 var(--font-display);
+  color: var(--ink);
+}
+
+.map-kitchen-name .tag {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  padding: 2px 7px;
+  letter-spacing: 0.05em;
+}
+
+.map-kitchen-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin: 4px 0 6px;
+  font-size: 0.9rem;
+  color: var(--ink-2);
+}
+
+.map-kitchen-price strong {
+  color: var(--ink);
+}
+
+.map-kitchen .btn {
+  margin-top: 8px;
+}
+
+.map-card-list.is-compact .map-kitchen {
+  padding: 10px 0;
+  gap: 10px;
+}
+
+/* Quadrant chip: the quadrant's map tint as a dot beside its short name. */
+.q-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 24px;
+  padding: 1px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--ink-2);
+}
+
+.q-chip::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--chip-q, var(--map-muted));
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+.q-chip[data-q="NE"] {
+  --chip-q: var(--map-ne);
+}
+
+.q-chip[data-q="NW"] {
+  --chip-q: var(--map-nw);
+}
+
+.q-chip[data-q="SE"] {
+  --chip-q: var(--map-se);
+}
+
+.q-chip[data-q="SW"] {
+  --chip-q: var(--map-sw);
+}
+
+.q-chip[data-q="Airdrie"] {
+  --chip-q: var(--map-airdrie);
+}
+
 /* ---------- 11. Alerts panel --------------------------------------------- */
 .alerts {
   --focus: var(--on-brand-accent);
@@ -3473,5 +4340,19 @@ main[tabindex="-1"]:focus {
 
   .dish-note {
     animation: none;
+  }
+
+  /* Map: pins appear at once, and nothing lifts. The rule above already
+     makes the zoom, the pins' moves and the preview card instant. */
+  .map-pins.is-popping .map-pin-dot {
+    animation: none;
+  }
+
+  .map-pin:not(.is-active):hover .map-pin-dot {
+    transform: none;
+  }
+
+  .seg::before {
+    transition: none;
   }
 }

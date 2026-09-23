@@ -12,12 +12,16 @@
      the last saved copy. Offline with nothing saved, answer 503 with
      {meta:{offline:true}} plus an empty list (kitchens: [] or dishes: []),
      so the app can say so (the glossary simply stays off).
+   - data/map/calgary.json and data/map/airdrie.json (the map shapes): also
+     network-first, with the same offline fallback ({meta:{offline:true}}
+     plus communities: []). They are not precached: the page asks for them
+     only when someone first opens the map, and they are saved from then on.
    - Everything else same-origin: cache-first, then network (and cache it).
    - Cross-origin requests (Google Fonts) are never intercepted or cached. */
 
 'use strict';
 
-var VERSION = 'tf-v1.5.0';
+var VERSION = 'tf-v1.6.0';
 var SHELL_CACHE = VERSION + '-shell';
 var DATA_CACHE = VERSION + '-data';
 
@@ -45,7 +49,9 @@ var SHELL = [
    and not saved yet. */
 var DATA_FALLBACK = {
   'data/kitchens.json': { meta: { offline: true }, kitchens: [] },
-  'data/dishes.json': { meta: { offline: true }, dishes: [] }
+  'data/dishes.json': { meta: { offline: true }, dishes: [] },
+  'data/map/calgary.json': { meta: { offline: true }, communities: [] },
+  'data/map/airdrie.json': { meta: { offline: true }, communities: [] }
 };
 
 self.addEventListener('install', function (event) {

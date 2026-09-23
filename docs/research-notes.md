@@ -31,6 +31,12 @@ Airdrie names come from the City of Airdrie's own planning pages:
 
 The City spells it **King's Heights**, with an apostrophe. The earlier sample data had "Kings Heights".
 
+## Map pins (base community)
+
+Each sample kitchen has a `base_community` (city + slug) that places its pin on the map. It is always one of that kitchen's own delivery communities, never an address. The communities were chosen so that pins don't overlap on a phone-sized map (at least about 42 px apart at 328 px wide) and so that several kitchens share a pin in the busiest areas. The map shapes and their sources are described in `docs/map-data.md`.
+
+Airdrie's open-data neighbourhood layer spells the name **"Kings Heights"**, without the apostrophe. Pins are matched by slug (`kings-heights`), which is the same for both spellings, so the City planning-page spelling **"King's Heights"** stays in the kitchen data.
+
 ## Dish glossary (`data/dishes.json`)
 
 Each description is a short paraphrase written for Tiffin Finder and checked against the source in that entry's `source` field. Wikipedia is used as a reference that anyone can open. Where a dish has no article of its own, the entry cites the cuisine article that names and describes it.
