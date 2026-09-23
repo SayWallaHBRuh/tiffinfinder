@@ -1349,10 +1349,20 @@ main[tabindex="-1"]:focus {
   pointer-events: none;
 }
 
+/* Two groups of switches: diet, then "Trial week" and "Taking new
+   customers". Each wraps on its own, so at phone width the row can take
+   two or three lines without ever scrolling sideways. */
 .switch-row {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 12px;
+}
+
+.switch-set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-width: 0;
 }
 
 .switch {
@@ -1464,6 +1474,10 @@ main[tabindex="-1"]:focus {
     grid-area: switches;
     justify-content: flex-end;
     align-self: end;
+  }
+
+  .switch-set {
+    justify-content: flex-end;
   }
 
   .filters-foot {
@@ -1962,9 +1976,8 @@ main[tabindex="-1"]:focus {
   color: var(--ink-2);
 }
 
-/* "Pickup", "Delivery" or "Pickup & delivery" beside the permit badge.
-   Text contrast: 5.8:1 (pickup) and 5.5:1 (delivery) in light, 7.6:1 and
-   6.5:1 in dark. */
+/* A card's badge row: the badge (Sample listing or the permit), the diet
+   chip, then the capacity pill. Never more than three. */
 .card-badges {
   display: flex;
   flex-wrap: wrap;
@@ -1972,6 +1985,99 @@ main[tabindex="-1"]:focus {
   gap: 6px 8px;
 }
 
+/* "Jain", "Veg" or "Halal". --verified on --surface-2: 5.7:1 light,
+   7.4:1 dark. */
+.diet-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 3px 11px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  color: var(--verified);
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* "Taking new customers", "Waitlist" or "Full right now": --ink-2 text on
+   --surface (9:1+ both themes); the dot repeats it in colour. */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 28px;
+  padding: 3px 11px 3px 9px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  color: var(--ink-2);
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.status-pill::before {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--verified);
+  box-shadow: 0 0 0 3px var(--verified-soft);
+}
+
+.status-pill[data-capacity="waitlist"]::before {
+  background: var(--accent-strong);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.status-pill[data-capacity="full"]::before {
+  background: var(--danger);
+  box-shadow: 0 0 0 3px var(--danger-soft);
+}
+
+/* "From $13/day · $75/week · $260/month" and the trial week chip: one
+   row that wraps. */
+.card-price-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.card-price {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.card-price strong {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  font-weight: 700;
+}
+
+/* "Trial week $64". --accent-ink on --accent-soft: 5.8:1 light, 7.5:1 dark. */
+.trial-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* "Pickup", "Delivery" or "Pickup & delivery" on a kitchen's page and in
+   the map preview. Text contrast: 5.8:1 (pickup) and 5.5:1 (delivery) in
+   light, 7.6:1 and 6.5:1 in dark. */
 .svc-chip {
   display: inline-flex;
   align-items: center;
@@ -2016,21 +2122,6 @@ main[tabindex="-1"]:focus {
   flex-direction: column;
   gap: 2px;
   min-width: 0;
-}
-
-.price .amount {
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--ink);
-}
-
-.price .amount small {
-  font-family: var(--font-body);
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--muted);
 }
 
 .posted {
@@ -2201,15 +2292,10 @@ main[tabindex="-1"]:focus {
   height: 16px;
 }
 
-.skel-cells {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.skel-cell {
-  height: 76px;
-  border-radius: var(--radius-sm);
+/* Plans and prices: a plan name on the left, its price on the right. */
+.k-prices .skel-row {
+  grid-template-columns: minmax(0, 96px) 48px;
+  justify-content: space-between;
 }
 
 .skel-chips {
@@ -2573,33 +2659,66 @@ main[tabindex="-1"]:focus {
   }
 }
 
-.price-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin: 0;
+/* Plans and prices (app.js renderKitchen): Day, Week, Month, then the
+   trial week with its note on its own line. The header row is visually
+   hidden (not display:none), so it still names the columns. */
+.plan-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
 }
 
-.price-grid > div {
-  padding: 12px;
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
-  text-align: center;
+.plan-table th,
+.plan-table td {
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  vertical-align: baseline;
 }
 
-.price-grid dt {
-  font-size: 0.74rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.plan-table tbody tr:first-child > * {
+  border-top: 0;
+  padding-top: 2px;
+}
+
+.plan-table tbody th {
+  padding-right: 12px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.plan-table td {
+  text-align: right;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* The trial week reads as the offer it is: saffron ink (6.8:1 light,
+   8.6:1 dark on --surface). */
+.plan-table tr.is-trial th {
+  color: var(--accent-ink);
+}
+
+.plan-table .plan-ask {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: var(--ink-2);
+  white-space: normal;
+}
+
+.plan-note {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.84rem;
+  font-weight: 600;
   color: var(--muted);
 }
 
-.price-grid dd {
-  margin: 4px 0 0;
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 700;
+.k-prices .fine {
+  margin-top: 10px;
 }
 
 .fine {
@@ -2633,14 +2752,33 @@ main[tabindex="-1"]:focus {
   margin: 0;
 }
 
+/* The heading, with the capacity pill beside it (or under it when the
+   rail is narrow). */
+.order-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 10px;
+}
+
+/* The two buttons share a row when they fit (the WhatsApp one a little
+   wider); when a long label ("Ask to join the waitlist") or the phone
+   number doesn't fit, Call drops to its own full-width row instead of
+   squeezing or breaking the number. */
 .order-actions {
-  display: grid;
-  grid-template-columns: 1.35fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .order-actions .btn {
+  flex: 1 1 auto;
   padding-inline: 12px;
+}
+
+.order-actions .btn-whatsapp {
+  flex-grow: 1.35;
 }
 
 .order-bar .fine {
@@ -2654,8 +2792,8 @@ main[tabindex="-1"]:focus {
     display: none;
   }
 
-  .order-actions {
-    grid-template-columns: 1.6fr 1fr;
+  .order-actions .btn-whatsapp {
+    flex-grow: 1.6;
   }
 
   .order-actions .btn {
@@ -2750,6 +2888,16 @@ main[tabindex="-1"]:focus {
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;
+  }
+
+  /* The slim bar keeps just the capacity pill above its buttons; with no
+     pill, the head takes no room at all. */
+  .order-bar:not(.is-pending) .order-head {
+    justify-content: flex-start;
+  }
+
+  .order-bar:not(.is-pending) .order-head:not(:has(.status-pill)) {
+    display: contents;
   }
 
   .order-bar.is-pending {
@@ -4231,6 +4379,212 @@ main[tabindex="-1"]:focus {
   margin-inline: 2px;
 }
 
+/* ---------- 13b. Order sheet (app.js openOrderSheet) ---------------------- */
+/* "You're about to send": plan and start-day chips, a note, the exact
+   message in a bubble, and the send / call actions pinned to the bottom
+   of the panel while it scrolls. */
+.order-sheet .sheet-panel {
+  max-width: 560px;
+  padding-bottom: 0;
+}
+
+.order-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.sheet-panel .order-sheet-head h2 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+#order-sheet-body {
+  display: grid;
+  gap: 16px;
+}
+
+.order-to {
+  margin: 0;
+  color: var(--ink-2);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.order-to strong {
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.order-to .tag {
+  vertical-align: 1px;
+}
+
+.order-phone {
+  white-space: nowrap;
+}
+
+/* Below 900px chip groups are one sideways-scrolling row with negative
+   margins (section 7); in the sheet they wrap inside the panel instead. */
+.order-sheet .chip-group {
+  flex-wrap: wrap;
+  overflow: visible;
+  margin-inline: 0;
+  padding-inline: 0;
+  padding-block: 0;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.order-sheet .chip-group label {
+  flex: 0 1 auto;
+  max-width: 100%;
+}
+
+/* The chip groups' legends are visually hidden elsewhere; here they are
+   the section labels ("Plan", "Start day"), styled like .field > label. */
+.chip-group .order-legend,
+.order-preview figcaption {
+  position: static;
+  width: 100%;
+  height: auto;
+  margin: 0 0 8px;
+  padding: 0;
+  overflow: visible;
+  clip: auto;
+  clip-path: none;
+  white-space: normal;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.order-price {
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+/* The note: the textarea runs full width; the hint and the counter share
+   the row under it. */
+.order-note-field {
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 12px;
+}
+
+.order-note-field > label,
+.order-note-field > textarea {
+  grid-column: 1 / -1;
+}
+
+/* A 44px-tall hit area for the label (it focuses the note) without
+   changing the spacing around it. */
+.order-note-field > label {
+  min-height: 44px;
+  padding-block: 12px;
+  margin-block: -12px;
+}
+
+.order-note-field .fine {
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+.order-count {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.order-note-field textarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--field-line);
+  background: var(--surface-2);
+  color: var(--ink);
+  line-height: 1.45;
+  resize: none;
+  transition: border-color var(--dur-1) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
+}
+
+.order-note-field textarea::placeholder {
+  color: var(--muted);
+}
+
+.order-note-field textarea:hover {
+  border-color: var(--ink-2);
+}
+
+.order-note-field textarea:focus {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.order-preview {
+  margin: 0;
+}
+
+.order-preview figcaption {
+  display: block;
+}
+
+/* The message as it will read in WhatsApp: --ink on --verified-soft,
+   13:1 light and 11:1 dark. */
+.order-bubble {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 16px 16px 16px 4px;
+  background: var(--verified-soft);
+  color: var(--ink);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.order-say {
+  margin: 0;
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.order-script {
+  margin: 0;
+  padding: 8px 14px;
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-xs);
+  background: var(--surface-2);
+}
+
+.order-script p {
+  margin: 0;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+/* Pinned to the bottom of the scrolling panel, edge to edge. */
+.order-sheet-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: grid;
+  gap: 8px;
+  margin: 0 -20px;
+  padding: 12px 20px calc(16px + env(safe-area-inset-bottom, 0px));
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+}
+
+.order-sheet-actions .fine {
+  margin: 0;
+}
+
 /* ---------- 14. Static pages (prose) ------------------------------------- */
 .page-hero {
   --focus: var(--on-brand-accent);
@@ -4613,6 +4967,46 @@ main[tabindex="-1"]:focus {
   animation-delay: 120ms;
 }
 
+/* Loading hero (index.html .is-pending, removed by app.js revealHero once
+   the kitchens arrive). Only under .js, so without JavaScript the hero
+   reads normally. The words stay in the page (the h1 keeps its name for
+   screen readers) but show as soft cream bars, and the filters hold their
+   space unseen, so nothing jumps when the real hero appears. */
+.js .hero.is-pending :is(#hero-eyebrow, #hero-heading, #hero-lede, .hero-count) {
+  justify-self: start;
+  color: transparent;
+  background: linear-gradient(90deg, rgb(251 247 239 / 0.10), rgb(251 247 239 / 0.18), rgb(251 247 239 / 0.10));
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+  border-radius: 12px;
+  user-select: none;
+}
+
+.js .hero.is-pending .hero-count {
+  border-color: transparent;
+}
+
+.js .hero.is-pending .hero-count > * {
+  visibility: hidden;
+}
+
+/* The entrance rise waits for the reveal, then plays once (.is-revealed). */
+.js .hero.is-pending .hero-inner > * {
+  animation: none;
+}
+
+.js .hero.is-revealed .hero-inner > * {
+  animation-name: rise;
+}
+
+.js #filters-section.is-pending {
+  visibility: hidden;
+}
+
+.js #filters-section.is-pending .filters {
+  animation: none;
+}
+
 .page-hero-inner > * {
   animation: rise var(--dur-3) var(--ease-out) backwards;
 }
@@ -4660,6 +5054,17 @@ main[tabindex="-1"]:focus {
   .skel {
     animation: none;
     background: var(--surface-2);
+  }
+
+  /* The loading hero: still cream bars, no shimmer, and no rise on reveal. */
+  .js .hero.is-pending :is(#hero-eyebrow, #hero-heading, #hero-lede, .hero-count) {
+    animation: none;
+    background: rgb(251 247 239 / 0.12);
+  }
+
+  .js .hero.is-revealed .hero-inner > *,
+  .js #filters-section .filters {
+    animation: none;
   }
 
   .dish-note {

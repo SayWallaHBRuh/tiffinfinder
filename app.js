@@ -35,6 +35,7 @@
     preview: 'tf.previewDismissed'
   };
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var DAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   /* Every prefilled order message starts with this (see orderMessage), so
      a kitchen can tell who found it here. */
   var WA_INTRO = 'Hi, I found you on Tiffin Finder.';
@@ -200,6 +201,12 @@
   }
 
   applyTheme(store.get(KEYS.theme, null));
+
+  /* The page can run JavaScript: styles.css holds the home page's hero and
+     filters as a quiet placeholder (.js .hero.is-pending) until the
+     kitchens arrive, so the launch page never flashes the normal hero
+     first. Without JavaScript none of those rules apply. */
+  root.classList.add('js');
 
   if (window.matchMedia) {
     var mq = window.matchMedia('(prefers-color-scheme: dark)');
@@ -527,6 +534,31 @@
     return chip;
   }
 
+  /* Trial week and capacity (both optional). Never drops a kitchen: a
+     value that isn't understood simply shows nothing.
+       k.capacity  'open' | 'waitlist' | 'full', or '' (unknown)
+       k.trial     {offered: true, price: number|null, note: string|null}
+                   when the kitchen offers a trial week, else null */
+  var CAPACITIES = ['open', 'waitlist', 'full'];
+  var CAPACITY_LABEL = { open: 'Taking new customers', waitlist: 'Waitlist', full: 'Full right now' };
+
+  function normalizeDecisions(k) {
+    k.capacity = CAPACITIES.indexOf(k.capacity) !== -1 ? k.capacity : '';
+    var t = k.trial;
+    if (t && typeof t === 'object' && t.offered === true) {
+      var p = t.price;
+      var note = typeof t.note === 'string' ? t.note.trim() : '';
+      k.trial = {
+        offered: true,
+        price: (isFiniteNumber(p) && p > 0 && p < 1000) ? p : null,
+        note: (note.length >= 1 && note.length <= 120) ? note : null
+      };
+    } else {
+      k.trial = null;
+    }
+    return true;
+  }
+
   /* ---------------------------------------------------------------------
      Data
   --------------------------------------------------------------------- */
@@ -539,7 +571,8 @@
       k.contact && typeof k.contact === 'object' &&
       k.delivery && Array.isArray(k.delivery.areas) &&
       k.permit && typeof k.permit === 'object' &&
-      normalizeService(k));
+      normalizeService(k) &&
+      normalizeDecisions(k));
   }
 
   /* meta.show_samples: the one switch for the sample kitchens. Only an
@@ -898,10 +931,168 @@
     return badge;
   }
 
-  /* The message WhatsApp opens with. Every prefilled message goes through
-     here, so it always starts with WA_INTRO. */
-  function orderMessage(k) {
-    return WA_INTRO + ' I’d like to order from ' + k.name + '. Is this week’s tiffin available?';
+  /* ---------------------------------------------------------------------
+     Plans, trial week and capacity
+  --------------------------------------------------------------------- */
+  /* The prices a kitchen actually has, in a fixed order:
+     [{id: 'day'|'week'|'month'|'trial', label, amount}]. A price counts
+     only when it is a number above 0; the trial week only when offered
+     and priced. */
+  function planPrices(k) {
+    var price = k.price || {};
+    var out = [];
+    [['day', 'Day', price.day], ['week', 'Week', price.weekly], ['month', 'Month', price.monthly]].forEach(function (row) {
+      if (isFiniteNumber(row[2]) && row[2] > 0) out.push({ id: row[0], label: row[1], amount: row[2] });
+    });
+    if (k.trial && isFiniteNumber(k.trial.price) && k.trial.price > 0) out.push({ id: 'trial', label: 'Trial week', amount: k.trial.price });
+    return out;
+  }
+
+  /* The capacity to show: only while ordering is open (a checked kitchen
+     or a sample). A kitchen that can't take orders never shows one. */
+  function capacityShown(k) {
+    var s = permitInfo(k).state;
+    return (s === 'checked' || s === 'sample') ? (k.capacity || '') : '';
+  }
+
+  /* Waitlist or full: the order sheet asks to join the waitlist. */
+  function isWaitlist(k) {
+    var c = capacityShown(k);
+    return c === 'waitlist' || c === 'full';
+  }
+
+  /* "Taking new customers", "Waitlist" or "Full right now"; the dot is
+     drawn by CSS (.status-pill::before). */
+  function statusPill(k) {
+    var c = capacityShown(k);
+    if (!c) return null;
+    return el('span', { class: 'status-pill', 'data-capacity': c, text: CAPACITY_LABEL[c] });
+  }
+
+  /* One diet word for the card: Jain, else Veg, else Halal. */
+  function dietChip(k) {
+    var word = k.jain ? 'Jain' : (k.veg_only ? 'Veg' : (k.halal ? 'Halal' : ''));
+    return word ? el('span', { class: 'diet-chip', text: word }) : null;
+  }
+
+  function trialChip(k) {
+    if (!k.trial) return null;
+    return el('span', { class: 'trial-chip', text: k.trial.price !== null ? 'Trial week ' + money(k.trial.price) : 'Trial week' });
+  }
+
+  /* "From $13/day · $75/week · $260/month", amounts in <strong>. */
+  var PRICE_UNIT = { day: '/day', week: '/week', month: '/month' };
+
+  function priceLine(k) {
+    var plans = planPrices(k).filter(function (p) { return p.id !== 'trial'; });
+    if (!plans.length) return null;
+    var line = el('p', { class: 'card-price' });
+    plans.forEach(function (p, i) {
+      line.appendChild(document.createTextNode(i === 0 ? 'From ' : ' · '));
+      line.appendChild(el('strong', { text: money(p.amount) }));
+      line.appendChild(document.createTextNode(PRICE_UNIT[p.id]));
+    });
+    return line;
+  }
+
+  /* The card's meta line: "Punjabi · NE · Saddle Ridge · Pickup & delivery".
+     Diet has its own chip on the card; the kitchen page keeps metaLine(). */
+  function cardMetaLine(k) {
+    return [k.cuisine, k.quadrant, k.area, SERVICE_LABEL[k.service]].filter(Boolean).join(' · ');
+  }
+
+  /* ---------------------------------------------------------------------
+     Order messages
+  --------------------------------------------------------------------- */
+  var NOTE_MAX = 140;
+  /* Control characters and bidi controls, turned into spaces in a note. */
+  var NOTE_STRIP_RE = /[\u0000-\u001F\u007F\u200E\u200F\u202A-\u202E\u2066-\u2069]/g;
+  /* A surrogate pair, or a lone surrogate (which encodeURIComponent rejects). */
+  var SURROGATE_RE = /[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDFFF]/g;
+
+  /* A household's note as it goes into a message: plain text on one line,
+     at most 140 characters. */
+  function cleanNote(note) {
+    var s = String(note === null || note === undefined ? '' : note);
+    s = s.replace(NOTE_STRIP_RE, ' ').replace(SURROGATE_RE, function (m) { return m.length === 2 ? m : ''; });
+    s = s.replace(/\s+/g, ' ').trim().slice(0, NOTE_MAX);
+    /* Never end on half of a pair cut by the slice. */
+    if (/[\uD800-\uDBFF]$/.test(s)) s = s.slice(0, -1);
+    return s.trim();
+  }
+
+  function isoOf(date) {
+    var m = date.getMonth() + 1;
+    var d = date.getDate();
+    return date.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (d < 10 ? '0' : '') + d;
+  }
+
+  /* 'YYYY-MM-DD' -> "Thu 24 Sep", or '' when it isn't a real day. */
+  function dayLabel(iso) {
+    if (!isoDay(iso)) return '';
+    var date = new Date(parseInt(iso.slice(0, 4), 10), parseInt(iso.slice(5, 7), 10) - 1, parseInt(iso.slice(8, 10), 10));
+    return DAYS_SHORT[date.getDay()] + ' ' + date.getDate() + ' ' + MONTHS[date.getMonth()];
+  }
+
+  /* The next n weekdays on this device, starting tomorrow, as ISO days.
+     Worked out each time the order sheet opens. */
+  function nextWeekdays(n) {
+    var out = [];
+    var now = new Date();
+    var date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    while (out.length < n) {
+      var day = date.getDay();
+      if (day !== 0 && day !== 6) out.push(isoOf(date));
+      date = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+    }
+    return out;
+  }
+
+  var WAITLIST_WHAT = { day: 'day-by-day tiffins', week: 'the weekly plan', month: 'the monthly plan', trial: 'a trial week' };
+
+  /* Every prefilled message goes through here, so it always starts with
+     WA_INTRO. With no choice, the plain "I'd like to order" message. With
+     a choice {plan, start, note, waitlist} from the order sheet, the plan,
+     start day and cleaned note are put into it. Never a phone number,
+     address or the household's name; nothing is stored or sent. */
+  function orderMessage(k, choice) {
+    if (!choice) return WA_INTRO + ' I’d like to order from ' + k.name + '. Is this week’s tiffin available?';
+    var text = WA_INTRO;
+    var plan = choice.plan || '';
+    if (choice.waitlist) {
+      text += WAITLIST_WHAT[plan]
+        ? ' I’d like to join your waitlist for ' + WAITLIST_WHAT[plan] + '. Please let me know when you have room.'
+        : ' I’d like to join your waitlist. Please let me know when you have room.';
+    } else {
+      var label = dayLabel(choice.start);
+      var starting = label ? ' starting ' + label : '';
+      if (plan === 'day') text += ' I’d like a one-day tiffin' + (label ? ' on ' + label : '') + '.';
+      else if (plan === 'week') text += ' I’d like the weekly plan' + starting + '.';
+      else if (plan === 'month') text += ' I’d like the monthly plan' + starting + '.';
+      else if (plan === 'trial') text += ' I’d like the trial week' + starting + '.';
+      else text += ' I’d like to order' + (label ? ', starting ' + label : '') + '.';
+    }
+    var note = cleanNote(choice.note);
+    if (note) text += ' ' + note;
+    return text;
+  }
+
+  /* WhatsApp wants the number as digits only, 10 to 15 of them. */
+  function whatsappDigits(k) {
+    var digits = String(k.contact.whatsapp || '').replace(/\D/g, '');
+    return (digits.length >= 10 && digits.length <= 15) ? digits : '';
+  }
+
+  function phoneText(k) {
+    return typeof k.contact.phone === 'string' ? k.contact.phone.trim() : '';
+  }
+
+  /* 10 digits -> tel:+1…; 11 digits starting with 1 -> tel:+…; else ''. */
+  function telHref(phone) {
+    var digits = String(phone || '').replace(/\D/g, '');
+    if (digits.length === 10) return 'tel:+1' + digits;
+    if (digits.length === 11 && digits.charAt(0) === '1') return 'tel:+' + digits;
+    return '';
   }
 
   function sampleTag() {
@@ -922,7 +1113,9 @@
     if (kitchen.sample) head.appendChild(sampleTag());
     card.appendChild(head);
 
-    card.appendChild(el('p', { class: 'card-meta', text: metaLine(kitchen, false) }));
+    /* Diet has its own chip and the service is in this line, so the badge
+       row holds at most three things. */
+    card.appendChild(el('p', { class: 'card-meta', text: cardMetaLine(kitchen) }));
 
     var first = kitchen.menu.items[0];
     if (first) {
@@ -932,14 +1125,16 @@
       card.appendChild(peek);
     }
 
-    card.appendChild(el('div', { class: 'card-badges' }, [serviceChip(kitchen), permitBadge(kitchen)]));
+    /* "From $13/day · $75/week · $260/month" and the trial week. */
+    var priceRow = el('div', { class: 'card-price-row' }, [priceLine(kitchen), trialChip(kitchen)]);
+    if (priceRow.firstChild) card.appendChild(priceRow);
+
+    /* Always in this order: the badge (Sample listing or the permit), the
+       diet chip, then whether the kitchen is taking new customers. */
+    card.appendChild(el('div', { class: 'card-badges' }, [permitBadge(kitchen), dietChip(kitchen), statusPill(kitchen)]));
 
     var foot = el('div', { class: 'card-foot' });
     var price = el('div', { class: 'price' });
-    var amount = el('span', { class: 'amount' });
-    amount.appendChild(document.createTextNode(money(kitchen.price.day)));
-    amount.appendChild(el('small', { text: ' /day' }));
-    price.appendChild(amount);
     price.appendChild(el('span', { class: 'posted', text: timeAgo(kitchen.last_posted) }));
     foot.appendChild(price);
     foot.appendChild(followButton(kitchen));
@@ -957,6 +1152,7 @@
     card.appendChild(head);
     card.appendChild(el('span', { class: 'skel skel-line short' }));
     card.appendChild(el('span', { class: 'skel skel-line' }));
+    card.appendChild(el('span', { class: 'skel skel-line mid' }));
     card.appendChild(el('span', { class: 'skel skel-pill' }));
     var foot = el('div', { class: 'card-foot' });
     foot.appendChild(el('span', { class: 'skel skel-price' }));
@@ -1007,7 +1203,7 @@
   --------------------------------------------------------------------- */
   function readFilters() {
     var form = dom.filters;
-    if (!form) return { q: '', quadrant: '', service: '', near: state.near, cuisine: '', price: '', veg: false, halal: false, jain: false };
+    if (!form) return { q: '', quadrant: '', service: '', near: state.near, cuisine: '', price: '', veg: false, halal: false, jain: false, trial: false, open: false };
     var quad = form.querySelector('input[name="quadrant"]:checked');
     var svc = form.querySelector('input[name="service"]:checked');
     return {
@@ -1019,7 +1215,9 @@
       price: form.elements.price ? form.elements.price.value : '',
       veg: !!(form.elements.veg && form.elements.veg.checked),
       halal: !!(form.elements.halal && form.elements.halal.checked),
-      jain: !!(form.elements.jain && form.elements.jain.checked)
+      jain: !!(form.elements.jain && form.elements.jain.checked),
+      trial: !!(form.elements.trial && form.elements.trial.checked),
+      open: !!(form.elements.open && form.elements.open.checked)
     };
   }
 
@@ -1048,6 +1246,10 @@
     if (f.veg && !k.veg_only) return false;
     if (f.halal && !k.halal) return false;
     if (f.jain && !k.jain) return false;
+    /* A trial week offered; taking new customers (shown only while
+       ordering is open, so a pending kitchen never matches). */
+    if (f.trial && k.trial === null) return false;
+    if (f.open && capacityShown(k) !== 'open') return false;
     if (f.q && searchText(k).indexOf(f.q) === -1) return false;
     return true;
   }
@@ -1063,6 +1265,8 @@
     if (f.veg) n += 1;
     if (f.halal) n += 1;
     if (f.jain) n += 1;
+    if (f.trial) n += 1;
+    if (f.open) n += 1;
     return n;
   }
 
@@ -1259,15 +1463,16 @@
   /* ---------------------------------------------------------------------
      Filters in the address
      The browse view mirrors the form as ?q=&area=&service=&near=&cuisine=
-     &price=&veg=1&halal=1&jain=1, so a filtered list can be reloaded, shared, or
+     &price=&veg=1&halal=1&jain=1&trial=1&open=1, so a filtered list can be reloaded, shared, or
      come back on Back. User changes replace the current history entry
      (never push); render() reads the address back into the form. near= is
      a community slug held in state.near (the pill), not a form control.
      view=map (state.mode, the List / Map switch) comes last; the list is
      the default and has no view= at all.
   --------------------------------------------------------------------- */
-  var FILTER_KEYS = ['q', 'area', 'service', 'near', 'cuisine', 'price', 'veg', 'halal', 'jain', 'view'];
-  var DIET_KEYS = ['veg', 'halal', 'jain'];
+  var FILTER_KEYS = ['q', 'area', 'service', 'near', 'cuisine', 'price', 'veg', 'halal', 'jain', 'trial', 'open', 'view'];
+  /* The on/off switches: diet, then "Trial week" and "Taking new customers". */
+  var SWITCH_KEYS = ['veg', 'halal', 'jain', 'trial', 'open'];
   var PRICE_BANDS = ['low', 'mid', 'high'];
   var QUERY_MAX = 100;
 
@@ -1292,7 +1497,7 @@
     if (cuisine) params.append('cuisine', cuisine);
     var price = form.elements.price ? form.elements.price.value : '';
     if (PRICE_BANDS.indexOf(price) !== -1) params.append('price', price);
-    DIET_KEYS.forEach(function (key) {
+    SWITCH_KEYS.forEach(function (key) {
       if (form.elements[key] && form.elements[key].checked) params.append(key, '1');
     });
     /* Last, so every link back to the list (the tab, the menu, a kitchen's
@@ -1373,7 +1578,7 @@
       form.elements.price.value = PRICE_BANDS.indexOf(price) !== -1 ? price : '';
     }
 
-    DIET_KEYS.forEach(function (key) {
+    SWITCH_KEYS.forEach(function (key) {
       if (form.elements[key]) form.elements[key].checked = isOnValue(params.get(key));
     });
 
@@ -2812,14 +3017,14 @@
     }
     frag.appendChild(menu);
 
-    frag.appendChild(el('div', { class: 'k-section k-prices is-skeleton', 'aria-hidden': 'true' }, [
-      el('span', { class: 'skel skel-h2' }),
-      el('div', { class: 'skel-cells' }, [
-        el('span', { class: 'skel skel-cell' }),
-        el('span', { class: 'skel skel-cell' }),
-        el('span', { class: 'skel skel-cell' })
-      ])
-    ]));
+    var planRows = el('div', { class: 'k-section k-prices is-skeleton', 'aria-hidden': 'true' }, el('span', { class: 'skel skel-h2' }));
+    for (var r = 0; r < 3; r++) {
+      planRows.appendChild(el('div', { class: 'skel-row' }, [
+        el('span', { class: 'skel skel-day' }),
+        el('span', { class: 'skel skel-amt' })
+      ]));
+    }
+    frag.appendChild(planRows);
 
     frag.appendChild(el('div', { class: 'k-side' }, [
       el('div', { class: 'k-section k-delivery is-skeleton', 'aria-hidden': 'true' }, [
@@ -2842,6 +3047,9 @@
        dropping to the page. */
     var container = dom.kitchenDetail;
     if (!container) return;
+    /* The page is rebuilt (a data load or reload), so the order sheet,
+       which belongs to the old page, goes at once. */
+    closeOrderSheetNow();
     var hadFocus = container.contains(document.activeElement);
     container.replaceChildren();
 
@@ -2898,8 +3106,9 @@
     }
 
     /* One reading of the permit for the whole page. Ordering is open for a
-       checked kitchen and for a sample (its made-up buttons show how
-       ordering works); closed while pending or being re-checked. */
+       checked kitchen and for a sample (its order sheet shows how ordering
+       works, without any way to message or call); closed while pending or
+       being re-checked. */
     var info = permitInfo(k);
     var canOrder = info.state === 'checked' || info.state === 'sample';
 
@@ -2979,22 +3188,45 @@
       list.appendChild(li);
     });
     menu.appendChild(list);
+    var confirmLine = 'Menus and prices are set by the kitchen and can change. Confirm when you order.';
     if (anyTerm) menu.appendChild(el('p', { class: 'fine dish-hint', text: 'Tap a dish name with a dotted underline to see what it is.' }));
-    menu.appendChild(el('p', { class: 'fine', text: 'Menus and prices are set by the kitchen and can change. Confirm when you order.' }));
+    menu.appendChild(el('p', { class: 'fine', text: confirmLine }));
     container.appendChild(menu);
 
-    /* Prices */
+    /* Plans and prices: a real table (Plan / Price), day, week and month
+       where the kitchen has them, then the trial week when it offers one
+       (priced, or "Ask the kitchen"), with its note on its own line. */
     var prices = el('section', { class: 'k-section k-prices', 'aria-labelledby': 'prices-heading' });
-    prices.appendChild(el('h2', { id: 'prices-heading', text: 'Plans' }));
-    var dl = el('dl', { class: 'price-grid' });
-    [['Per day', k.price.day], ['Weekly', k.price.weekly], ['Monthly', k.price.monthly]].forEach(function (pair) {
-      if (pair[1] === undefined || pair[1] === null) return;
-      var cell = el('div');
-      cell.appendChild(el('dt', { text: pair[0] }));
-      cell.appendChild(el('dd', { text: money(pair[1]) }));
-      dl.appendChild(cell);
+    prices.appendChild(el('h2', { id: 'prices-heading', text: 'Plans and prices' }));
+    var tbody = el('tbody');
+    planPrices(k).forEach(function (p) {
+      if (p.id === 'trial') return;
+      tbody.appendChild(el('tr', null, [el('th', { scope: 'row', text: p.label }), el('td', { text: money(p.amount) })]));
     });
-    prices.appendChild(dl);
+    if (k.trial) {
+      var trialHead = el('th', { scope: 'row' }, 'Trial week');
+      /* The space keeps "Trial week" and the note apart for screen readers
+         and copy-paste; the note shows on its own line. */
+      if (k.trial.note) trialHead.appendChild(document.createTextNode(' '));
+      if (k.trial.note) trialHead.appendChild(el('span', { class: 'plan-note', text: k.trial.note }));
+      tbody.appendChild(el('tr', { class: 'is-trial' }, [
+        trialHead,
+        k.trial.price !== null ? el('td', { text: money(k.trial.price) }) : el('td', { class: 'plan-ask', text: 'Ask the kitchen' })
+      ]));
+    }
+    if (tbody.firstChild) {
+      prices.appendChild(el('table', { class: 'plan-table' }, [
+        el('caption', { class: 'visually-hidden', text: 'Plans and prices for ' + k.name }),
+        el('thead', null, el('tr', { class: 'visually-hidden' }, [
+          el('th', { scope: 'col', text: 'Plan' }),
+          el('th', { scope: 'col', text: 'Price' })
+        ])),
+        tbody
+      ]));
+    } else {
+      prices.appendChild(el('p', { class: 'fine plan-none', text: 'This kitchen hasn’t posted its plan prices yet. Ask when you order.' }));
+    }
+    prices.appendChild(el('p', { class: 'fine', text: confirmLine }));
     container.appendChild(prices);
 
     /* Pickup (appended into the side rail below): where, how exactly the
@@ -3106,31 +3338,49 @@
     var side = el('div', { class: 'k-side' });
     var rechecking = info.state === 'rechecking';
     var order = el('aside', { class: 'order-bar' + (canOrder ? '' : ' is-pending'), 'aria-labelledby': 'order-heading' });
-    order.appendChild(el('h2', { id: 'order-heading', text: canOrder ? 'Order directly with the kitchen' : (rechecking ? 'Ordering paused' : 'Ordering not open yet') }));
+    var orderHead = el('div', { class: 'order-head' }, el('h2', { id: 'order-heading', text: canOrder ? 'Order directly with the kitchen' : (rechecking ? 'Ordering paused' : 'Ordering not open yet') }));
+    /* No pill when the capacity is unknown (statusPill gives null). */
+    var capacityPill = canOrder ? statusPill(k) : null;
+    if (capacityPill) orderHead.appendChild(capacityPill);
+    order.appendChild(orderHead);
     if (canOrder) {
-      var orderActions = el('div', { class: 'order-actions' });
-      var waNumber = String(k.contact.whatsapp || '').replace(/\D/g, '');
-      if (waNumber) {
-        var wa = el('a', {
-          href: 'https://wa.me/' + waNumber + '?text=' + encodeURIComponent(orderMessage(k)),
-          class: 'btn btn-whatsapp',
-          target: '_blank',
-          rel: 'noopener noreferrer'
-        });
-        wa.appendChild(icon('chat', 18));
-        wa.appendChild(el('span', { text: 'Order on WhatsApp' }));
-        orderActions.appendChild(wa);
+      /* Both buttons open the order sheet (openOrderSheet), which builds
+         the message and holds the only WhatsApp or tel: link. The label
+         follows the kitchen's capacity. */
+      var waDigits = whatsappDigits(k);
+      var phone = phoneText(k);
+      if (waDigits || phone) {
+        var orderActions = el('div', { class: 'order-actions' });
+        if (waDigits) {
+          var capacity = capacityShown(k);
+          var waLabel = capacity === 'waitlist' ? 'Join the waitlist' : (capacity === 'full' ? 'Ask to join the waitlist' : 'Order on WhatsApp');
+          orderActions.appendChild(el('button', {
+            type: 'button',
+            class: 'btn btn-whatsapp',
+            'data-order': 'message',
+            'data-slug': k.slug,
+            'aria-haspopup': 'dialog',
+            'aria-controls': 'order-sheet'
+          }, [icon('chat', 18), el('span', { text: waLabel })]));
+        }
+        if (phone) {
+          var callLabel = el('span', { text: 'Call' });
+          callLabel.appendChild(el('span', { class: 'call-number', text: ' ' + phone }));
+          orderActions.appendChild(el('button', {
+            type: 'button',
+            class: 'btn btn-secondary',
+            'data-order': 'call',
+            'data-slug': k.slug,
+            'aria-haspopup': 'dialog',
+            'aria-controls': 'order-sheet',
+            'aria-label': 'Call ' + phone
+          }, [icon('phone', 18), callLabel]));
+        }
+        order.appendChild(orderActions);
+      } else {
+        order.classList.add('is-pending');
+        order.appendChild(el('div', { class: 'notice notice-info' }, [icon('info', 18), el('p', { text: 'This kitchen hasn’t shared a way to order yet.' })]));
       }
-      if (k.contact.phone) {
-        var telDigits = String(k.contact.phone).replace(/\D/g, '');
-        var call = el('a', { href: 'tel:+1' + telDigits, class: 'btn btn-secondary', 'aria-label': 'Call ' + k.contact.phone });
-        call.appendChild(icon('phone', 18));
-        var callLabel = el('span', { text: 'Call' });
-        callLabel.appendChild(el('span', { class: 'call-number', text: ' ' + k.contact.phone }));
-        call.appendChild(callLabel);
-        orderActions.appendChild(call);
-      }
-      order.appendChild(orderActions);
     } else {
       var notice = el('div', { class: 'notice' });
       notice.appendChild(icon('clock', 18));
@@ -3208,15 +3458,21 @@
     var isBrowse = route.view === 'browse';
     var isFollowing = route.view === 'following';
     var isKitchen = route.view === 'kitchen';
-    /* The launch page replaces the list: no filters, tabs, results or
-       neighbourhoods. The FAQ and the alerts band stay. */
-    var launch = isBrowse && isLaunch();
+    /* The order sheet belongs to one kitchen's page: any other page closes
+       it at once (renderKitchen closes it too when the page is rebuilt). */
+    if (!(isKitchen && orderDraft && orderDraft.slug === route.slug)) closeOrderSheetNow();
+    /* The launch page replaces the list and the Following view: no
+       filters, tabs, results, follows or neighbourhoods. The FAQ and the
+       alerts band stay. ?view=map shows it too: renderResults() returns
+       early on the launch page, so #map-view stays hidden and the map's
+       files (data/map/*.json) are never requested. */
+    var launch = (isBrowse || isFollowing) && isLaunch();
 
     dom.hero.hidden = isKitchen;
     dom.filtersSection.hidden = !isBrowse || launch;
     dom.viewTabs.hidden = isKitchen || launch;
     dom.viewBrowse.hidden = !isBrowse || launch;
-    dom.viewFollowing.hidden = !isFollowing;
+    dom.viewFollowing.hidden = !isFollowing || launch;
     dom.viewKitchen.hidden = !isKitchen;
     if (dom.faq) dom.faq.hidden = isKitchen;
     if (dom.hoods) dom.hoods.hidden = !isBrowse || launch || !state.loaded || state.error || !(dom.hoodsGrid && dom.hoodsGrid.firstChild);
@@ -3245,7 +3501,8 @@
       else if (state.loaded && state.sampleSlugs[route.slug]) title = 'Sample listing — Tiffin Finder';
       else title = 'Kitchen — Tiffin Finder';
     } else if (isFollowing) {
-      renderFollowing();
+      /* On the launch page there is nothing to follow yet; the title stays. */
+      if (!launch) renderFollowing();
       title = 'Following — Tiffin Finder';
     } else {
       /* The address is the source of truth for the browse filters: first
@@ -3261,7 +3518,7 @@
     document.title = (state.demo ? 'Demo · ' : '') + title;
 
     if (moveFocus) {
-      var focusTarget = isKitchen ? document.getElementById('kitchen-heading') : (isFollowing ? dom.followingHeading : dom.heroHeading);
+      var focusTarget = isKitchen ? document.getElementById('kitchen-heading') : ((isFollowing && !launch) ? dom.followingHeading : dom.heroHeading);
       if (focusTarget) {
         try { focusTarget.focus({ preventScroll: true }); } catch (e) { focusTarget.focus(); }
       }
@@ -3425,11 +3682,21 @@
   }
 
   var lastFocusBeforeSheet = null;
+  var iosOpen = false;
+
+  /* True while any of the three sheets (#ios-sheet, #nav-sheet,
+     #order-sheet) is open or opening; a sheet stops counting the moment it
+     starts to close. body.sheet-open (no page scroll) comes off only when
+     none is. */
+  function anySheetOpen() {
+    return iosOpen || navOpen || orderOpen;
+  }
 
   function openSheet() {
     var sheet = dom.iosSheet;
     if (!sheet) return;
     lastFocusBeforeSheet = document.activeElement;
+    iosOpen = true;
     sheet.hidden = false;
     document.body.classList.add('sheet-open');
     requestAnimationFrame(function () {
@@ -3445,8 +3712,9 @@
   function closeSheet() {
     var sheet = dom.iosSheet;
     if (!sheet || sheet.hidden) return;
+    iosOpen = false;
     sheet.classList.remove('is-open');
-    document.body.classList.remove('sheet-open');
+    if (!anySheetOpen()) document.body.classList.remove('sheet-open');
     document.removeEventListener('keydown', onSheetKeydown);
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     setTimeout(function () {
@@ -3455,13 +3723,19 @@
     }, reduce ? 0 : 420);
   }
 
-  /* Keep Tab / Shift+Tab inside an open sheet: wrap from the last focusable
-     element to the first and back. Shared by the install and menu sheets. */
-  function trapFocus(container, event) {
+  /* The elements Tab can reach inside a container, in document order. */
+  function focusablesIn(container) {
     var nodes = container.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]');
-    var focusables = Array.prototype.filter.call(nodes, function (node) {
+    return Array.prototype.filter.call(nodes, function (node) {
       return node.tabIndex >= 0 && !node.closest('[hidden]');
     });
+  }
+
+  /* Keep Tab / Shift+Tab inside an open sheet: wrap from the last focusable
+     element to the first and back. Shared by the install, menu and order
+     sheets. */
+  function trapFocus(container, event) {
+    var focusables = focusablesIn(container);
     if (!focusables.length) return;
     var first = focusables[0];
     var last = focusables[focusables.length - 1];
@@ -3530,7 +3804,7 @@
     sheet.classList.remove('is-open');
     if (dom.menuBtn) dom.menuBtn.setAttribute('aria-expanded', 'false');
     document.removeEventListener('keydown', onNavKeydown);
-    if (!dom.iosSheet || dom.iosSheet.hidden) document.body.classList.remove('sheet-open');
+    if (!anySheetOpen()) document.body.classList.remove('sheet-open');
     clearTimeout(navTimer);
     navTimer = setTimeout(function () {
       navTimer = null;
@@ -3557,7 +3831,7 @@
     sheet.hidden = true;
     if (dom.menuBtn) dom.menuBtn.setAttribute('aria-expanded', 'false');
     document.removeEventListener('keydown', onNavKeydown);
-    if (wasShown && (!dom.iosSheet || dom.iosSheet.hidden)) document.body.classList.remove('sheet-open');
+    if (wasShown && !anySheetOpen()) document.body.classList.remove('sheet-open');
     lastFocusBeforeNav = null;
   }
 
@@ -3592,8 +3866,333 @@
       if (event.persisted) {
         closeNavNow();
         closeMapCardNow();
+        closeOrderSheetNow();
       }
     });
+  }
+
+  /* ---------------------------------------------------------------------
+     Order sheet (index.html #order-sheet)
+     A kitchen's order buttons open it: pick a plan and a start day, add a
+     note, see the exact message, then send it on WhatsApp or call with a
+     short script. The choices live in memory only (orderDraft: kept for
+     the same kitchen until the page reloads, never stored), orderMessage()
+     builds every message, and nothing is sent anywhere but the household's
+     own WhatsApp or phone. A sample kitchen's sheet shows how it works but
+     has no WhatsApp or tel: link at all.
+  --------------------------------------------------------------------- */
+  var SAMPLE_ORDER_NOTE = 'This is a sample kitchen, so there’s no one to message yet.';
+  var PLAN_DEFAULTS = ['week', 'month', 'day', 'trial'];
+  var NOTE_WARN_AT = 120;
+  /* {slug, plan, start, note, view: 'message' | 'call', trigger} */
+  var orderDraft = null;
+  var orderKitchen = null;
+  var orderOpen = false;
+  var orderTimer = null;
+  var lastFocusBeforeOrder = null;
+  var noteLenBefore = 0;
+
+  function openOrderSheet(k, view, trigger) {
+    var sheet = dom.orderSheet;
+    if (!sheet || !dom.orderSheetBody || !k) return;
+    var hasWa = !!whatsappDigits(k);
+    var hasPhone = !!phoneText(k);
+    if (!hasWa && !hasPhone) return;
+    var next = view === 'call' ? 'call' : 'message';
+    /* No WhatsApp number: straight to the call script. No phone: the message. */
+    if (!hasWa) next = 'call';
+    if (next === 'call' && !hasPhone) next = 'message';
+
+    clearTimeout(orderTimer);
+    orderTimer = null;
+    if (!orderDraft || orderDraft.slug !== k.slug) {
+      orderDraft = { slug: k.slug, plan: '', start: '', note: '', view: next, trigger: null };
+    }
+    orderDraft.view = next;
+    orderDraft.trigger = trigger || null;
+    orderKitchen = k;
+    lastFocusBeforeOrder = trigger || document.activeElement;
+
+    buildOrderBody();
+    orderOpen = true;
+    sheet.hidden = false;
+    document.body.classList.add('sheet-open');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        /* Skip if it was closed again within these two frames. */
+        if (orderOpen) sheet.classList.add('is-open');
+      });
+    });
+    setTimeout(function () {
+      if (orderOpen) focusOrderStart();
+    }, 60);
+    document.addEventListener('keydown', onOrderKeydown);
+  }
+
+  /* The draft settled against this kitchen and today: a plan it has
+     (week, then month, day, trial) and a start day still ahead. */
+  function settleDraft(k, d, days) {
+    var ids = planPrices(k).map(function (p) { return p.id; });
+    if (ids.indexOf(d.plan) === -1) {
+      d.plan = '';
+      PLAN_DEFAULTS.some(function (id) {
+        if (ids.indexOf(id) === -1) return false;
+        d.plan = id;
+        return true;
+      });
+    }
+    if (days.indexOf(d.start) === -1) d.start = days[0];
+  }
+
+  function orderChoice() {
+    return { plan: orderDraft.plan, start: orderDraft.start, note: orderDraft.note, waitlist: isWaitlist(orderKitchen) };
+  }
+
+  function orderTo(k, tail) {
+    return el('p', { class: 'order-to' }, ['To ', el('strong', { text: k.name }), k.sample ? ' ' : null, k.sample ? sampleTag() : null, tail]);
+  }
+
+  function sampleOrderNotice() {
+    return el('div', { class: 'notice notice-info' }, [icon('info', 18), el('p', { text: SAMPLE_ORDER_NOTE })]);
+  }
+
+  function orderRadios(name, legend, items, checkedValue) {
+    var set = el('fieldset', { class: 'chip-group order-choices' }, el('legend', { class: 'order-legend', text: legend }));
+    items.forEach(function (item) {
+      var id = name + '-' + item.value;
+      set.appendChild(el('input', { type: 'radio', name: name, id: id, value: item.value, checked: item.value === checkedValue }));
+      set.appendChild(el('label', { for: id }, el('span', null, item.content)));
+    });
+    return set;
+  }
+
+  /* Message view: who it goes to, the plan, the start day (not when joining
+     a waitlist), a note, the exact message, then Send (or, for a sample,
+     a note saying there's no one to message). */
+  function orderMessageNodes(k, d, days) {
+    var hasWa = !!whatsappDigits(k);
+    var hasPhone = !!phoneText(k);
+    var waitlist = isWaitlist(k);
+    var nodes = [orderTo(k, hasWa ? ' on WhatsApp' : ' by phone')];
+
+    var plans = planPrices(k);
+    if (plans.length) {
+      nodes.push(orderRadios('order-plan', 'Plan', plans.map(function (p) {
+        return { value: p.id, content: [p.label, ' ', el('span', { class: 'order-price', text: money(p.amount) })] };
+      }), d.plan));
+    }
+    if (!waitlist) {
+      nodes.push(orderRadios('order-start', 'Start day', days.map(function (iso) {
+        return { value: iso, content: dayLabel(iso) };
+      }), d.start));
+    }
+
+    var note = el('textarea', {
+      id: 'order-note',
+      maxlength: String(NOTE_MAX),
+      rows: '2',
+      'aria-describedby': 'order-note-hint order-note-count',
+      placeholder: 'For example: less spicy, please'
+    });
+    note.value = d.note;
+    nodes.push(el('div', { class: 'field order-note-field' }, [
+      el('label', { for: 'order-note', text: 'Add a note (optional)' }),
+      note,
+      el('p', { class: 'fine', id: 'order-note-hint', text: 'Please don’t add your address here. Share it once the kitchen confirms.' }),
+      el('p', { class: 'fine order-count', id: 'order-note-count', text: d.note.length + ' / ' + NOTE_MAX })
+    ]));
+
+    nodes.push(el('figure', { class: 'order-preview' }, [
+      el('figcaption', { text: hasWa ? 'Message preview' : 'What you’ll say' }),
+      el('p', { class: 'order-bubble', id: 'order-preview-text' })
+    ]));
+
+    var actions = el('div', { class: 'order-sheet-actions' });
+    if (k.sample) {
+      actions.appendChild(sampleOrderNotice());
+      actions.appendChild(el('button', { type: 'button', class: 'btn btn-secondary btn-block', 'data-close-order': '', text: 'Close' }));
+    } else if (hasWa) {
+      /* The href is filled in (and refreshed on every change) by refreshOrderPreview. */
+      actions.appendChild(el('a', { class: 'btn btn-whatsapp btn-block', id: 'order-send', target: '_blank', rel: 'noopener noreferrer', href: '#' }, [
+        icon('chat', 18),
+        el('span', { text: 'Send on WhatsApp' }),
+        el('span', { class: 'visually-hidden', text: ' (opens WhatsApp in a new tab)' })
+      ]));
+      if (hasPhone) {
+        actions.appendChild(el('button', { type: 'button', class: 'btn btn-ghost btn-block', 'data-order-view': 'call' }, [icon('phone', 18), el('span', { text: 'Call instead' })]));
+      }
+    } else {
+      actions.appendChild(el('button', { type: 'button', class: 'btn btn-primary btn-block', 'data-order-view': 'call' }, [icon('phone', 18), el('span', { text: 'Continue to call' })]));
+    }
+    nodes.push(actions);
+    return nodes;
+  }
+
+  /* Call view: the number, a short script (the same words as the message)
+     and a tel: link, or for a sample the note instead of the link. */
+  function orderCallNodes(k) {
+    var phone = phoneText(k);
+    var nodes = [
+      el('p', { class: 'order-to' }, [el('strong', { text: k.name }), k.sample ? ' ' : null, k.sample ? sampleTag() : null, ' · ', el('span', { class: 'order-phone', text: phone })]),
+      el('p', { class: 'order-say', text: 'Say something like:' }),
+      el('blockquote', { class: 'order-script' }, el('p', { id: 'order-script-text' }))
+    ];
+    var actions = el('div', { class: 'order-sheet-actions' });
+    var tel = telHref(phone);
+    if (k.sample) {
+      actions.appendChild(sampleOrderNotice());
+    } else if (tel) {
+      actions.appendChild(el('a', { class: 'btn btn-primary btn-block', id: 'order-call', href: tel }, [icon('phone', 18), el('span', { text: 'Call ' + phone })]));
+    } else {
+      actions.appendChild(el('p', { class: 'fine', text: 'Dial the number above from your phone.' }));
+    }
+    actions.appendChild(el('button', { type: 'button', class: 'btn btn-ghost btn-block', 'data-order-view': 'message', text: 'Edit details' }));
+    nodes.push(actions);
+    return nodes;
+  }
+
+  /* (Re)build the sheet's body for orderDraft.view. The title changes with
+     it; the panel scrolls back to the top. */
+  function buildOrderBody() {
+    var k = orderKitchen;
+    var d = orderDraft;
+    if (!k || !d || !dom.orderSheetBody) return;
+    var days = nextWeekdays(5);
+    settleDraft(k, d, days);
+    var isCall = d.view === 'call';
+    if (dom.orderSheetTitle) dom.orderSheetTitle.textContent = (isCall || !whatsappDigits(k)) ? 'Before you call' : 'You’re about to send';
+    var frag = document.createDocumentFragment();
+    appendChildren(frag, isCall ? orderCallNodes(k) : orderMessageNodes(k, d, days));
+    dom.orderSheetBody.replaceChildren(frag);
+    noteLenBefore = d.note.length;
+    if (dom.orderSheetLive) dom.orderSheetLive.textContent = '';
+    refreshOrderPreview();
+    var panel = dom.orderSheet.querySelector('.sheet-panel');
+    if (panel) panel.scrollTop = 0;
+  }
+
+  /* The preview, the call script and the WhatsApp link all carry exactly
+     the same orderMessage() text. */
+  function refreshOrderPreview() {
+    if (!orderKitchen || !orderDraft) return;
+    var msg = orderMessage(orderKitchen, orderChoice());
+    var preview = document.getElementById('order-preview-text');
+    if (preview) preview.textContent = msg;
+    var script = document.getElementById('order-script-text');
+    if (script) script.textContent = msg;
+    var send = document.getElementById('order-send');
+    var digits = whatsappDigits(orderKitchen);
+    if (send && digits && !orderKitchen.sample) send.setAttribute('href', 'https://wa.me/' + digits + '?text=' + encodeURIComponent(msg));
+  }
+
+  /* "0 / 140" under the note (not announced), plus one polite line when
+     the note crosses 120 characters and again at the limit. */
+  function updateNoteCount(len) {
+    var count = document.getElementById('order-note-count');
+    if (count) count.textContent = len + ' / ' + NOTE_MAX;
+    var live = dom.orderSheetLive;
+    var before = noteLenBefore;
+    noteLenBefore = len;
+    if (!live) return;
+    if (len >= NOTE_MAX && before < NOTE_MAX) {
+      live.textContent = 'Character limit reached';
+    } else if (len >= NOTE_WARN_AT && before < NOTE_WARN_AT) {
+      var left = NOTE_MAX - len;
+      live.textContent = left + ' ' + plural(left, 'character', 'characters') + ' left';
+    } else if (len < NOTE_WARN_AT || (len < NOTE_MAX && before >= NOTE_MAX)) {
+      live.textContent = '';
+    }
+  }
+
+  function onOrderChange(event) {
+    var t = event.target;
+    if (!orderDraft || !t) return;
+    if (t.name === 'order-plan') orderDraft.plan = t.value;
+    else if (t.name === 'order-start') orderDraft.start = t.value;
+    else return;
+    refreshOrderPreview();
+  }
+
+  function onOrderInput(event) {
+    var t = event.target;
+    if (!orderDraft || !t || t.id !== 'order-note') return;
+    orderDraft.note = t.value;
+    updateNoteCount(t.value.length);
+    refreshOrderPreview();
+  }
+
+  /* On open and on every view change: the checked plan (message view) or
+     "Edit details" (call view). */
+  function focusOrderStart() {
+    var body = dom.orderSheetBody;
+    if (!body || !orderDraft) return;
+    var target = orderDraft.view === 'call'
+      ? body.querySelector('[data-order-view="message"]')
+      : (body.querySelector('input[name="order-plan"]:checked') || body.querySelector('input[name="order-start"]:checked') || body.querySelector('#order-note'));
+    focusQuietly(target || dom.orderSheet.querySelector('.order-sheet-head [data-close-order]'));
+  }
+
+  function setOrderView(view) {
+    if (!orderOpen || !orderDraft) return;
+    orderDraft.view = view === 'call' ? 'call' : 'message';
+    buildOrderBody();
+    focusOrderStart();
+  }
+
+  function closeOrderSheet(restoreFocus) {
+    var sheet = dom.orderSheet;
+    if (!sheet || sheet.hidden || !orderOpen) return;
+    orderOpen = false;
+    sheet.classList.remove('is-open');
+    document.removeEventListener('keydown', onOrderKeydown);
+    if (!anySheetOpen()) document.body.classList.remove('sheet-open');
+    clearTimeout(orderTimer);
+    orderTimer = setTimeout(function () {
+      orderTimer = null;
+      sheet.hidden = true;
+      if (restoreFocus !== false) {
+        var back = (lastFocusBeforeOrder && document.contains(lastFocusBeforeOrder)) ? lastFocusBeforeOrder : document.getElementById('kitchen-heading');
+        focusQuietly(back);
+      }
+      lastFocusBeforeOrder = null;
+    }, prefersReducedMotion() ? 0 : 420);
+  }
+
+  /* Hide at once, without the transition or moving focus: when the page
+     changes, is rebuilt, or comes back from the back/forward cache. */
+  function closeOrderSheetNow() {
+    var sheet = dom.orderSheet;
+    if (!sheet) return;
+    var wasShown = !sheet.hidden;
+    clearTimeout(orderTimer);
+    orderTimer = null;
+    orderOpen = false;
+    sheet.classList.remove('is-open');
+    sheet.hidden = true;
+    document.removeEventListener('keydown', onOrderKeydown);
+    if (wasShown && !anySheetOpen()) document.body.classList.remove('sheet-open');
+    lastFocusBeforeOrder = null;
+  }
+
+  function onOrderKeydown(event) {
+    if (event.isComposing) return;
+    if (event.key === 'Escape') {
+      closeOrderSheet(true);
+      return;
+    }
+    if (event.key !== 'Tab' || !dom.orderSheet) return;
+    var panel = dom.orderSheet.querySelector('.sheet-panel');
+    if (!panel) return;
+    /* Focus somewhere outside the panel (a click on its plain text can
+       leave it on the page): bring it back in at the right end. */
+    if (!panel.contains(document.activeElement)) {
+      var focusables = focusablesIn(panel);
+      if (!focusables.length) return;
+      event.preventDefault();
+      focusQuietly(event.shiftKey ? focusables[focusables.length - 1] : focusables[0]);
+      return;
+    }
+    trapFocus(panel, event);
   }
 
   function initInstall() {
@@ -3725,6 +4324,10 @@
     dom.toast = document.getElementById('toast');
     dom.menuBtn = document.getElementById('menu-btn');
     dom.navSheet = document.getElementById('nav-sheet');
+    dom.orderSheet = document.getElementById('order-sheet');
+    dom.orderSheetTitle = document.getElementById('order-sheet-title');
+    dom.orderSheetBody = document.getElementById('order-sheet-body');
+    dom.orderSheetLive = document.getElementById('order-sheet-live');
     dom.navBrowse = document.querySelector('#nav-sheet [data-nav="browse"]');
 
     dom.hero = document.getElementById('hero');
@@ -3891,6 +4494,30 @@
       closeNav(!!(dom.viewBrowse && navLink.hasAttribute('data-route') && navLink.href === window.location.href));
     }
 
+    /* The order sheet: a kitchen's order buttons open it; inside it, the
+       message and call views swap, and the X, the backdrop and a sample's
+       Close button shut it. */
+    var orderBtn = target.closest('[data-order]');
+    if (orderBtn) {
+      openOrderSheet(findKitchen(orderBtn.getAttribute('data-slug') || ''), orderBtn.getAttribute('data-order') === 'call' ? 'call' : 'message', orderBtn);
+      return;
+    }
+    var orderView = target.closest('[data-order-view]');
+    if (orderView) {
+      setOrderView(orderView.getAttribute('data-order-view'));
+      return;
+    }
+    if (target.closest('[data-close-order]')) {
+      closeOrderSheet(true);
+      return;
+    }
+    /* Send on WhatsApp, or the tel: link: the link opens as normal (no
+       preventDefault), and the sheet closes behind it. */
+    if (target.closest('#order-send, #order-call')) {
+      closeOrderSheet(true);
+      return;
+    }
+
     var followBtn = target.closest('[data-follow]');
     if (followBtn) {
       toggleFollow(followBtn.getAttribute('data-follow'));
@@ -4031,8 +4658,30 @@
     });
   }
 
+  /* The hero and the filters start as a quiet placeholder (index.html
+     .is-pending, styled only under .js) so the normal hero never flashes
+     before the launch page. They are revealed once: the first time the
+     kitchens finish loading (or fail), or after 8 seconds whatever
+     happens. A retry never puts them back. */
+  var heroRevealed = false;
+
+  function revealHero() {
+    if (heroRevealed) return;
+    heroRevealed = true;
+    if (dom.hero) {
+      var wasPending = dom.hero.classList.contains('is-pending');
+      dom.hero.classList.remove('is-pending');
+      dom.hero.removeAttribute('aria-busy');
+      /* The entrance rise plays now, once, instead of at page load. */
+      if (wasPending) dom.hero.classList.add('is-revealed');
+    }
+    if (dom.filtersSection) dom.filtersSection.classList.remove('is-pending');
+  }
+
   function initApp() {
     if (!dom.viewBrowse) return;
+    /* Before anything else, so the placeholder can never stay up. */
+    setTimeout(revealHero, 8000);
 
     initDemo();
 
@@ -4091,6 +4740,13 @@
     }
     window.addEventListener('resize', onMapResize);
 
+    /* The order sheet's plan, start day and note (its buttons are handled
+       in onDocumentClick). */
+    if (dom.orderSheetBody) {
+      dom.orderSheetBody.addEventListener('change', onOrderChange);
+      dom.orderSheetBody.addEventListener('input', onOrderInput);
+    }
+
     /* The tiffin illustration in each empty / error state. */
     Array.prototype.forEach.call(document.querySelectorAll('.empty-art[data-hue]'), function (n) {
       n.appendChild(dabbaMark(Number(n.getAttribute('data-hue')), 56));
@@ -4122,6 +4778,9 @@
     }
     updateHeroCount();
     updateFollowCount();
+    /* state.loaded is now true (success or error): show the real hero,
+       in the same frame as the render that fills it. */
+    revealHero();
     render(false);
   }
 

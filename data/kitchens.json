@@ -41,6 +41,12 @@
         "weekly": 75,
         "monthly": 260
       },
+      "trial": {
+        "offered": true,
+        "price": 64,
+        "note": null
+      },
+      "capacity": "open",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -114,6 +120,12 @@
         "weekly": 68,
         "monthly": 240
       },
+      "trial": {
+        "offered": true,
+        "price": 58,
+        "note": "Five weekday tiffins, one trial week per household."
+      },
+      "capacity": "open",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -197,6 +209,12 @@
         "weekly": 85,
         "monthly": 300
       },
+      "trial": {
+        "offered": true,
+        "price": 72,
+        "note": "Five weekday tiffins, one trial week per household."
+      },
+      "capacity": "open",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -275,6 +293,12 @@
         "weekly": 62,
         "monthly": 210
       },
+      "trial": {
+        "offered": true,
+        "price": 53,
+        "note": "Five weekday tiffins, one trial week per household."
+      },
+      "capacity": "waitlist",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -351,6 +375,12 @@
         "weekly": 82,
         "monthly": 290
       },
+      "trial": {
+        "offered": false,
+        "price": null,
+        "note": null
+      },
+      "capacity": "waitlist",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -429,6 +459,12 @@
         "weekly": 70,
         "monthly": 250
       },
+      "trial": {
+        "offered": true,
+        "price": 60,
+        "note": "Five weekday tiffins, one trial week per household."
+      },
+      "capacity": "open",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -507,6 +543,12 @@
         "weekly": 66,
         "monthly": 230
       },
+      "trial": {
+        "offered": false,
+        "price": null,
+        "note": null
+      },
+      "capacity": "waitlist",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -575,6 +617,12 @@
         "weekly": 90,
         "monthly": 320
       },
+      "trial": {
+        "offered": true,
+        "price": 76,
+        "note": null
+      },
+      "capacity": "waitlist",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -658,6 +706,12 @@
         "weekly": 78,
         "monthly": 270
       },
+      "trial": {
+        "offered": true,
+        "price": 66,
+        "note": null
+      },
+      "capacity": "open",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -729,6 +783,12 @@
         "weekly": 72,
         "monthly": 250
       },
+      "trial": {
+        "offered": true,
+        "price": 61,
+        "note": "Five weekday tiffins, one trial week per household."
+      },
+      "capacity": "open",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -812,6 +872,12 @@
         "weekly": 84,
         "monthly": 300
       },
+      "trial": {
+        "offered": false,
+        "price": null,
+        "note": null
+      },
+      "capacity": "full",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -890,6 +956,12 @@
         "weekly": 76,
         "monthly": 265
       },
+      "trial": {
+        "offered": false,
+        "price": null,
+        "note": null
+      },
+      "capacity": "open",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -974,6 +1046,12 @@
         "weekly": 62,
         "monthly": 215
       },
+      "trial": {
+        "offered": true,
+        "price": 53,
+        "note": null
+      },
+      "capacity": "open",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -1052,6 +1130,12 @@
         "weekly": 70,
         "monthly": 245
       },
+      "trial": {
+        "offered": true,
+        "price": 60,
+        "note": null
+      },
+      "capacity": "waitlist",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -1136,6 +1220,12 @@
         "weekly": 82,
         "monthly": 295
       },
+      "trial": {
+        "offered": false,
+        "price": null,
+        "note": null
+      },
+      "capacity": "open",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -1214,6 +1304,12 @@
         "weekly": 80,
         "monthly": 285
       },
+      "trial": {
+        "offered": false,
+        "price": null,
+        "note": null
+      },
+      "capacity": "full",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -1280,6 +1376,12 @@
         "weekly": 60,
         "monthly": 205
       },
+      "trial": {
+        "offered": false,
+        "price": null,
+        "note": null
+      },
+      "capacity": "open",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -1364,6 +1466,12 @@
         "weekly": 74,
         "monthly": 262
       },
+      "trial": {
+        "offered": true,
+        "price": 63,
+        "note": null
+      },
+      "capacity": "open",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -1447,6 +1555,12 @@
         "weekly": 62,
         "monthly": 215
       },
+      "trial": {
+        "offered": true,
+        "price": 53,
+        "note": null
+      },
+      "capacity": "open",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -1523,6 +1637,12 @@
         "weekly": 78,
         "monthly": 270
       },
+      "trial": {
+        "offered": false,
+        "price": null,
+        "note": null
+      },
+      "capacity": "open",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -1601,6 +1721,12 @@
         "weekly": 88,
         "monthly": 315
       },
+      "trial": {
+        "offered": false,
+        "price": null,
+        "note": null
+      },
+      "capacity": "full",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -1679,6 +1805,12 @@
         "weekly": 76,
         "monthly": 265
       },
+      "trial": {
+        "offered": false,
+        "price": null,
+        "note": null
+      },
+      "capacity": "open",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -1763,6 +1895,12 @@
         "weekly": 62,
         "monthly": 210
       },
+      "trial": {
+        "offered": false,
+        "price": null,
+        "note": null
+      },
+      "capacity": "full",
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -1841,6 +1979,12 @@
         "weekly": 68,
         "monthly": 235
       },
+      "trial": {
+        "offered": false,
+        "price": null,
+        "note": null
+      },
+      "capacity": "waitlist",
       "menu": {
         "week_of": "2026-09-21",
         "items": [

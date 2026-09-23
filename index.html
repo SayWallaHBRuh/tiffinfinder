@@ -87,14 +87,14 @@
   </header>
 
   <main id="main">
-    <section class="hero" id="hero" aria-labelledby="hero-heading">
+    <section class="hero is-pending" id="hero" aria-labelledby="hero-heading" aria-busy="true">
       <div class="wrap hero-inner">
         <p class="eyebrow" id="hero-eyebrow">Calgary · home tiffin kitchens</p>
         <h1 id="hero-heading" tabindex="-1">Home-cooked tiffins. Every kitchen’s permit checked first.</h1>
         <p class="lede" id="hero-lede">Browse by quadrant, cuisine and price. See this week’s menu, follow a kitchen, and order by WhatsApp or phone the way you already do.</p>
         <p class="hero-count">
           <span class="num" id="count-verified">–</span>
-          <span class="hero-count-text"><span id="count-label">kitchens</span><span class="long"> across Calgary and Airdrie</span><span id="count-pending-wrap" hidden> <span class="sep">·</span> <span id="count-pending">–</span> pending<span class="long"> verification</span></span></span>
+          <span class="hero-count-text"><span id="count-label">kitchens</span><span class="long"> across Calgary and Airdrie</span><span id="count-pending-wrap" hidden> <span class="sep">·</span> <span id="count-pending">–</span> waiting for a permit check</span></span>
         </p>
         <div class="hero-launch" id="hero-launch" hidden>
           <div class="hero-actions">
@@ -113,7 +113,7 @@
       </svg>
     </section>
 
-    <section class="wrap filters-section" id="filters-section" aria-labelledby="filters-heading">
+    <section class="wrap filters-section is-pending" id="filters-section" aria-labelledby="filters-heading">
       <h2 id="filters-heading" class="visually-hidden">Search and filter kitchens</h2>
       <form class="filters" id="filters" role="search" novalidate>
         <div class="search-field">
@@ -171,22 +171,36 @@
           </div>
         </div>
 
-        <div class="switch-row" role="group" aria-label="Dietary">
-          <label class="switch">
-            <input type="checkbox" id="veg" name="veg">
-            <span class="switch-track" aria-hidden="true"></span>
-            <span class="switch-label">Veg only</span>
-          </label>
-          <label class="switch">
-            <input type="checkbox" id="halal" name="halal">
-            <span class="switch-track" aria-hidden="true"></span>
-            <span class="switch-label">Halal</span>
-          </label>
-          <label class="switch">
-            <input type="checkbox" id="jain" name="jain">
-            <span class="switch-track" aria-hidden="true"></span>
-            <span class="switch-label">Jain</span>
-          </label>
+        <div class="switch-row">
+          <div class="switch-set" role="group" aria-label="Dietary">
+            <label class="switch">
+              <input type="checkbox" id="veg" name="veg">
+              <span class="switch-track" aria-hidden="true"></span>
+              <span class="switch-label">Veg only</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" id="halal" name="halal">
+              <span class="switch-track" aria-hidden="true"></span>
+              <span class="switch-label">Halal</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" id="jain" name="jain">
+              <span class="switch-track" aria-hidden="true"></span>
+              <span class="switch-label">Jain</span>
+            </label>
+          </div>
+          <div class="switch-set" role="group" aria-label="Plans and availability">
+            <label class="switch">
+              <input type="checkbox" id="trial" name="trial">
+              <span class="switch-track" aria-hidden="true"></span>
+              <span class="switch-label">Trial week</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" id="open" name="open">
+              <span class="switch-track" aria-hidden="true"></span>
+              <span class="switch-label">Taking new customers</span>
+            </label>
+          </div>
         </div>
 
         <div class="filters-foot">
@@ -317,7 +331,7 @@
         <div class="faq-list">
           <div class="faq-item is-open">
             <h3 class="faq-q"><button type="button" id="faq-q-order" aria-expanded="true" aria-controls="faq-a-order"><span>How do I order a tiffin?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
-            <div class="faq-a" id="faq-a-order" role="region" aria-labelledby="faq-q-order"><div class="faq-a-inner"><p>Straight from the kitchen. Open a kitchen and tap <strong>Order on WhatsApp</strong> or <strong>Call</strong>, then sort out the days, delivery or pickup, and payment with the cook, the way you already do. Tiffin Finder doesn’t take orders or payments and isn’t the seller of any meal.</p></div></div>
+            <div class="faq-a" id="faq-a-order" role="region" aria-labelledby="faq-q-order"><div class="faq-a-inner"><p>Straight from the kitchen. Open a kitchen and tap <strong>Order on WhatsApp</strong> or <strong>Call</strong>. Pick a plan and a start day, check the message, then send it or call. Then sort out delivery or pickup and payment with the cook, the way you already do. Tiffin Finder doesn’t take orders or payments and isn’t the seller of any meal.</p></div></div>
           </div>
           <div class="faq-item is-open">
             <h3 class="faq-q"><button type="button" id="faq-q-permit" aria-expanded="true" aria-controls="faq-a-permit"><span>What does “Permit checked” mean?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
@@ -435,6 +449,19 @@
           <li><a href="./about.html" data-nav="about">About <svg class="nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg></a></li>
         </ul>
       </nav>
+    </div>
+  </div>
+
+  <div class="sheet order-sheet" id="order-sheet" hidden>
+    <button type="button" class="sheet-backdrop" tabindex="-1" aria-label="Close" data-close-order></button>
+    <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="order-sheet-title">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <div class="order-sheet-head">
+        <h2 id="order-sheet-title">You’re about to send</h2>
+        <button type="button" class="icon-btn" data-close-order aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <div id="order-sheet-body"></div>
+      <p class="visually-hidden" id="order-sheet-live" aria-live="polite"></p>
     </div>
   </div>
 

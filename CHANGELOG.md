@@ -63,3 +63,16 @@
 - If a kitchen's permit expiry date passes, its badge changes to "Permit being re-checked" and ordering pauses until we check again. It isn't counted as permit-checked in the meantime.
 - WhatsApp order messages now start "Hi, I found you on Tiffin Finder.", so kitchens can see who found them here.
 - The kitchens are still made-up samples for testing, each marked "Sample".
+
+## Round 7 — 2026-09-23
+
+- Kitchen cards now show the day, week and month prices on one line, a "Trial week" price when the kitchen offers one, and whether the kitchen is taking new customers, has a waitlist or is full.
+- Each kitchen's page has a "Plans and prices" table.
+- New "Trial week" and "Taking new customers" filters. They work on the list and the map, and are remembered in the web address.
+- "Order on WhatsApp" now opens a short "You're about to send" panel: pick a plan and a start day, add a note, and see the exact message before you send it. Or call, with a short script of what to say. Nothing is saved or sent anywhere but your own WhatsApp or phone.
+- Kitchens that are full say "Ask to join the waitlist", and kitchens with a waitlist say "Join the waitlist".
+- Sample kitchens show how ordering works, but can't be messaged or called.
+- Before launch, the Following and map pages show the "Launching in NE Calgary" page too.
+- The home page no longer flickers while it loads.
+- The kitchen count now says "waiting for a permit check".
+- The kitchens are still made-up samples for testing, each marked "Sample".
