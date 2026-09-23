@@ -19,3 +19,13 @@
 - The home page headline and link previews now describe how permit checking works, instead of claiming the sample kitchens were checked. The count now says "sample kitchens".
 - Richer dark mode.
 - The kitchens shown are still made-up samples for testing, each marked "Sample".
+
+## Round 3 — 2026-09-23
+
+- More sample kitchens: 24 instead of 10, across every quadrant and Airdrie, now including Hyderabadi, Nepali, Sri Lankan and Filipino home cooking, so every filter shows results.
+- Search now finds kitchens by neighbourhood. Type "Saddle Ridge" to see every kitchen that delivers there.
+- On a kitchen's page, each delivery area can be tapped to list all kitchens that deliver to it. The chosen area shows as a green pill above the list; tap the pill to remove it.
+- A new "Browse by neighbourhood" section on the home page groups communities by quadrant, with how many kitchens deliver to each.
+- On a kitchen's page, dish names with a dotted underline can be tapped to show a one-line description, such as what haleem or sambar is.
+- Community names and quadrants were checked against the City of Calgary's and City of Airdrie's own lists, which fixed a few areas that were in the wrong quadrant. Sources are noted in docs/research-notes.md.
+- The kitchens are still made-up samples for testing, each marked "Sample".

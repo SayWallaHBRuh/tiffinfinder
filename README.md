@@ -26,7 +26,15 @@ The home page (`./`) reads these from the address:
 
 - `?k=<slug>` opens a kitchen, for example `./?k=saffron-lane-rasoi`.
 - `?view=following` shows the kitchens you follow.
-- Otherwise it shows the list, with any filters: `?q=<search>&area=NE|NW|SE|SW|Airdrie&cuisine=<name>&price=low|mid|high&veg=1&halal=1&jain=1`. Filters left at their default are left out, so the plain list is just `./`. Changing a filter updates the address in place (no extra Back steps), so a filtered list can be reloaded or shared.
+- Otherwise it shows the list, with any filters: `?q=<search>&area=NE|NW|SE|SW|Airdrie&near=<community>&cuisine=<name>&price=low|mid|high&veg=1&halal=1&jain=1`. Filters left at their default are left out, so the plain list is just `./`. Changing a filter updates the address in place (no extra Back steps), so a filtered list can be reloaded or shared.
+- `near=<community>` shows the kitchens that deliver to that community, for example `./?near=saddle-ridge`, with a "Delivers to Saddle Ridge" pill above the list that removes it. The community is written in lowercase letters and numbers, with apostrophes removed and any other characters, such as spaces, turned into a single hyphen ("King's Heights" becomes `kings-heights`, "McKenzie Towne" becomes `mckenzie-towne`). A community no kitchen delivers to is ignored. The delivery areas on each kitchen's page and the "Browse by neighbourhood" section on the home page link to it.
+- Search also matches delivery communities, ignoring case, apostrophes and hyphens, so `saddle-ridge` and `kings heights` both work.
+
+## Data
+
+- `data/kitchens.json` is **sample data**: fictional kitchens with 403-555-01xx numbers, labelled "Sample" on every card.
+- `data/dishes.json` is the dish glossary shown on kitchen pages: a dish name on a menu that matches one of an entry's `terms` gets a dotted underline and opens that entry's one-line description. If the file can't load, menus show as plain text.
+- `docs/research-notes.md` lists the sources for community names, quadrants and dish descriptions. Delivery communities must come from the lists named there, with each community in one quadrant only.
 
 ## Paths
 
@@ -34,7 +42,7 @@ All paths are relative (no leading `/`), so the same files work at the custom do
 
 ## Offline
 
-After the first visit, the service worker (`sw.js`) keeps the app shell on the device. Opening a page that isn't saved while there's no connection shows `offline.html` ("You're offline", with Try again). The kitchen list falls back to its last saved copy; if there is no saved copy, the page shows a "You're offline" state that retries by itself when the connection comes back. The very first visit needs a connection: until the service worker is installed, the browser shows its own offline page.
+After the first visit, the service worker (`sw.js`) keeps the app shell on the device. Opening a page that isn't saved while there's no connection shows `offline.html` ("You're offline", with Try again). Both data files (`data/kitchens.json` and `data/dishes.json`) are network-first: the latest copy when online, the last saved copy when not. If there is no saved kitchen list, the page shows a "You're offline" state that retries by itself when the connection comes back; if there is no saved glossary, menus show as plain text. The very first visit needs a connection: until the service worker is installed, the browser shows its own offline page.
 
 ## Link previews
 

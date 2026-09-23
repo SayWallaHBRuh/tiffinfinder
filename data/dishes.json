@@ -1,0 +1,1177 @@
+{
+  "meta": {
+    "generated": "2026-09-23",
+    "note": "One-line descriptions of dishes on the sample menus. Sources are listed in docs/research-notes.md."
+  },
+  "dishes": [
+    {
+      "id": "rajma",
+      "name": "Rajma",
+      "terms": [
+        "rajma"
+      ],
+      "description": "Red kidney beans cooked in a spiced onion and tomato gravy, usually eaten with rice.",
+      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine"
+    },
+    {
+      "id": "jeera-rice",
+      "name": "Jeera rice",
+      "terms": [
+        "jeera rice"
+      ],
+      "description": "Rice cooked with cumin seeds (jeera).",
+      "source": "https://en.wikipedia.org/wiki/Jeera_rice"
+    },
+    {
+      "id": "roti",
+      "name": "Roti",
+      "terms": [
+        "roti",
+        "rotis"
+      ],
+      "description": "Round, unleavened whole-wheat flatbread cooked on a flat griddle.",
+      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine"
+    },
+    {
+      "id": "kachumber",
+      "name": "Kachumber",
+      "terms": [
+        "kachumber salad",
+        "kachumber"
+      ],
+      "description": "A fresh chopped salad of tomato, cucumber and onion with lemon juice.",
+      "source": "https://en.wikipedia.org/wiki/Kachumber"
+    },
+    {
+      "id": "aloo-gobi",
+      "name": "Aloo gobi",
+      "terms": [
+        "aloo gobi"
+      ],
+      "description": "Potatoes (aloo) and cauliflower (gobi) cooked with turmeric and spices.",
+      "source": "https://en.wikipedia.org/wiki/Aloo_gobi"
+    },
+    {
+      "id": "dal-makhani",
+      "name": "Dal makhani",
+      "terms": [
+        "dal makhani"
+      ],
+      "description": "Whole black lentils slow-cooked into a creamy, buttery dal.",
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+    },
+    {
+      "id": "raita",
+      "name": "Raita",
+      "terms": [
+        "raita"
+      ],
+      "description": "Cool, seasoned yogurt, often mixed with cucumber or onion; served on the side.",
+      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine"
+    },
+    {
+      "id": "chole",
+      "name": "Chole",
+      "terms": [
+        "chole",
+        "chana masala"
+      ],
+      "description": "Chickpeas cooked in a spiced tomato and onion gravy; also called chana masala.",
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+    },
+    {
+      "id": "kadhi-pakora",
+      "name": "Kadhi pakora",
+      "terms": [
+        "kadhi pakora"
+      ],
+      "description": "A tangy yogurt and gram-flour curry with soft gram-flour fritters (pakoras) in it.",
+      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine"
+    },
+    {
+      "id": "kadhi",
+      "name": "Kadhi",
+      "terms": [
+        "kadhi"
+      ],
+      "description": "A tangy curry of yogurt or buttermilk thickened with gram flour.",
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+    },
+    {
+      "id": "aloo-matar",
+      "name": "Aloo matar",
+      "terms": [
+        "aloo matar"
+      ],
+      "description": "Potatoes and green peas in a mildly spiced tomato gravy.",
+      "source": "https://en.wikipedia.org/wiki/Aloo_mattar"
+    },
+    {
+      "id": "palak-paneer",
+      "name": "Palak paneer",
+      "terms": [
+        "palak paneer"
+      ],
+      "description": "Cubes of paneer cheese in a smooth, spiced spinach (palak) sauce.",
+      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine"
+    },
+    {
+      "id": "aloo-methi",
+      "name": "Aloo methi",
+      "terms": [
+        "aloo methi"
+      ],
+      "description": "Potatoes sauteed with chopped fresh fenugreek (methi) leaves.",
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+    },
+    {
+      "id": "gobi-matar",
+      "name": "Gobi matar",
+      "terms": [
+        "gobi matar"
+      ],
+      "description": "Cauliflower and green peas cooked in a light tomato sauce.",
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+    },
+    {
+      "id": "kheer",
+      "name": "Kheer",
+      "terms": [
+        "kheer"
+      ],
+      "description": "Rice pudding slow-cooked in milk with sugar and dried fruit.",
+      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine"
+    },
+    {
+      "id": "butter-chicken",
+      "name": "Butter chicken",
+      "terms": [
+        "butter chicken"
+      ],
+      "description": "Chicken in a mild, creamy tomato and butter sauce; murgh makhani.",
+      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine"
+    },
+    {
+      "id": "dal-tadka",
+      "name": "Dal tadka",
+      "terms": [
+        "dal tadka"
+      ],
+      "description": "Yellow dal finished with a tadka: spices sizzled in hot ghee or oil and poured over.",
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+    },
+    {
+      "id": "paneer-butter-masala",
+      "name": "Paneer butter masala",
+      "terms": [
+        "paneer butter masala"
+      ],
+      "description": "Soft cubes of paneer cheese in a rich, creamy tomato and butter gravy.",
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+    },
+    {
+      "id": "pulao",
+      "name": "Pulao",
+      "terms": [
+        "pulao"
+      ],
+      "description": "Rice cooked in stock with whole spices, often with peas, chickpeas or meat.",
+      "source": "https://en.wikipedia.org/wiki/Pakistani_cuisine"
+    },
+    {
+      "id": "khichdi",
+      "name": "Khichdi",
+      "terms": [
+        "moong dal khichdi",
+        "khichdi"
+      ],
+      "description": "Rice and lentils cooked together into a soft, comforting one-pot meal.",
+      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine"
+    },
+    {
+      "id": "pav-bhaji",
+      "name": "Pav bhaji",
+      "terms": [
+        "pav bhaji"
+      ],
+      "description": "A thick, buttery mashed-vegetable curry (bhaji) eaten with soft bread rolls (pav).",
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+    },
+    {
+      "id": "dal",
+      "name": "Dal",
+      "terms": [
+        "dal",
+        "daal"
+      ],
+      "description": "Split lentils, peas or beans cooked into a soup or stew; eaten daily across South Asia.",
+      "source": "https://en.wikipedia.org/wiki/Dal"
+    },
+    {
+      "id": "chana-dal",
+      "name": "Chana dal",
+      "terms": [
+        "chana dal",
+        "chana daal",
+        "daal chana"
+      ],
+      "description": "Split, skinned black chickpeas cooked into a thick, nutty dal.",
+      "source": "https://en.wikipedia.org/wiki/Dal"
+    },
+    {
+      "id": "moong-dal",
+      "name": "Moong dal",
+      "terms": [
+        "moong dal"
+      ],
+      "description": "Split mung beans cooked into a light, quick dal.",
+      "source": "https://en.wikipedia.org/wiki/Dal"
+    },
+    {
+      "id": "masoor-dal",
+      "name": "Masoor dal",
+      "terms": [
+        "masoor dal",
+        "masoor daal",
+        "musur dal"
+      ],
+      "description": "Split red lentils cooked soft; musur dal in Bengali.",
+      "source": "https://en.wikipedia.org/wiki/Dal"
+    },
+    {
+      "id": "toor-dal",
+      "name": "Toor dal",
+      "terms": [
+        "toor dal",
+        "tuvar dal"
+      ],
+      "description": "Split yellow pigeon peas, the everyday dal of Gujarat and much of India.",
+      "source": "https://en.wikipedia.org/wiki/Dal"
+    },
+    {
+      "id": "sev-tameta",
+      "name": "Sev tameta shaak",
+      "terms": [
+        "sev tameta shaak",
+        "sev tameta"
+      ],
+      "description": "A tomato curry topped with crunchy gram-flour noodles (sev).",
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+    },
+    {
+      "id": "shaak",
+      "name": "Shaak",
+      "terms": [
+        "shaak"
+      ],
+      "description": "The Gujarati word for a cooked vegetable dish.",
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+    },
+    {
+      "id": "bhinda-shaak",
+      "name": "Bhinda shaak",
+      "terms": [
+        "bhinda shaak"
+      ],
+      "description": "Okra (bhinda) cooked Gujarati-style with light spices.",
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+    },
+    {
+      "id": "batata-shaak",
+      "name": "Batata shaak",
+      "terms": [
+        "batata shaak"
+      ],
+      "description": "A simple Gujarati potato (batata) curry.",
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+    },
+    {
+      "id": "rotli",
+      "name": "Rotli",
+      "terms": [
+        "rotli"
+      ],
+      "description": "Thin Gujarati whole-wheat flatbread, the everyday bread of a Gujarati thali.",
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+    },
+    {
+      "id": "undhiyu",
+      "name": "Undhiyu",
+      "terms": [
+        "undhiyu"
+      ],
+      "description": "A mixed-vegetable casserole from Gujarat, traditionally slow-cooked in winter.",
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+    },
+    {
+      "id": "gujarati-kadhi",
+      "name": "Gujarati kadhi",
+      "terms": [
+        "gujarati kadhi"
+      ],
+      "description": "A thin, gently sweet curry of buttermilk and gram flour, the Gujarati style of kadhi.",
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+    },
+    {
+      "id": "chaas",
+      "name": "Chaas",
+      "terms": [
+        "chaas"
+      ],
+      "description": "A cool, thin drink of yogurt whisked with water and spices.",
+      "source": "https://en.wikipedia.org/wiki/Chaas"
+    },
+    {
+      "id": "ringan-bateta",
+      "name": "Ringan bateta",
+      "terms": [
+        "ringan bateta"
+      ],
+      "description": "Aubergine (ringan) and potato (bateta) cooked together Gujarati-style.",
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+    },
+    {
+      "id": "thepla",
+      "name": "Thepla",
+      "terms": [
+        "methi thepla",
+        "thepla"
+      ],
+      "description": "Soft Gujarati flatbread made from spiced flours, often with fenugreek leaves.",
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+    },
+    {
+      "id": "dal-dhokli",
+      "name": "Dal dhokli",
+      "terms": [
+        "dal dhokli"
+      ],
+      "description": "Pieces of spiced wheat-flour dough simmered in toor dal.",
+      "source": "https://en.wikipedia.org/wiki/Dal_dhokli"
+    },
+    {
+      "id": "shrikhand",
+      "name": "Shrikhand",
+      "terms": [
+        "shrikhand"
+      ],
+      "description": "A sweet made from strained yogurt with sugar, cardamom and saffron.",
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+    },
+    {
+      "id": "dudhi",
+      "name": "Dudhi",
+      "terms": [
+        "dudhi"
+      ],
+      "description": "Bottle gourd, a mild green vegetable.",
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+    },
+    {
+      "id": "dhokla",
+      "name": "Khaman dhokla",
+      "terms": [
+        "khaman dhokla",
+        "dhokla"
+      ],
+      "description": "A soft, spongy, steamed savoury cake from Gujarat.",
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+    },
+    {
+      "id": "puri",
+      "name": "Puri",
+      "terms": [
+        "puri"
+      ],
+      "description": "Small rounds of whole-wheat dough deep-fried until they puff up.",
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+    },
+    {
+      "id": "chhundo",
+      "name": "Chhundo",
+      "terms": [
+        "chhundo"
+      ],
+      "description": "A sweet and spicy Gujarati relish of grated raw mango.",
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+    },
+    {
+      "id": "handvo",
+      "name": "Handvo",
+      "terms": [
+        "handvo"
+      ],
+      "description": "A savoury Gujarati cake of rice and lentil batter with vegetables.",
+      "source": "https://en.wikipedia.org/wiki/Handvo"
+    },
+    {
+      "id": "chutney",
+      "name": "Chutney",
+      "terms": [
+        "green chutney",
+        "coconut chutney",
+        "tomato chutney",
+        "chutney"
+      ],
+      "description": "A fresh relish or dip, here ground from herbs, coconut or tomato with spices.",
+      "source": "https://en.wikipedia.org/wiki/Chutney"
+    },
+    {
+      "id": "papad",
+      "name": "Papad",
+      "terms": [
+        "papad",
+        "papadam",
+        "pappadam",
+        "appalam"
+      ],
+      "description": "A thin, crisp disc of dried lentil dough, roasted or fried.",
+      "source": "https://en.wikipedia.org/wiki/Papadam"
+    },
+    {
+      "id": "aloo-gosht",
+      "name": "Aloo gosht",
+      "terms": [
+        "aloo gosht"
+      ],
+      "description": "Meat (gosht) and potatoes (aloo) cooked together in a spiced curry.",
+      "source": "https://en.wikipedia.org/wiki/Aloo_gosht"
+    },
+    {
+      "id": "karahi",
+      "name": "Karahi",
+      "terms": [
+        "karahi"
+      ],
+      "description": "Meat cooked quickly with tomato, ginger and green chilli in a wok-like karahi pan.",
+      "source": "https://en.wikipedia.org/wiki/Pakistani_cuisine"
+    },
+    {
+      "id": "keema",
+      "name": "Keema",
+      "terms": [
+        "keema matar",
+        "aloo keema",
+        "keema aloo",
+        "keema"
+      ],
+      "description": "Minced meat cooked with onion, tomato and spices, often with peas or potato.",
+      "source": "https://en.wikipedia.org/wiki/Pakistani_cuisine"
+    },
+    {
+      "id": "haleem",
+      "name": "Haleem",
+      "terms": [
+        "haleem"
+      ],
+      "description": "A slow-cooked stew of meat, wheat and lentils, stirred until thick and smooth.",
+      "source": "https://en.wikipedia.org/wiki/Hyderabadi_cuisine"
+    },
+    {
+      "id": "naan",
+      "name": "Naan",
+      "terms": [
+        "naan"
+      ],
+      "description": "Soft, leavened flatbread baked in a very hot tandoor oven.",
+      "source": "https://en.wikipedia.org/wiki/Pakistani_cuisine"
+    },
+    {
+      "id": "biryani",
+      "name": "Biryani",
+      "terms": [
+        "dum biryani",
+        "biryani"
+      ],
+      "description": "Layered rice and spiced meat or vegetables, sealed and slow-cooked together.",
+      "source": "https://en.wikipedia.org/wiki/Pakistani_cuisine"
+    },
+    {
+      "id": "shami-kebab",
+      "name": "Shami kebab",
+      "terms": [
+        "shami kebab"
+      ],
+      "description": "A pan-fried patty of minced meat and lentils, ground together with spices.",
+      "source": "https://en.wikipedia.org/wiki/Pakistani_cuisine"
+    },
+    {
+      "id": "nihari",
+      "name": "Nihari",
+      "terms": [
+        "nihari"
+      ],
+      "description": "Beef or lamb shank slow-cooked into a rich, spiced stew.",
+      "source": "https://en.wikipedia.org/wiki/Pakistani_cuisine"
+    },
+    {
+      "id": "daal-chawal",
+      "name": "Daal chawal",
+      "terms": [
+        "daal chawal"
+      ],
+      "description": "Dal served over plain rice (chawal), a favourite comfort meal.",
+      "source": "https://en.wikipedia.org/wiki/Pakistani_cuisine"
+    },
+    {
+      "id": "achar",
+      "name": "Achar",
+      "terms": [
+        "achar"
+      ],
+      "description": "A South Asian pickle of fruit or vegetables preserved with spices, oil or salt.",
+      "source": "https://en.wikipedia.org/wiki/Nepalese_cuisine"
+    },
+    {
+      "id": "korma",
+      "name": "Korma",
+      "terms": [
+        "korma",
+        "qorma"
+      ],
+      "description": "Meat or vegetables braised slowly with yogurt and spices into a thick sauce.",
+      "source": "https://en.wikipedia.org/wiki/Korma"
+    },
+    {
+      "id": "mirchi-ka-salan",
+      "name": "Mirchi ka salan",
+      "terms": [
+        "mirchi ka salan"
+      ],
+      "description": "Hyderabadi chilli and peanut curry, served with biryani.",
+      "source": "https://en.wikipedia.org/wiki/Mirchi_ka_salan"
+    },
+    {
+      "id": "bagara-baingan",
+      "name": "Bagara baingan",
+      "terms": [
+        "bagara baingan"
+      ],
+      "description": "Small aubergines in a rich Hyderabadi gravy, a classic side for rice.",
+      "source": "https://en.wikipedia.org/wiki/Hyderabadi_cuisine"
+    },
+    {
+      "id": "khatti-dal",
+      "name": "Khatti dal",
+      "terms": [
+        "khatti dal"
+      ],
+      "description": "Hyderabadi sour dal, soured with tamarind and eaten with rice and pickle.",
+      "source": "https://en.wikipedia.org/wiki/Hyderabadi_cuisine"
+    },
+    {
+      "id": "dalcha",
+      "name": "Dalcha",
+      "terms": [
+        "dalcha"
+      ],
+      "description": "A Hyderabadi lentil stew, often cooked with meat and soured with tamarind.",
+      "source": "https://en.wikipedia.org/wiki/Dalcha"
+    },
+    {
+      "id": "bagara-rice",
+      "name": "Bagara rice",
+      "terms": [
+        "bagara rice"
+      ],
+      "description": "Hyderabadi rice cooked with whole spices; bagara khana, often served with dalcha.",
+      "source": "https://en.wikipedia.org/wiki/Hyderabadi_cuisine"
+    },
+    {
+      "id": "double-ka-meetha",
+      "name": "Double ka meetha",
+      "terms": [
+        "double ka meetha"
+      ],
+      "description": "A Hyderabadi bread pudding topped with dried fruit.",
+      "source": "https://en.wikipedia.org/wiki/Double_ka_meetha"
+    },
+    {
+      "id": "sambar",
+      "name": "Sambar",
+      "terms": [
+        "sambar"
+      ],
+      "description": "A lentil stew cooked with vegetables and tamarind.",
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+    },
+    {
+      "id": "poriyal",
+      "name": "Poriyal",
+      "terms": [
+        "poriyal"
+      ],
+      "description": "A dry side dish of one or more stir-fried vegetables, eaten with rice.",
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+    },
+    {
+      "id": "lemon-rice",
+      "name": "Lemon rice",
+      "terms": [
+        "lemon rice"
+      ],
+      "description": "Rice tossed with lemon juice, turmeric, mustard seeds, peanuts and curry leaves.",
+      "source": "https://en.wikipedia.org/wiki/Lemon_rice"
+    },
+    {
+      "id": "rasam",
+      "name": "Rasam",
+      "terms": [
+        "rasam"
+      ],
+      "description": "A thin, spicy and sour soup, usually made with tamarind, eaten with rice.",
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+    },
+    {
+      "id": "bisi-bele-bath",
+      "name": "Bisi bele bath",
+      "terms": [
+        "bisi bele bath"
+      ],
+      "description": "A hot Karnataka rice dish cooked with lentils and vegetables.",
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+    },
+    {
+      "id": "tamarind-rice",
+      "name": "Tamarind rice",
+      "terms": [
+        "tamarind rice",
+        "puliyodarai"
+      ],
+      "description": "Rice mixed with a tangy tamarind, spice and peanut paste; puliyodarai in Tamil.",
+      "source": "https://en.wikipedia.org/wiki/Puliyodarai"
+    },
+    {
+      "id": "kootu",
+      "name": "Kootu",
+      "terms": [
+        "kootu"
+      ],
+      "description": "Vegetables and lentils cooked together into a thick, mild stew.",
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+    },
+    {
+      "id": "curd-rice",
+      "name": "Curd rice",
+      "terms": [
+        "curd rice"
+      ],
+      "description": "Rice mixed with yogurt and tempered with mustard seeds and curry leaves.",
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+    },
+    {
+      "id": "idli",
+      "name": "Idli",
+      "terms": [
+        "idli"
+      ],
+      "description": "Soft steamed cakes of fermented rice and lentil batter.",
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+    },
+    {
+      "id": "vada",
+      "name": "Vada",
+      "terms": [
+        "medu vada",
+        "vada"
+      ],
+      "description": "A savoury black-lentil fritter shaped like a doughnut, crisp outside and soft inside.",
+      "source": "https://en.wikipedia.org/wiki/Medu_vada"
+    },
+    {
+      "id": "avial",
+      "name": "Avial",
+      "terms": [
+        "avial"
+      ],
+      "description": "A Kerala dish of mixed vegetables in a coconut and yogurt sauce.",
+      "source": "https://en.wikipedia.org/wiki/Cuisine_of_Kerala"
+    },
+    {
+      "id": "masala-dosa",
+      "name": "Masala dosa",
+      "terms": [
+        "masala dosa"
+      ],
+      "description": "A thin, crisp fermented rice and lentil crepe filled with spiced potato.",
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+    },
+    {
+      "id": "pongal",
+      "name": "Ven pongal",
+      "terms": [
+        "ven pongal",
+        "pongal"
+      ],
+      "description": "Rice and mung dal cooked soft with ghee, black pepper and cumin.",
+      "source": "https://en.wikipedia.org/wiki/Pongal_(dish)"
+    },
+    {
+      "id": "matta-rice",
+      "name": "Matta rice",
+      "terms": [
+        "matta rice"
+      ],
+      "description": "Kerala red rice, a nutty parboiled rice with a red outer layer.",
+      "source": "https://en.wikipedia.org/wiki/Rosematta_rice"
+    },
+    {
+      "id": "thoran",
+      "name": "Thoran",
+      "terms": [
+        "thoran"
+      ],
+      "description": "Kerala stir-fried chopped vegetables with grated coconut.",
+      "source": "https://en.wikipedia.org/wiki/Cuisine_of_Kerala"
+    },
+    {
+      "id": "appam",
+      "name": "Appam",
+      "terms": [
+        "appam"
+      ],
+      "description": "A lacy Kerala pancake of fermented rice batter, soft in the middle.",
+      "source": "https://en.wikipedia.org/wiki/Cuisine_of_Kerala"
+    },
+    {
+      "id": "ishtu",
+      "name": "Ishtu",
+      "terms": [
+        "ishtu"
+      ],
+      "description": "A mild Kerala stew of vegetables or meat in coconut milk, often eaten with appam.",
+      "source": "https://en.wikipedia.org/wiki/Cuisine_of_Kerala"
+    },
+    {
+      "id": "chettinad",
+      "name": "Chettinad",
+      "terms": [
+        "chettinad"
+      ],
+      "description": "A Tamil regional style known for bold, peppery spice blends.",
+      "source": "https://en.wikipedia.org/wiki/Chettinad_cuisine"
+    },
+    {
+      "id": "parotta",
+      "name": "Parotta",
+      "terms": [
+        "parotta"
+      ],
+      "description": "A flaky, layered flatbread made from flour and oil.",
+      "source": "https://en.wikipedia.org/wiki/Cuisine_of_Kerala"
+    },
+    {
+      "id": "payasam",
+      "name": "Payasam",
+      "terms": [
+        "payasam"
+      ],
+      "description": "A South Indian sweet pudding of rice cooked in milk.",
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+    },
+    {
+      "id": "macher-jhol",
+      "name": "Macher jhol",
+      "terms": [
+        "macher jhol"
+      ],
+      "description": "A traditional, lightly spiced Bengali fish curry.",
+      "source": "https://en.wikipedia.org/wiki/Machher_jhol"
+    },
+    {
+      "id": "shorshe-ilish",
+      "name": "Shorshe ilish",
+      "terms": [
+        "shorshe ilish"
+      ],
+      "description": "Hilsa fish cooked in a sharp mustard (shorshe) sauce, a Bengali classic.",
+      "source": "https://en.wikipedia.org/wiki/Bengali_cuisine"
+    },
+    {
+      "id": "shukto",
+      "name": "Shukto",
+      "terms": [
+        "shukto"
+      ],
+      "description": "A mildly bitter Bengali mixed-vegetable dish, traditionally eaten first in a meal.",
+      "source": "https://en.wikipedia.org/wiki/Shukto"
+    },
+    {
+      "id": "kosha-mangsho",
+      "name": "Kosha mangsho",
+      "terms": [
+        "kosha mangsho"
+      ],
+      "description": "Bengali mutton curry, slow-cooked with onion and spices until thick and dark.",
+      "source": "https://en.wikipedia.org/wiki/Kosha_mangsho"
+    },
+    {
+      "id": "luchi",
+      "name": "Luchi",
+      "terms": [
+        "luchi"
+      ],
+      "description": "A small, puffy deep-fried bread made with white flour; a Bengali favourite.",
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+    },
+    {
+      "id": "mishti-doi",
+      "name": "Mishti doi",
+      "terms": [
+        "mishti doi"
+      ],
+      "description": "Sweet Bengali yogurt, set with sugar or jaggery.",
+      "source": "https://en.wikipedia.org/wiki/Bengali_cuisine"
+    },
+    {
+      "id": "bhorta",
+      "name": "Bhorta",
+      "terms": [
+        "aloo bhorta",
+        "begun bhorta",
+        "bhorta"
+      ],
+      "description": "Mashed vegetables, such as potato or roasted aubergine, mixed with mustard oil and chilli.",
+      "source": "https://en.wikipedia.org/wiki/Bangladeshi_cuisine"
+    },
+    {
+      "id": "rezala",
+      "name": "Rezala",
+      "terms": [
+        "rezala"
+      ],
+      "description": "Meat in a thin, fragrant gravy of yogurt and cardamom.",
+      "source": "https://en.wikipedia.org/wiki/Bengali_cuisine"
+    },
+    {
+      "id": "polao",
+      "name": "Polao",
+      "terms": [
+        "polao"
+      ],
+      "description": "Fragrant rice cooked with ghee and whole spices, the Bengali pilaf.",
+      "source": "https://en.wikipedia.org/wiki/Bengali_cuisine"
+    },
+    {
+      "id": "shak-bhaji",
+      "name": "Shak bhaji",
+      "terms": [
+        "shak bhaji"
+      ],
+      "description": "Leafy greens (shak) stir-fried with garlic and chilli.",
+      "source": "https://en.wikipedia.org/wiki/Bangladeshi_cuisine"
+    },
+    {
+      "id": "khichuri",
+      "name": "Bhuna khichuri",
+      "terms": [
+        "bhuna khichuri",
+        "khichuri"
+      ],
+      "description": "Rice and lentils cooked together with spices; bhuna means fried until rich, here with beef.",
+      "source": "https://en.wikipedia.org/wiki/Bengali_cuisine"
+    },
+    {
+      "id": "borhani",
+      "name": "Borhani",
+      "terms": [
+        "borhani"
+      ],
+      "description": "A spiced yogurt drink from Bangladesh, served with rich rice dishes.",
+      "source": "https://en.wikipedia.org/wiki/Borhani"
+    },
+    {
+      "id": "qabuli-palaw",
+      "name": "Qabuli palaw",
+      "terms": [
+        "qabuli palaw",
+        "qabuli pulao",
+        "kabuli palaw"
+      ],
+      "description": "Afghanistan's national dish: rice cooked in meat stock, topped with carrots and raisins.",
+      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine"
+    },
+    {
+      "id": "salata",
+      "name": "Salata",
+      "terms": [
+        "salata"
+      ],
+      "description": "Afghan salad of tomato and onion, often with cucumber.",
+      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine"
+    },
+    {
+      "id": "bolani",
+      "name": "Bolani",
+      "terms": [
+        "bolani"
+      ],
+      "description": "Thin flatbread stuffed with potato, leek or pumpkin, then pan-fried.",
+      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine"
+    },
+    {
+      "id": "kofta",
+      "name": "Kofta",
+      "terms": [
+        "kofta"
+      ],
+      "description": "Spiced meatballs, usually of ground beef, cooked in a sauce.",
+      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine"
+    },
+    {
+      "id": "challow",
+      "name": "Challow",
+      "terms": [
+        "challow",
+        "chalaw"
+      ],
+      "description": "Afghan white rice cooked with mild spices so the grains stay separate.",
+      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine"
+    },
+    {
+      "id": "sabzi",
+      "name": "Sabzi",
+      "terms": [
+        "sabzi"
+      ],
+      "description": "Greens; in Afghan cooking, spinach and herbs slow-cooked with spices.",
+      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine"
+    },
+    {
+      "id": "mantu",
+      "name": "Mantu",
+      "terms": [
+        "mantu"
+      ],
+      "description": "Steamed dumplings filled with onion and ground beef, topped with yogurt and a lentil sauce.",
+      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine"
+    },
+    {
+      "id": "aushak",
+      "name": "Aushak",
+      "terms": [
+        "aushak"
+      ],
+      "description": "Dumplings filled mainly with leeks, topped with yogurt and mint.",
+      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine"
+    },
+    {
+      "id": "shorwa",
+      "name": "Shorwa",
+      "terms": [
+        "shorwa"
+      ],
+      "description": "A simple Afghan soup of meat and vegetables.",
+      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine"
+    },
+    {
+      "id": "dal-bhat",
+      "name": "Dal bhat",
+      "terms": [
+        "dal bhat"
+      ],
+      "description": "Nepal's everyday meal: steamed rice (bhat) with lentil soup (dal), vegetables and pickle.",
+      "source": "https://en.wikipedia.org/wiki/Nepalese_cuisine"
+    },
+    {
+      "id": "aloo-tama",
+      "name": "Aloo tama",
+      "terms": [
+        "aloo tama"
+      ],
+      "description": "A tangy Nepali curry of potato, fermented bamboo shoot (tama) and black-eyed beans.",
+      "source": "https://en.wikipedia.org/wiki/Aloo_tama"
+    },
+    {
+      "id": "gundruk",
+      "name": "Gundruk",
+      "terms": [
+        "gundruk"
+      ],
+      "description": "Fermented, dried mustard greens from Nepal, made into a tangy pickle or soup.",
+      "source": "https://en.wikipedia.org/wiki/Nepalese_cuisine"
+    },
+    {
+      "id": "momo",
+      "name": "Momo",
+      "terms": [
+        "momo"
+      ],
+      "description": "Himalayan dumplings filled with minced meat or vegetables, served with a tomato dip.",
+      "source": "https://en.wikipedia.org/wiki/Nepalese_cuisine"
+    },
+    {
+      "id": "kwati",
+      "name": "Kwati",
+      "terms": [
+        "kwati"
+      ],
+      "description": "A Nepali soup made from several kinds of sprouted beans.",
+      "source": "https://en.wikipedia.org/wiki/Nepalese_cuisine"
+    },
+    {
+      "id": "saag",
+      "name": "Saag",
+      "terms": [
+        "saag"
+      ],
+      "description": "Leafy greens, such as mustard greens or spinach, cooked simply with spices.",
+      "source": "https://en.wikipedia.org/wiki/Nepalese_cuisine"
+    },
+    {
+      "id": "thukpa",
+      "name": "Thukpa",
+      "terms": [
+        "thukpa"
+      ],
+      "description": "A warming Himalayan noodle soup with vegetables and meat.",
+      "source": "https://en.wikipedia.org/wiki/Nepalese_cuisine"
+    },
+    {
+      "id": "parippu",
+      "name": "Parippu",
+      "terms": [
+        "parippu"
+      ],
+      "description": "The Tamil and Malayalam word for dal: split lentils cooked soft and seasoned.",
+      "source": "https://en.wikipedia.org/wiki/Dal"
+    },
+    {
+      "id": "pol-sambol",
+      "name": "Pol sambol",
+      "terms": [
+        "pol sambol"
+      ],
+      "description": "Freshly grated coconut ground with chilli, onion and lime.",
+      "source": "https://en.wikipedia.org/wiki/Sri_Lankan_cuisine"
+    },
+    {
+      "id": "kottu",
+      "name": "Kottu roti",
+      "terms": [
+        "kottu roti",
+        "kottu"
+      ],
+      "description": "Shredded flatbread stir-fried on a griddle with vegetables, egg or meat and spices.",
+      "source": "https://en.wikipedia.org/wiki/Sri_Lankan_cuisine"
+    },
+    {
+      "id": "gotu-kola-sambol",
+      "name": "Gotu kola sambol",
+      "terms": [
+        "gotu kola sambol"
+      ],
+      "description": "A fresh salad of finely shredded gotu kola leaves with coconut and lime.",
+      "source": "https://en.wikipedia.org/wiki/Sri_Lankan_cuisine"
+    },
+    {
+      "id": "string-hoppers",
+      "name": "String hoppers",
+      "terms": [
+        "string hoppers"
+      ],
+      "description": "Nests of thin steamed rice-flour noodles (idiyappam), eaten with curries.",
+      "source": "https://en.wikipedia.org/wiki/Sri_Lankan_cuisine"
+    },
+    {
+      "id": "kiri-hodi",
+      "name": "Kiri hodi",
+      "terms": [
+        "kiri hodi"
+      ],
+      "description": "A mild, fragrant Sri Lankan coconut-milk gravy.",
+      "source": "https://en.wikipedia.org/wiki/Kiri_hodi"
+    },
+    {
+      "id": "yellow-rice",
+      "name": "Yellow rice",
+      "terms": [
+        "yellow rice"
+      ],
+      "description": "Rice cooked with turmeric and spices; kaha bath in Sinhala.",
+      "source": "https://en.wikipedia.org/wiki/Sri_Lankan_cuisine"
+    },
+    {
+      "id": "adobo",
+      "name": "Adobo",
+      "terms": [
+        "adobo"
+      ],
+      "description": "Meat braised in vinegar, soy sauce, garlic, bay leaves and black pepper.",
+      "source": "https://en.wikipedia.org/wiki/Filipino_cuisine"
+    },
+    {
+      "id": "garlic-rice",
+      "name": "Garlic rice",
+      "terms": [
+        "garlic rice"
+      ],
+      "description": "Rice fried with plenty of garlic; sinangag in Filipino.",
+      "source": "https://en.wikipedia.org/wiki/Filipino_cuisine"
+    },
+    {
+      "id": "atchara",
+      "name": "Atchara",
+      "terms": [
+        "atchara"
+      ],
+      "description": "A Filipino pickle of grated unripe papaya with carrot and ginger in vinegar.",
+      "source": "https://en.wikipedia.org/wiki/Atchara"
+    },
+    {
+      "id": "sinigang",
+      "name": "Sinigang",
+      "terms": [
+        "sinigang"
+      ],
+      "description": "A sour Filipino soup, usually soured with tamarind, with meat and vegetables.",
+      "source": "https://en.wikipedia.org/wiki/Filipino_cuisine"
+    },
+    {
+      "id": "pancit-bihon",
+      "name": "Pancit bihon",
+      "terms": [
+        "pancit bihon"
+      ],
+      "description": "Very thin rice noodles stir-fried with soy sauce, vegetables and meat.",
+      "source": "https://en.wikipedia.org/wiki/Pancit"
+    },
+    {
+      "id": "lumpia",
+      "name": "Lumpia shanghai",
+      "terms": [
+        "lumpia shanghai",
+        "lumpia"
+      ],
+      "description": "Thin, crisp fried spring rolls filled with seasoned minced meat.",
+      "source": "https://en.wikipedia.org/wiki/Filipino_cuisine"
+    },
+    {
+      "id": "tinola",
+      "name": "Tinola",
+      "terms": [
+        "tinola"
+      ],
+      "description": "Chicken soup simmered with ginger, green papaya and leafy greens.",
+      "source": "https://en.wikipedia.org/wiki/Filipino_cuisine"
+    },
+    {
+      "id": "menudo",
+      "name": "Menudo",
+      "terms": [
+        "menudo"
+      ],
+      "description": "Filipino pork stew with tomato sauce, potato and carrot.",
+      "source": "https://en.wikipedia.org/wiki/Filipino_cuisine"
+    },
+    {
+      "id": "turon",
+      "name": "Turon",
+      "terms": [
+        "turon"
+      ],
+      "description": "Sliced banana wrapped in a spring-roll wrapper with brown sugar and fried.",
+      "source": "https://en.wikipedia.org/wiki/Filipino_cuisine"
+    }
+  ]
+}

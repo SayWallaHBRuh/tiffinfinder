@@ -1,5 +1,6 @@
 /* Tiffin Finder — app.js
-   Renders everything from ./data/kitchens.json with DOM APIs.
+   Renders everything from ./data/kitchens.json (and the dish glossary in
+   ./data/dishes.json) with DOM APIs.
    Never builds markup from strings, no inline handlers, no eval.
    Loaded in <head> (blocking) so the theme is applied before first paint;
    everything that touches the DOM waits for DOMContentLoaded. */
@@ -7,6 +8,7 @@
   'use strict';
 
   var DATA_URL = './data/kitchens.json';
+  var DISHES_URL = './data/dishes.json';
   var KEYS = {
     theme: 'tf.theme',
     follows: 'tf.follows',
@@ -40,7 +42,15 @@
     follows: new Set(),
     /* A ?cuisine= value waiting for the cuisine options to exist (they are
        built from the data, so they arrive after the first render). */
-    pendingCuisine: ''
+    pendingCuisine: '',
+    /* ?near=<community slug>: kitchens that deliver to one community. Held
+       here, not in the form; shown as the removable pill above the list. */
+    near: '',
+    /* slug -> {slug, name, quadrant, count}, built from the delivery areas.
+       No prototype, so a slug such as "constructor" is never "found". */
+    communities: Object.create(null),
+    /* {byTerm, re} from data/dishes.json, or null (menus show plain text). */
+    glossary: null
   };
   var dom = {};
   var deferredInstallPrompt = null;
@@ -298,6 +308,21 @@
     return './?k=' + encodeURIComponent(slug);
   }
 
+  /* A community's address form: "King's Heights" -> kings-heights,
+     "McKenzie Towne" -> mckenzie-towne. */
+  function communitySlug(name) {
+    return String(name || '').toLowerCase().replace(/['\u2019]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  }
+
+  /* Search compares like with like: case, apostrophes and hyphens don't
+     matter, so "saddle-ridge" and "kings heights" find their communities. */
+  function normalizeSearch(s) {
+    return String(s || '').toLowerCase().replace(/['\u2019]/g, '').replace(/[-_/]+/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+
+  var NEAR_RE = /^[a-z0-9-]{1,60}$/;
+  var HOOD_ORDER = ['NE', 'NW', 'SE', 'SW', 'Airdrie'];
+
   /* ---------------------------------------------------------------------
      Data
   --------------------------------------------------------------------- */
@@ -336,6 +361,7 @@
           return new Date(b.last_posted).getTime() - new Date(a.last_posted).getTime();
         });
         state.kitchens = list;
+        state.communities = buildCommunities(list);
         state.meta = json && json.meta ? json.meta : null;
         state.loaded = true;
         state.error = false;
@@ -345,8 +371,102 @@
         state.loaded = true;
         state.error = true;
         state.kitchens = [];
+        state.communities = Object.create(null);
         state.offline = !!(err && err.offline) || navigator.onLine === false || err instanceof TypeError;
       });
+  }
+
+  /* Every community a kitchen delivers to, keyed by slug. The quadrant comes
+     from the first kitchen seen (the data files each community under one
+     quadrant); count is how many kitchens deliver there, pending included,
+     so it equals the result count with only that ?near= on. */
+  function buildCommunities(list) {
+    var index = Object.create(null);
+    list.forEach(function (k) {
+      var seen = Object.create(null);
+      k.delivery.areas.forEach(function (area) {
+        if (typeof area !== 'string') return;
+        var slug = communitySlug(area);
+        if (!slug || seen[slug]) return;
+        seen[slug] = true;
+        if (!index[slug]) index[slug] = { slug: slug, name: area.trim(), quadrant: k.quadrant, count: 0 };
+        index[slug].count += 1;
+      });
+    });
+    return index;
+  }
+
+  /* Dish glossary (data/dishes.json). It never rejects: if it fails, menus
+     show as plain text and the next load (or Try again) fetches it again.
+     Once it has loaded, later loads reuse it. */
+  var glossaryLoad = null;
+
+  function loadGlossary() {
+    if (!glossaryLoad) {
+      glossaryLoad = fetch(DISHES_URL, { cache: 'no-cache' })
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(buildGlossary)
+        .catch(function () { return null; })
+        .then(function (g) {
+          if (!g) glossaryLoad = null;
+          state.glossary = g || state.glossary;
+          return g;
+        });
+    }
+    return glossaryLoad;
+  }
+
+  /* term (lowercase) -> entry, plus one regex that finds any term as a whole
+     word. Longer terms are tried first, so "dal makhani" wins over "dal".
+     No lookbehind (older Safari): the character before a term is captured
+     in group 1 and skipped when the text is split. */
+  function buildGlossary(json) {
+    var entries = json && Array.isArray(json.dishes) ? json.dishes : [];
+    var byTerm = Object.create(null);
+    var terms = [];
+    entries.forEach(function (d) {
+      if (!d || typeof d.id !== 'string' || typeof d.name !== 'string' || typeof d.description !== 'string' || !Array.isArray(d.terms)) return;
+      d.terms.forEach(function (t) {
+        if (typeof t !== 'string') return;
+        var key = t.trim().toLowerCase();
+        if (!key || byTerm[key]) return;
+        byTerm[key] = d;
+        terms.push(key);
+      });
+    });
+    if (!terms.length) return null;
+    terms.sort(function (a, b) { return b.length - a.length; });
+    var escaped = terms.map(function (t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); });
+    return {
+      byTerm: byTerm,
+      re: new RegExp('(^|[^a-z])(' + escaped.join('|') + ')(?![a-z])', 'gi')
+    };
+  }
+
+  /* Split a menu line into plain text and glossary terms:
+     "Mini idli sambar, vada, chutney" -> idli, sambar, vada and chutney are
+     terms ({text, entry}); the rest is plain ({text}). */
+  function dishSegments(text) {
+    var str = String(text || '');
+    var g = state.glossary;
+    if (!g || !g.re) return [{ text: str }];
+    var out = [];
+    var last = 0;
+    var m;
+    g.re.lastIndex = 0;
+    while ((m = g.re.exec(str)) !== null) {
+      var start = m.index + m[1].length;
+      var end = start + m[2].length;
+      if (start > last) out.push({ text: str.slice(last, start) });
+      var entry = g.byTerm[m[2].toLowerCase()];
+      out.push(entry ? { text: str.slice(start, end), entry: entry } : { text: str.slice(start, end) });
+      last = end;
+    }
+    if (last < str.length) out.push({ text: str.slice(last) });
+    return out;
   }
 
   /* One load at a time: the first load, Try again and the 'online' event
@@ -354,7 +474,7 @@
   var loadingNow = null;
 
   function startLoad() {
-    loadingNow = loadData().then(afterData).then(function () {
+    loadingNow = Promise.all([loadData(), loadGlossary()]).then(afterData).then(function () {
       loadingNow = null;
     }, function (err) {
       loadingNow = null;
@@ -576,11 +696,12 @@
   --------------------------------------------------------------------- */
   function readFilters() {
     var form = dom.filters;
-    if (!form) return { q: '', quadrant: '', cuisine: '', price: '', veg: false, halal: false, jain: false };
+    if (!form) return { q: '', quadrant: '', near: state.near, cuisine: '', price: '', veg: false, halal: false, jain: false };
     var quad = form.querySelector('input[name="quadrant"]:checked');
     return {
-      q: (form.elements.q && form.elements.q.value || '').trim().toLowerCase(),
+      q: normalizeSearch(form.elements.q && form.elements.q.value),
       quadrant: quad ? quad.value : '',
+      near: state.near,
       cuisine: form.elements.cuisine ? form.elements.cuisine.value : '',
       price: form.elements.price ? form.elements.price.value : '',
       veg: !!(form.elements.veg && form.elements.veg.checked),
@@ -596,11 +717,12 @@
     if (k.jain) parts.push('jain');
     k.menu.items.forEach(function (item) { parts.push(item.dish || ''); });
     k.delivery.areas.forEach(function (a) { parts.push(a); });
-    return parts.join(' ').toLowerCase();
+    return normalizeSearch(parts.join(' '));
   }
 
   function matches(k, f) {
     if (f.quadrant && k.quadrant !== f.quadrant) return false;
+    if (f.near && !k.delivery.areas.some(function (a) { return communitySlug(a) === f.near; })) return false;
     if (f.cuisine && k.cuisine !== f.cuisine) return false;
     if (f.price && priceBand(k) !== f.price) return false;
     if (f.veg && !k.veg_only) return false;
@@ -614,6 +736,7 @@
     var n = 0;
     if (f.q) n += 1;
     if (f.quadrant) n += 1;
+    if (f.near) n += 1;
     if (f.cuisine) n += 1;
     if (f.price) n += 1;
     if (f.veg) n += 1;
@@ -657,6 +780,7 @@
         dom.results.replaceChildren(sk);
       }
       dom.results.setAttribute('aria-busy', 'true');
+      renderNearPill();
       return;
     }
     dom.results.removeAttribute('aria-busy');
@@ -668,6 +792,7 @@
       setStatus(status, state.offline ? 'You’re offline.' : 'Couldn’t load kitchens.', false);
       dom.resultsError.hidden = false;
       if (dom.filters) dom.filters.classList.remove('has-active');
+      renderNearPill();
       return;
     }
 
@@ -683,12 +808,47 @@
     setStatus(status, text, !fresh);
     if (dom.filters) dom.filters.classList.toggle('has-active', active > 0);
     dom.resultsEmpty.hidden = n > 0;
+    markCurrentHood();
+    renderNearPill();
+  }
+
+  /* "Delivers to <community>" above the list, only once the data has loaded
+     and the ?near= slug is a community a kitchen delivers to. */
+  function renderNearPill() {
+    if (!dom.filterPills) return;
+    var c = (state.loaded && !state.error && state.near) ? state.communities[state.near] : null;
+    if (c && dom.nearPill && dom.nearPillName) {
+      dom.nearPillName.textContent = c.name;
+      dom.nearPill.setAttribute('aria-label', 'Remove filter: delivers to ' + c.name);
+      dom.filterPills.hidden = false;
+    } else {
+      dom.filterPills.hidden = true;
+    }
+  }
+
+  /* The neighbourhood link for the community being shown reads as current. */
+  function markCurrentHood() {
+    if (!dom.hoodsGrid) return;
+    Array.prototype.forEach.call(dom.hoodsGrid.querySelectorAll('.hood-link'), function (link) {
+      if (state.near && link.getAttribute('data-near') === state.near) link.setAttribute('aria-current', 'true');
+      else link.removeAttribute('aria-current');
+    });
+  }
+
+  /* The pill's own button: drop the community, keep every other filter. The
+     pill disappears, so focus lands on the count instead of the page. */
+  function onNearPillClick() {
+    state.near = '';
+    syncFiltersToURL();
+    renderResults();
+    focusQuietly(dom.resultsStatus);
   }
 
   function resetFilters() {
     if (!dom.filters) return;
     dom.filters.reset();
     state.pendingCuisine = '';
+    state.near = '';
     clearTimeout(searchTimer);
     searchTimer = null;
     syncFiltersToURL();
@@ -729,12 +889,13 @@
 
   /* ---------------------------------------------------------------------
      Filters in the address
-     The browse view mirrors the form as ?q=&area=&cuisine=&price=&veg=1
-     &halal=1&jain=1, so a filtered list can be reloaded, shared, or come
-     back on Back. User changes replace the current history entry (never
-     push); render() reads the address back into the form.
+     The browse view mirrors the form as ?q=&area=&near=&cuisine=&price=
+     &veg=1&halal=1&jain=1, so a filtered list can be reloaded, shared, or
+     come back on Back. User changes replace the current history entry
+     (never push); render() reads the address back into the form. near= is
+     a community slug held in state.near (the pill), not a form control.
   --------------------------------------------------------------------- */
-  var FILTER_KEYS = ['q', 'area', 'cuisine', 'price', 'veg', 'halal', 'jain'];
+  var FILTER_KEYS = ['q', 'area', 'near', 'cuisine', 'price', 'veg', 'halal', 'jain'];
   var DIET_KEYS = ['veg', 'halal', 'jain'];
   var PRICE_BANDS = ['low', 'mid', 'high'];
   var QUERY_MAX = 100;
@@ -748,6 +909,9 @@
     if (q) params.append('q', q);
     var quad = form.querySelector('input[name="quadrant"]:checked');
     if (quad && quad.value) params.append('area', quad.value);
+    /* Kept before the data loads too (like pendingCuisine below): it is only
+       checked against the communities once they exist. */
+    if (state.near) params.append('near', state.near);
     var cuisine = dom.cuisine ? dom.cuisine.value : '';
     /* Until the data arrives the select has no cuisine options, so keep the
        one from the address rather than letting an early keystroke drop it. */
@@ -827,6 +991,13 @@
       if (form.elements[key]) form.elements[key].checked = isOnValue(params.get(key));
     });
 
+    /* An unknown community is ignored (no pill, no filtering) once the data
+       says so; the address keeps it until the next change, like an unknown
+       cuisine. Anything but [a-z0-9-] is never read at all. */
+    var near = (params.get('near') || '').toLowerCase();
+    state.near = NEAR_RE.test(near) ? near : '';
+    if (state.near && state.loaded && !state.error && !state.communities[state.near]) state.near = '';
+
     if (dom.cuisine) {
       var cuisine = params.get('cuisine') || '';
       if (cuisine && hasOption(dom.cuisine, cuisine)) {
@@ -863,6 +1034,81 @@
         ? (list.length === 0 ? 'Not following any kitchens yet.' : 'Following ' + list.length + ' ' + plural(list.length, 'kitchen', 'kitchens') + '. Saved on this device.')
         : 'Loading…';
     }
+  }
+
+  /* ---------------------------------------------------------------------
+     Browse by neighbourhood (index.html #hoods)
+     Built once per successful load from state.communities: one card per
+     quadrant, busiest communities first. Each link is ?near=<slug>.
+  --------------------------------------------------------------------- */
+  var HOOD_PEEK = 6;
+  var HOOD_COLLAPSE_OVER = 8;
+
+  function renderHoods() {
+    if (!dom.hoodsGrid) return;
+    var groups = Object.create(null);
+    Object.keys(state.communities).forEach(function (slug) {
+      var c = state.communities[slug];
+      if (!groups[c.quadrant]) groups[c.quadrant] = [];
+      groups[c.quadrant].push(c);
+    });
+
+    var frag = document.createDocumentFragment();
+    HOOD_ORDER.forEach(function (q) {
+      var list = groups[q];
+      if (!list || !list.length) return;
+      list.sort(function (a, b) {
+        return (b.count - a.count) || a.name.localeCompare(b.name, 'en-CA');
+      });
+      var total = list.length;
+      var listId = 'hood-list-' + q.toLowerCase();
+      var collapsible = total > HOOD_COLLAPSE_OVER;
+
+      var group = el('div', { class: 'hood-group' });
+      group.appendChild(el('h3', { class: 'hood-title' }, [
+        QUADRANT_LABEL[q] || q,
+        el('span', { class: 'hood-meta', text: total + ' ' + plural(total, 'community', 'communities') })
+      ]));
+
+      var ul = el('ul', { class: 'hood-list', id: listId });
+      list.forEach(function (c, i) {
+        var li = el('li', { hidden: collapsible && i >= HOOD_PEEK });
+        var link = el('a', {
+          class: 'hood-link',
+          href: './?near=' + encodeURIComponent(c.slug),
+          'data-route': '',
+          'data-near': c.slug
+        });
+        link.appendChild(el('span', { class: 'hood-name', text: c.name }));
+        var count = el('span', { class: 'hood-count', text: String(c.count) });
+        count.appendChild(el('span', { class: 'visually-hidden', text: ' ' + plural(c.count, 'kitchen', 'kitchens') }));
+        link.appendChild(count);
+        li.appendChild(link);
+        ul.appendChild(li);
+      });
+      group.appendChild(ul);
+
+      if (collapsible) {
+        var more = el('button', {
+          type: 'button',
+          class: 'hood-more',
+          'aria-expanded': 'false',
+          'aria-controls': listId,
+          text: 'Show all ' + total
+        });
+        more.addEventListener('click', function () {
+          var open = more.getAttribute('aria-expanded') !== 'true';
+          more.setAttribute('aria-expanded', open ? 'true' : 'false');
+          more.textContent = open ? 'Show fewer' : 'Show all ' + total;
+          Array.prototype.forEach.call(ul.children, function (li, i) {
+            if (i >= HOOD_PEEK) li.hidden = !open;
+          });
+        });
+        group.appendChild(more);
+      }
+      frag.appendChild(group);
+    });
+    dom.hoodsGrid.replaceChildren(frag);
   }
 
   /* ---------------------------------------------------------------------
@@ -1017,15 +1263,50 @@
     var ago = timeAgo(k.last_posted);
     if (ago) sub.push(ago);
     if (sub.length) menu.appendChild(el('p', { class: 'sub', text: sub.join(' · ') }));
+    /* Dish names found in the glossary become buttons; each opens its own
+       one-line note under the row (several can be open). Without the
+       glossary the line is plain text. The toggle is in onDocumentClick. */
     var list = el('ul', { class: 'menu-list' });
-    k.menu.items.forEach(function (item) {
+    var anyTerm = false;
+    k.menu.items.forEach(function (item, i) {
       var li = el('li');
       li.appendChild(el('span', { class: 'day', text: item.day || '' }));
-      li.appendChild(el('span', { class: 'dish', text: item.dish || '' }));
+      var dish = el('span', { class: 'dish' });
+      var notes = [];
+      var segments = dishSegments(item.dish || '');
+      var hasTerm = segments.some(function (seg) { return !!seg.entry; });
+      segments.forEach(function (seg, j) {
+        if (!seg.entry) {
+          if (!seg.text) return;
+          /* Beside a term, plain text sits in a positioned span so it paints
+             above an open term's halo (a comma right after it stays visible). */
+          dish.appendChild(hasTerm ? el('span', { class: 'dish-plain', text: seg.text }) : document.createTextNode(seg.text));
+          return;
+        }
+        var noteId = 'dish-note-' + i + '-' + j;
+        dish.appendChild(el('button', {
+          type: 'button',
+          class: 'dish-term',
+          'data-dish-term': '',
+          'aria-expanded': 'false',
+          'aria-controls': noteId,
+          text: seg.text
+        }));
+        var note = el('p', { class: 'dish-note', id: noteId, hidden: true });
+        note.appendChild(el('strong', { text: seg.entry.name }));
+        note.appendChild(document.createTextNode(' — ' + seg.entry.description));
+        notes.push(note);
+      });
+      li.appendChild(dish);
       li.appendChild(el('span', { class: 'dish-price', text: money(item.price) }));
+      if (notes.length) {
+        anyTerm = true;
+        li.appendChild(el('div', { class: 'dish-notes', hidden: true }, notes));
+      }
       list.appendChild(li);
     });
     menu.appendChild(list);
+    if (anyTerm) menu.appendChild(el('p', { class: 'fine dish-hint', text: 'Tap a dish name with a dotted underline to see what it is.' }));
     menu.appendChild(el('p', { class: 'fine', text: 'Menus and prices are set by the kitchen and can change. Confirm when you order.' }));
     container.appendChild(menu);
 
@@ -1046,14 +1327,25 @@
     /* Delivery (appended into the side rail below) */
     var delivery = el('section', { class: 'k-section k-delivery', 'aria-labelledby': 'delivery-heading' });
     delivery.appendChild(el('h2', { id: 'delivery-heading', text: 'Delivery areas' }));
+    /* Each area links to "who delivers to X": ?near= only, so the list's
+       other filters reset. data-near makes navigate() land on the results. */
     var areas = el('ul', { class: 'chips', 'aria-label': 'Delivery areas' });
-    k.delivery.areas.forEach(function (a) {
-      var li = el('li', { class: 'chip' });
-      li.appendChild(icon('pin', 14));
-      li.appendChild(el('span', { text: a }));
+    k.delivery.areas.forEach(function (area) {
+      var li = el('li');
+      var a = el('a', {
+        class: 'chip chip-link',
+        href: './?near=' + encodeURIComponent(communitySlug(area)),
+        'data-route': '',
+        'data-near': '',
+        'aria-label': 'Kitchens that deliver to ' + area
+      });
+      a.appendChild(icon('pin', 14));
+      a.appendChild(el('span', { text: area }));
+      li.appendChild(a);
       areas.appendChild(li);
     });
     delivery.appendChild(areas);
+    delivery.appendChild(el('p', { class: 'fine', text: 'Tap an area to see every kitchen that delivers there.' }));
     if (k.delivery.notes) delivery.appendChild(el('p', { class: 'fine', text: k.delivery.notes }));
 
     /* Permit */
@@ -1124,22 +1416,47 @@
     return { view: 'browse' };
   }
 
-  function navigate(href) {
+  /* toResults: the link lists kitchens for a community (a delivery chip or a
+     neighbourhood link), so land on the results rather than the page top.
+     The same address again adds no history entry; it only scrolls there. */
+  function navigate(href, toResults) {
     var target = new URL(href, window.location.href);
     var current = new URL(window.location.href);
-    if (target.href === current.href) {
+    var wasBrowse = parseRoute().view === 'browse';
+    if (target.href !== current.href) {
+      try {
+        history.replaceState({ scrollY: window.scrollY }, '', current.href);
+        history.pushState({ scrollY: 0 }, '', target.href);
+      } catch (e) {
+        window.location.href = target.href;
+        return;
+      }
+      render(!toResults);
+    } else if (!toResults) {
       window.scrollTo({ top: 0, behavior: 'auto' });
       return;
     }
-    try {
-      history.replaceState({ scrollY: window.scrollY }, '', current.href);
-      history.pushState({ scrollY: 0 }, '', target.href);
-    } catch (e) {
-      window.location.href = target.href;
+    if (toResults && parseRoute().view === 'browse') {
+      showResults(wasBrowse);
       return;
     }
-    render(true);
     window.scrollTo({ top: 0, behavior: 'auto' });
+  }
+
+  /* Bring the list into view (the pill if it shows, else the count) and put
+     focus on the count, which announces the new result. Smooth only when
+     already on the list; html's scroll-padding-top clears the sticky header. */
+  function showResults(smooth) {
+    var anchor = (dom.filterPills && !dom.filterPills.hidden) ? dom.filterPills : dom.resultsStatus;
+    if (anchor) {
+      var behavior = (smooth && !prefersReducedMotion()) ? 'smooth' : 'auto';
+      try {
+        anchor.scrollIntoView({ block: 'start', behavior: behavior });
+      } catch (e) {
+        anchor.scrollIntoView(true);
+      }
+    }
+    focusQuietly(dom.resultsStatus);
   }
 
   function render(moveFocus) {
@@ -1156,6 +1473,7 @@
     dom.viewFollowing.hidden = !isFollowing;
     dom.viewKitchen.hidden = !isKitchen;
     if (dom.faq) dom.faq.hidden = isKitchen;
+    if (dom.hoods) dom.hoods.hidden = !isBrowse || !state.loaded || state.error || !(dom.hoodsGrid && dom.hoodsGrid.firstChild);
 
     dom.tabAll.setAttribute('aria-current', isBrowse ? 'page' : 'false');
     dom.tabFollowing.setAttribute('aria-current', isFollowing ? 'page' : 'false');
@@ -1674,6 +1992,9 @@
     dom.resultsError = document.getElementById('results-error');
     dom.resultsErrorTitle = document.getElementById('results-error-title');
     dom.resultsErrorText = document.getElementById('results-error-text');
+    dom.filterPills = document.getElementById('filter-pills');
+    dom.nearPill = document.getElementById('near-pill');
+    dom.nearPillName = document.getElementById('near-pill-name');
 
     dom.viewFollowing = document.getElementById('view-following');
     dom.followingHeading = document.getElementById('following-heading');
@@ -1683,6 +2004,8 @@
 
     dom.viewKitchen = document.getElementById('view-kitchen');
     dom.kitchenDetail = document.getElementById('kitchen-detail');
+    dom.hoods = document.getElementById('hoods');
+    dom.hoodsGrid = document.getElementById('hoods-grid');
     dom.faq = document.getElementById('faq');
 
     dom.alertsForm = document.getElementById('alerts-form');
@@ -1755,6 +2078,22 @@
       return;
     }
 
+    /* A dish name on a kitchen's menu: show or hide its note. Notes open
+       independently and focus stays on the button (Enter and Space arrive
+       here as clicks). The row's note box shows while any note is open. */
+    var dishTerm = target.closest('[data-dish-term]');
+    if (dishTerm) {
+      var open = dishTerm.getAttribute('aria-expanded') !== 'true';
+      var note = document.getElementById(dishTerm.getAttribute('aria-controls') || '');
+      dishTerm.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (note) {
+        note.hidden = !open;
+        var wrapper = note.closest('.dish-notes');
+        if (wrapper) wrapper.hidden = !wrapper.querySelector('.dish-note:not([hidden])');
+      }
+      return;
+    }
+
     /* With a <base> (the 404 page), href="#main" would resolve to the site
        root and leave the page; handle in-page links here instead. */
     var hashLink = target.closest('a[href^="#"]');
@@ -1774,7 +2113,7 @@
       if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       if (link.target && link.target !== '_self') return;
       event.preventDefault();
-      navigate(link.getAttribute('href'));
+      navigate(link.getAttribute('href'), link.hasAttribute('data-near'));
     }
   }
 
@@ -1850,6 +2189,7 @@
     if (dom.resetFilters) dom.resetFilters.addEventListener('click', resetFilters);
     var emptyReset = document.getElementById('empty-reset');
     if (emptyReset) emptyReset.addEventListener('click', resetFilters);
+    if (dom.nearPill) dom.nearPill.addEventListener('click', onNearPillClick);
     /* Try again buttons ([data-retry]) are handled in onDocumentClick. When
        the connection comes back after a failed load, retry on our own. */
     window.addEventListener('online', function () {
@@ -1875,6 +2215,8 @@
 
   function afterData() {
     populateCuisines();
+    /* Before render(), which shows #hoods only once it has content. */
+    if (!state.error) renderHoods();
     /* A search typed while the data loaded may still be on its debounce.
        Write it to the address now (after the cuisine options exist), so the
        render below reads it back instead of the older address. */

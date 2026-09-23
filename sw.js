@@ -8,14 +8,16 @@
      shell as a last resort. A failed fetch means no connection, not a missing
      page: real 404s arrive as responses (GitHub Pages serves 404.html) and
      are passed through unchanged.
-   - data/kitchens.json: network-first, cache fallback. Offline with nothing
-     cached, answer 503 with {meta:{offline:true}} so the app can say so.
+   - data/kitchens.json and data/dishes.json: network-first, falling back to
+     the last saved copy. Offline with nothing saved, answer 503 with
+     {meta:{offline:true}} plus an empty list (kitchens: [] or dishes: []),
+     so the app can say so (the glossary simply stays off).
    - Everything else same-origin: cache-first, then network (and cache it).
    - Cross-origin requests (Google Fonts) are never intercepted or cached. */
 
 'use strict';
 
-var VERSION = 'tf-v1.4.0';
+var VERSION = 'tf-v1.5.0';
 var SHELL_CACHE = VERSION + '-shell';
 var DATA_CACHE = VERSION + '-data';
 
@@ -39,7 +41,12 @@ var SHELL = [
   './icons/apple-touch-icon.png'
 ];
 
-var DATA_PATH = 'data/kitchens.json';
+/* Network-first data files and the body each answers with when offline
+   and not saved yet. */
+var DATA_FALLBACK = {
+  'data/kitchens.json': { meta: { offline: true }, kitchens: [] },
+  'data/dishes.json': { meta: { offline: true }, dishes: [] }
+};
 
 self.addEventListener('install', function (event) {
   event.waitUntil(
@@ -82,9 +89,12 @@ self.addEventListener('fetch', function (event) {
   /* Never touch cross-origin traffic (Google Fonts, wa.me, etc.). */
   if (url.origin !== self.location.origin) return;
 
-  if (url.pathname.endsWith('/' + DATA_PATH)) {
-    event.respondWith(networkFirst(request));
-    return;
+  var dataKeys = Object.keys(DATA_FALLBACK);
+  for (var i = 0; i < dataKeys.length; i++) {
+    if (url.pathname.endsWith('/' + dataKeys[i])) {
+      event.respondWith(networkFirst(request, DATA_FALLBACK[dataKeys[i]]));
+      return;
+    }
   }
 
   if (request.mode === 'navigate') {
@@ -106,7 +116,7 @@ function isCacheable(response) {
   return response && response.ok && (response.type === 'basic' || response.type === 'default');
 }
 
-function networkFirst(request) {
+function networkFirst(request, fallbackBody) {
   return caches.open(DATA_CACHE).then(function (cache) {
     return fetch(request).then(function (response) {
       if (isCacheable(response)) cache.put(stripSearch(request), response.clone());
@@ -114,7 +124,7 @@ function networkFirst(request) {
     }).catch(function () {
       return cache.match(stripSearch(request)).then(function (cached) {
         if (cached) return cached;
-        return new Response(JSON.stringify({ meta: { offline: true }, kitchens: [] }), {
+        return new Response(JSON.stringify(fallbackBody || { meta: { offline: true } }), {
           status: 503,
           headers: { 'Content-Type': 'application/json' }
         });

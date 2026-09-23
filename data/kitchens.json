@@ -2,7 +2,7 @@
   "meta": {
     "sample_data": true,
     "notice": "Sample listings for design and testing. Real kitchens are added only after permit verification and with their permission.",
-    "generated": "2026-09-22",
+    "generated": "2026-09-23",
     "currency": "CAD"
   },
   "kitchens": [
@@ -18,23 +18,59 @@
       "halal": false,
       "jain": false,
       "description": "Home-style Punjabi tiffins cooked fresh each morning: a dal, a sabzi, rice and four rotis. The weekly menu goes up on Sunday evening; rotis are made to order.",
-      "price": { "day": 13, "weekly": 75, "monthly": 260 },
+      "price": {
+        "day": 13,
+        "weekly": 75,
+        "monthly": 260
+      },
       "menu": {
         "week_of": "2026-09-21",
         "items": [
-          { "day": "Mon", "dish": "Rajma, jeera rice, 4 rotis, kachumber salad", "price": 13 },
-          { "day": "Tue", "dish": "Chicken curry, aloo gobi, rice, rotis", "price": 14 },
-          { "day": "Wed", "dish": "Dal makhani, bhindi masala, rotis, raita", "price": 13 },
-          { "day": "Thu", "dish": "Chole, paneer bhurji, rice, rotis", "price": 13 },
-          { "day": "Fri", "dish": "Kadhi pakora, aloo matar, rice, rotis", "price": 13 }
+          {
+            "day": "Mon",
+            "dish": "Rajma, jeera rice, 4 rotis, kachumber salad",
+            "price": 13
+          },
+          {
+            "day": "Tue",
+            "dish": "Chicken curry, aloo gobi, rice, rotis",
+            "price": 14
+          },
+          {
+            "day": "Wed",
+            "dish": "Dal makhani, aloo methi, rotis, raita",
+            "price": 13
+          },
+          {
+            "day": "Thu",
+            "dish": "Chole, palak paneer, rice, rotis",
+            "price": 13
+          },
+          {
+            "day": "Fri",
+            "dish": "Kadhi pakora, aloo matar, rice, rotis",
+            "price": 13
+          }
         ]
       },
-      "contact": { "whatsapp": "14035550101", "phone": "403-555-0101" },
+      "contact": {
+        "whatsapp": "14035550101",
+        "phone": "403-555-0101"
+      },
       "delivery": {
-        "areas": ["Saddle Ridge", "Martindale", "Taradale", "Falconridge"],
+        "areas": [
+          "Saddle Ridge",
+          "Martindale",
+          "Taradale",
+          "Falconridge"
+        ],
         "notes": "Delivery Monday to Friday between 11:30 and 1:00. Pickup available."
       },
-      "permit": { "status": "verified", "verified_on": "2026-09-15", "permit_type": "AHS Food Handling Permit" },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
       "last_posted": "2026-09-20T18:05:00-06:00"
     },
     {
@@ -49,23 +85,59 @@
       "halal": false,
       "jain": false,
       "description": "Pure vegetarian Gujarati thali the way it is made at home: two shaak, dal or kadhi, rice, rotli and a little sweet on Fridays. Low oil on request.",
-      "price": { "day": 12, "weekly": 68, "monthly": 240 },
+      "price": {
+        "day": 12,
+        "weekly": 68,
+        "monthly": 240
+      },
       "menu": {
         "week_of": "2026-09-21",
         "items": [
-          { "day": "Mon", "dish": "Sev tameta shaak, dal, rice, 4 rotli", "price": 12 },
-          { "day": "Tue", "dish": "Undhiyu, Gujarati kadhi, rice, rotli", "price": 13 },
-          { "day": "Wed", "dish": "Bhinda shaak, moong dal, rice, rotli, chaas", "price": 12 },
-          { "day": "Thu", "dish": "Ringan bateta, toor dal, rice, thepla", "price": 12 },
-          { "day": "Fri", "dish": "Dal dhokli, batata shaak, rotli, shrikhand", "price": 13 }
+          {
+            "day": "Mon",
+            "dish": "Sev tameta shaak, dal, rice, 4 rotli",
+            "price": 12
+          },
+          {
+            "day": "Tue",
+            "dish": "Undhiyu, Gujarati kadhi, rice, rotli",
+            "price": 13
+          },
+          {
+            "day": "Wed",
+            "dish": "Bhinda shaak, moong dal, rice, rotli, chaas",
+            "price": 12
+          },
+          {
+            "day": "Thu",
+            "dish": "Ringan bateta, toor dal, rice, thepla",
+            "price": 12
+          },
+          {
+            "day": "Fri",
+            "dish": "Dal dhokli, batata shaak, rotli, shrikhand",
+            "price": 13
+          }
         ]
       },
-      "contact": { "whatsapp": "14035550102", "phone": "403-555-0102" },
+      "contact": {
+        "whatsapp": "14035550102",
+        "phone": "403-555-0102"
+      },
       "delivery": {
-        "areas": ["Cityscape", "Skyview Ranch", "Redstone", "Cornerstone"],
+        "areas": [
+          "Cityscape",
+          "Skyview Ranch",
+          "Redstone",
+          "Cornerstone"
+        ],
         "notes": "Delivery Monday to Friday, 12:00 to 1:30. Weekly and monthly plans only."
       },
-      "permit": { "status": "verified", "verified_on": "2026-09-15", "permit_type": "AHS Food Handling Permit" },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
       "last_posted": "2026-09-21T09:40:00-06:00"
     },
     {
@@ -80,23 +152,59 @@
       "halal": true,
       "jain": false,
       "description": "Halal Pakistani home cooking: slow-cooked salan, a daal, rice or naan and a raita. Biryani on Fridays. Meat is bought from halal-certified shops.",
-      "price": { "day": 14, "weekly": 85, "monthly": 300 },
+      "price": {
+        "day": 14,
+        "weekly": 85,
+        "monthly": 300
+      },
       "menu": {
         "week_of": "2026-09-21",
         "items": [
-          { "day": "Mon", "dish": "Aloo gosht, daal mash, 3 roti", "price": 14 },
-          { "day": "Tue", "dish": "Chicken karahi, plain rice, salad", "price": 14 },
-          { "day": "Wed", "dish": "Keema matar, daal chana, roti", "price": 14 },
-          { "day": "Thu", "dish": "Chicken haleem, naan, lemon and onions", "price": 15 },
-          { "day": "Fri", "dish": "Chicken biryani, raita, shami kebab", "price": 15 }
+          {
+            "day": "Mon",
+            "dish": "Aloo gosht, masoor daal, 3 roti",
+            "price": 14
+          },
+          {
+            "day": "Tue",
+            "dish": "Chicken karahi, plain rice, salad",
+            "price": 14
+          },
+          {
+            "day": "Wed",
+            "dish": "Keema matar, daal chana, roti",
+            "price": 14
+          },
+          {
+            "day": "Thu",
+            "dish": "Chicken haleem, naan, lemon and onions",
+            "price": 15
+          },
+          {
+            "day": "Fri",
+            "dish": "Chicken biryani, raita, shami kebab",
+            "price": 15
+          }
         ]
       },
-      "contact": { "whatsapp": "14035550103", "phone": "403-555-0103" },
+      "contact": {
+        "whatsapp": "14035550103",
+        "phone": "403-555-0103"
+      },
       "delivery": {
-        "areas": ["Taradale", "Saddle Ridge", "Martindale", "Coral Springs"],
+        "areas": [
+          "Taradale",
+          "Saddle Ridge",
+          "Martindale",
+          "Coral Springs"
+        ],
         "notes": "Delivery Monday to Friday around noon. Order by 8 pm the night before."
       },
-      "permit": { "status": "verified", "verified_on": "2026-09-15", "permit_type": "AHS Food Handling Permit" },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
       "last_posted": "2026-09-21T20:15:00-06:00"
     },
     {
@@ -111,23 +219,57 @@
       "halal": false,
       "jain": false,
       "description": "Vegetarian South Indian lunches: sambar rice, curd rice, a poriyal and pickle, with idli or dosa mornings on the weekend. Coconut chutney ground fresh daily.",
-      "price": { "day": 11, "weekly": 62, "monthly": 210 },
+      "price": {
+        "day": 11,
+        "weekly": 62,
+        "monthly": 210
+      },
       "menu": {
         "week_of": "2026-09-21",
         "items": [
-          { "day": "Mon", "dish": "Sambar rice, beans poriyal, curd, pickle", "price": 11 },
-          { "day": "Tue", "dish": "Lemon rice, potato curry, rasam, papad", "price": 11 },
-          { "day": "Wed", "dish": "Bisi bele bath, cabbage poriyal, raita", "price": 12 },
-          { "day": "Thu", "dish": "Tamarind rice, kootu, curd rice", "price": 11 },
-          { "day": "Fri", "dish": "Mini idli sambar, vada, chutney", "price": 12 }
+          {
+            "day": "Mon",
+            "dish": "Sambar rice, beans poriyal, curd, pickle",
+            "price": 11
+          },
+          {
+            "day": "Tue",
+            "dish": "Lemon rice, potato curry, rasam, papad",
+            "price": 11
+          },
+          {
+            "day": "Wed",
+            "dish": "Bisi bele bath, cabbage poriyal, raita",
+            "price": 12
+          },
+          {
+            "day": "Thu",
+            "dish": "Tamarind rice, kootu, curd rice",
+            "price": 11
+          },
+          {
+            "day": "Fri",
+            "dish": "Mini idli sambar, vada, chutney",
+            "price": 12
+          }
         ]
       },
-      "contact": { "whatsapp": "14035550104", "phone": "403-555-0104" },
+      "contact": {
+        "whatsapp": "14035550104",
+        "phone": "403-555-0104"
+      },
       "delivery": {
-        "areas": ["Falconridge", "Castleridge", "Whitehorn", "Rundle"],
+        "areas": [
+          "Falconridge",
+          "Castleridge",
+          "Whitehorn",
+          "Rundle"
+        ],
         "notes": "Delivery Monday to Friday, 11:30 to 1:00."
       },
-      "permit": { "status": "pending" },
+      "permit": {
+        "status": "pending"
+      },
       "last_posted": "2026-09-19T17:20:00-06:00"
     },
     {
@@ -142,23 +284,59 @@
       "halal": false,
       "jain": false,
       "description": "Bengali home food in the proper order: a bhaja, a dal, a torkari and a fish or egg curry with rice. Mishti doi on Fridays when there is time.",
-      "price": { "day": 14, "weekly": 82, "monthly": 290 },
+      "price": {
+        "day": 14,
+        "weekly": 82,
+        "monthly": 290
+      },
       "menu": {
         "week_of": "2026-09-21",
         "items": [
-          { "day": "Mon", "dish": "Rui macher jhol, aloo bhaja, musur dal, rice", "price": 14 },
-          { "day": "Tue", "dish": "Dim kosha, begun bhaja, dal, rice", "price": 13 },
-          { "day": "Wed", "dish": "Shorshe ilish (limited), shukto, rice", "price": 15 },
-          { "day": "Thu", "dish": "Chicken kosha, cholar dal, luchi", "price": 14 },
-          { "day": "Fri", "dish": "Bhetki paturi, aloo posto, rice, mishti doi", "price": 15 }
+          {
+            "day": "Mon",
+            "dish": "Rui macher jhol, masoor dal, rice",
+            "price": 14
+          },
+          {
+            "day": "Tue",
+            "dish": "Egg curry, shukto, dal, rice",
+            "price": 13
+          },
+          {
+            "day": "Wed",
+            "dish": "Shorshe ilish (limited), moong dal, rice",
+            "price": 15
+          },
+          {
+            "day": "Thu",
+            "dish": "Kosha mangsho, luchi",
+            "price": 14
+          },
+          {
+            "day": "Fri",
+            "dish": "Morog polao, mishti doi",
+            "price": 15
+          }
         ]
       },
-      "contact": { "whatsapp": "14035550105", "phone": "403-555-0105" },
+      "contact": {
+        "whatsapp": "14035550105",
+        "phone": "403-555-0105"
+      },
       "delivery": {
-        "areas": ["Skyview Ranch", "Cityscape", "Redstone", "Savanna"],
+        "areas": [
+          "Skyview Ranch",
+          "Cityscape",
+          "Redstone",
+          "Saddle Ridge"
+        ],
         "notes": "Delivery Monday to Friday, 12:00 to 1:00. Pickup after 5 pm on request."
       },
-      "permit": { "status": "verified", "verified_on": "2026-09-15", "permit_type": "AHS Food Handling Permit" },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
       "last_posted": "2026-09-18T19:00:00-06:00"
     },
     {
@@ -173,23 +351,59 @@
       "halal": false,
       "jain": false,
       "description": "Vegetarian Tamil and Karnataka home lunches for the far northwest. Rice-based mains with a vegetable and a curd dish; dosa batter sold by the litre on weekends.",
-      "price": { "day": 12, "weekly": 70, "monthly": 250 },
+      "price": {
+        "day": 12,
+        "weekly": 70,
+        "monthly": 250
+      },
       "menu": {
         "week_of": "2026-09-21",
         "items": [
-          { "day": "Mon", "dish": "Vegetable sambar, rice, carrot poriyal, curd", "price": 12 },
-          { "day": "Tue", "dish": "Vangi bath, cucumber raita, papad", "price": 12 },
-          { "day": "Wed", "dish": "Avial, rice, rasam, banana chips", "price": 13 },
-          { "day": "Thu", "dish": "Puliyodarai, potato roast, curd rice", "price": 12 },
-          { "day": "Fri", "dish": "Masala dosa (2), sambar, chutney", "price": 13 }
+          {
+            "day": "Mon",
+            "dish": "Vegetable sambar, rice, carrot poriyal, curd",
+            "price": 12
+          },
+          {
+            "day": "Tue",
+            "dish": "Bisi bele bath, cucumber raita, papad",
+            "price": 12
+          },
+          {
+            "day": "Wed",
+            "dish": "Avial, rice, rasam, banana chips",
+            "price": 13
+          },
+          {
+            "day": "Thu",
+            "dish": "Puliyodarai, potato roast, curd rice",
+            "price": 12
+          },
+          {
+            "day": "Fri",
+            "dish": "Masala dosa (2), sambar, chutney",
+            "price": 13
+          }
         ]
       },
-      "contact": { "whatsapp": "14035550106", "phone": "403-555-0106" },
+      "contact": {
+        "whatsapp": "14035550106",
+        "phone": "403-555-0106"
+      },
       "delivery": {
-        "areas": ["Nolan Hill", "Sage Hill", "Kincora", "Evanston"],
+        "areas": [
+          "Nolan Hill",
+          "Sage Hill",
+          "Kincora",
+          "Evanston"
+        ],
         "notes": "Delivery Monday to Friday, 11:45 to 1:15."
       },
-      "permit": { "status": "verified", "verified_on": "2026-09-15", "permit_type": "AHS Food Handling Permit" },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
       "last_posted": "2026-09-21T07:30:00-06:00"
     },
     {
@@ -204,23 +418,59 @@
       "halal": false,
       "jain": false,
       "description": "Vegetarian Punjabi tiffins with a lighter hand: less cream, more seasonal sabzi. Sarson da saag and makki roti on the menu from October.",
-      "price": { "day": 12, "weekly": 66, "monthly": 230 },
+      "price": {
+        "day": 12,
+        "weekly": 66,
+        "monthly": 230
+      },
       "menu": {
         "week_of": "2026-09-21",
         "items": [
-          { "day": "Mon", "dish": "Chana dal, tinda masala, rotis, salad", "price": 12 },
-          { "day": "Tue", "dish": "Palak paneer, jeera rice, rotis", "price": 13 },
-          { "day": "Wed", "dish": "Moong dal, lauki kofta, rotis", "price": 12 },
-          { "day": "Thu", "dish": "Kadhi, aloo methi, rice, rotis", "price": 12 },
-          { "day": "Fri", "dish": "Rajma, gobi matar, rice, rotis, kheer", "price": 13 }
+          {
+            "day": "Mon",
+            "dish": "Chana dal, aloo gobi, rotis, salad",
+            "price": 12
+          },
+          {
+            "day": "Tue",
+            "dish": "Palak paneer, jeera rice, rotis",
+            "price": 13
+          },
+          {
+            "day": "Wed",
+            "dish": "Moong dal, aloo methi, rotis",
+            "price": 12
+          },
+          {
+            "day": "Thu",
+            "dish": "Kadhi pakora, gobi matar, rice, rotis",
+            "price": 12
+          },
+          {
+            "day": "Fri",
+            "dish": "Rajma, rice, rotis, kheer",
+            "price": 13
+          }
         ]
       },
-      "contact": { "whatsapp": "14035550107", "phone": "403-555-0107" },
+      "contact": {
+        "whatsapp": "14035550107",
+        "phone": "403-555-0107"
+      },
       "delivery": {
-        "areas": ["Panorama Hills", "Country Hills", "Coventry Hills", "Harvest Hills"],
+        "areas": [
+          "Panorama Hills",
+          "Country Hills",
+          "Hidden Valley",
+          "Hamptons"
+        ],
         "notes": "Delivery Monday to Friday, 11:30 to 1:00. Weekly plan minimum."
       },
-      "permit": { "status": "verified", "verified_on": "2026-09-15", "permit_type": "AHS Food Handling Permit" },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
       "last_posted": "2026-09-20T16:10:00-06:00"
     },
     {
@@ -235,23 +485,59 @@
       "halal": true,
       "jain": false,
       "description": "Halal Afghan home cooking from the deep southeast: qabuli palaw, korma with fresh naan, and bolani on Wednesdays. Portions are generous by design.",
-      "price": { "day": 15, "weekly": 90, "monthly": 320 },
+      "price": {
+        "day": 15,
+        "weekly": 90,
+        "monthly": 320
+      },
       "menu": {
         "week_of": "2026-09-21",
         "items": [
-          { "day": "Mon", "dish": "Qabuli palaw with lamb, salata", "price": 15 },
-          { "day": "Tue", "dish": "Chicken korma, naan, chutney", "price": 14 },
-          { "day": "Wed", "dish": "Bolani (potato and leek), yogurt, salad", "price": 13 },
-          { "day": "Thu", "dish": "Kofta chalaw, sabzi, naan", "price": 15 },
-          { "day": "Fri", "dish": "Mantu with yogurt and lentil sauce", "price": 15 }
+          {
+            "day": "Mon",
+            "dish": "Qabuli palaw with lamb, salata",
+            "price": 15
+          },
+          {
+            "day": "Tue",
+            "dish": "Chicken korma, naan, chutney",
+            "price": 14
+          },
+          {
+            "day": "Wed",
+            "dish": "Bolani (potato and leek), yogurt, salad",
+            "price": 13
+          },
+          {
+            "day": "Thu",
+            "dish": "Kofta chalaw, sabzi, naan",
+            "price": 15
+          },
+          {
+            "day": "Fri",
+            "dish": "Mantu with yogurt and lentil sauce",
+            "price": 15
+          }
         ]
       },
-      "contact": { "whatsapp": "14035550108", "phone": "403-555-0108" },
+      "contact": {
+        "whatsapp": "14035550108",
+        "phone": "403-555-0108"
+      },
       "delivery": {
-        "areas": ["Mahogany", "Auburn Bay", "Seton", "Cranston"],
+        "areas": [
+          "Mahogany",
+          "Auburn Bay",
+          "Seton",
+          "Cranston"
+        ],
         "notes": "Delivery Monday to Friday, 12:00 to 1:30. Order by 9 pm the night before."
       },
-      "permit": { "status": "verified", "verified_on": "2026-09-15", "permit_type": "AHS Food Handling Permit" },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
       "last_posted": "2026-09-21T21:05:00-06:00"
     },
     {
@@ -266,23 +552,57 @@
       "halal": false,
       "jain": true,
       "description": "Strict Jain cooking: no onion, no garlic, no root vegetables, and nothing cooked after sunset. Menus follow the Jain calendar; dinners on request during Paryushan.",
-      "price": { "day": 13, "weekly": 78, "monthly": 270 },
+      "price": {
+        "day": 13,
+        "weekly": 78,
+        "monthly": 270
+      },
       "menu": {
         "week_of": "2026-09-21",
         "items": [
-          { "day": "Mon", "dish": "Jain dal, kaddu sabzi, rice, 4 rotis", "price": 13 },
-          { "day": "Tue", "dish": "Paneer kaju masala (no onion), rice, rotis", "price": 14 },
-          { "day": "Wed", "dish": "Kadhi, lauki chana, rice, rotis", "price": 13 },
-          { "day": "Thu", "dish": "Moong dal khichdi, kadhi, papad, pickle", "price": 12 },
-          { "day": "Fri", "dish": "Jain pav bhaji (raw banana), pav, salad", "price": 13 }
+          {
+            "day": "Mon",
+            "dish": "Toor dal, bhinda shaak, rice, 4 rotis",
+            "price": 13
+          },
+          {
+            "day": "Tue",
+            "dish": "Palak paneer (no onion or garlic), rice, rotis",
+            "price": 14
+          },
+          {
+            "day": "Wed",
+            "dish": "Kadhi, dudhi chana dal shaak, rice, rotis",
+            "price": 13
+          },
+          {
+            "day": "Thu",
+            "dish": "Moong dal khichdi, kadhi, papad, pickle",
+            "price": 12
+          },
+          {
+            "day": "Fri",
+            "dish": "Jain pav bhaji (raw banana), salad",
+            "price": 13
+          }
         ]
       },
-      "contact": { "whatsapp": "14035550109", "phone": "403-555-0109" },
+      "contact": {
+        "whatsapp": "14035550109",
+        "phone": "403-555-0109"
+      },
       "delivery": {
-        "areas": ["Evergreen", "Bridlewood", "Shawnessy", "Somerset"],
+        "areas": [
+          "Evergreen",
+          "Bridlewood",
+          "Shawnessy",
+          "Somerset"
+        ],
         "notes": "Delivery Monday to Friday, 11:30 to 1:00. Pickup available."
       },
-      "permit": { "status": "pending" },
+      "permit": {
+        "status": "pending"
+      },
       "last_posted": "2026-09-17T12:00:00-06:00"
     },
     {
@@ -292,29 +612,1012 @@
       "hue": 192,
       "cuisine": "Pakistani",
       "quadrant": "Airdrie",
-      "area": "Kings Heights",
+      "area": "King's Heights",
       "veg_only": false,
       "halal": true,
       "jain": false,
       "description": "Halal Pakistani tiffins for Airdrie households: a salan, a daal or sabzi, and rice or roti. Biryani twice a week because that is what people ask for.",
-      "price": { "day": 13, "weekly": 72, "monthly": 250 },
+      "price": {
+        "day": 13,
+        "weekly": 72,
+        "monthly": 250
+      },
       "menu": {
         "week_of": "2026-09-21",
         "items": [
-          { "day": "Mon", "dish": "Chicken biryani, raita, salad", "price": 14 },
-          { "day": "Tue", "dish": "Daal chawal, aloo bhujia, achar", "price": 12 },
-          { "day": "Wed", "dish": "Beef nihari, naan, ginger and lemon", "price": 15 },
-          { "day": "Thu", "dish": "Bhindi gosht, roti, raita", "price": 13 },
-          { "day": "Fri", "dish": "Chicken pulao, shami kebab, raita", "price": 14 }
+          {
+            "day": "Mon",
+            "dish": "Chicken biryani, raita, salad",
+            "price": 14
+          },
+          {
+            "day": "Tue",
+            "dish": "Daal chawal, shami kebab, achar",
+            "price": 12
+          },
+          {
+            "day": "Wed",
+            "dish": "Beef nihari, naan, ginger and lemon",
+            "price": 15
+          },
+          {
+            "day": "Thu",
+            "dish": "Aloo gosht, roti, raita",
+            "price": 13
+          },
+          {
+            "day": "Fri",
+            "dish": "Chicken pulao, shami kebab, raita",
+            "price": 14
+          }
         ]
       },
-      "contact": { "whatsapp": "14035550110", "phone": "403-555-0110" },
+      "contact": {
+        "whatsapp": "14035550110",
+        "phone": "403-555-0110"
+      },
       "delivery": {
-        "areas": ["Kings Heights", "Bayside", "Reunion", "Coopers Crossing"],
+        "areas": [
+          "King's Heights",
+          "Bayside",
+          "Reunion",
+          "Coopers Crossing"
+        ],
         "notes": "Delivery Monday to Friday, 11:30 to 1:00. Airdrie only for now."
       },
-      "permit": { "status": "verified", "verified_on": "2026-09-15", "permit_type": "AHS Food Handling Permit" },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
       "last_posted": "2026-09-19T18:45:00-06:00"
+    },
+    {
+      "slug": "deccan-degchi-kitchen",
+      "name": "Deccan Degchi Kitchen",
+      "sample": true,
+      "hue": 8,
+      "cuisine": "Hyderabadi",
+      "quadrant": "NE",
+      "area": "Cornerstone",
+      "veg_only": false,
+      "halal": true,
+      "jain": false,
+      "description": "Halal Hyderabadi home cooking: dum biryani on Mondays, haleem midweek, and a sour khatti dal most days. Spice level on request.",
+      "price": {
+        "day": 14,
+        "weekly": 84,
+        "monthly": 300
+      },
+      "menu": {
+        "week_of": "2026-09-21",
+        "items": [
+          {
+            "day": "Mon",
+            "dish": "Chicken dum biryani, mirchi ka salan, raita",
+            "price": 15
+          },
+          {
+            "day": "Tue",
+            "dish": "Bagara baingan, khatti dal, rice, roti",
+            "price": 13
+          },
+          {
+            "day": "Wed",
+            "dish": "Mutton haleem, lemon, fried onions",
+            "price": 15
+          },
+          {
+            "day": "Thu",
+            "dish": "Dalcha, bagara rice, papad",
+            "price": 14
+          },
+          {
+            "day": "Fri",
+            "dish": "Chicken korma, roti, double ka meetha",
+            "price": 15
+          }
+        ]
+      },
+      "contact": {
+        "whatsapp": "14035550111",
+        "phone": "403-555-0111"
+      },
+      "delivery": {
+        "areas": [
+          "Cornerstone",
+          "Redstone",
+          "Cityscape",
+          "Skyview Ranch",
+          "Saddle Ridge"
+        ],
+        "notes": "Delivery Monday to Friday, 11:30 to 1:00. Order by 8 pm the night before."
+      },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
+      "last_posted": "2026-09-21T19:30:00-06:00"
+    },
+    {
+      "slug": "lalupate-bhansa",
+      "name": "Lalupate Bhansa",
+      "sample": true,
+      "hue": 330,
+      "cuisine": "Nepali",
+      "quadrant": "NE",
+      "area": "Martindale",
+      "veg_only": false,
+      "halal": false,
+      "jain": false,
+      "description": "Nepali home meals: dal bhat with a fresh achar most days, momo on Tuesdays and a warming thukpa on Thursdays.",
+      "price": {
+        "day": 13,
+        "weekly": 76,
+        "monthly": 265
+      },
+      "menu": {
+        "week_of": "2026-09-21",
+        "items": [
+          {
+            "day": "Mon",
+            "dish": "Dal bhat, aloo tama, gundruk achar",
+            "price": 13
+          },
+          {
+            "day": "Tue",
+            "dish": "Chicken momo (10), tomato achar",
+            "price": 14
+          },
+          {
+            "day": "Wed",
+            "dish": "Kwati, rice, saag",
+            "price": 13
+          },
+          {
+            "day": "Thu",
+            "dish": "Chicken thukpa",
+            "price": 13
+          },
+          {
+            "day": "Fri",
+            "dish": "Dal bhat, goat curry, saag, mula achar",
+            "price": 15
+          }
+        ]
+      },
+      "contact": {
+        "whatsapp": "14035550112",
+        "phone": "403-555-0112"
+      },
+      "delivery": {
+        "areas": [
+          "Martindale",
+          "Taradale",
+          "Saddle Ridge",
+          "Falconridge",
+          "Castleridge"
+        ],
+        "notes": "Delivery Monday to Friday, 12:00 to 1:30. Pickup available."
+      },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
+      "last_posted": "2026-09-20T20:10:00-06:00"
+    },
+    {
+      "slug": "tulsi-kyari-thali",
+      "name": "Tulsi Kyari Thali",
+      "sample": true,
+      "hue": 72,
+      "cuisine": "Gujarati",
+      "quadrant": "NE",
+      "area": "Redstone",
+      "veg_only": true,
+      "halal": false,
+      "jain": true,
+      "description": "Gujarati thali cooked the Jain way: no onion, no garlic and no root vegetables. Rotli rolled fresh at noon.",
+      "price": {
+        "day": 11,
+        "weekly": 62,
+        "monthly": 215
+      },
+      "menu": {
+        "week_of": "2026-09-21",
+        "items": [
+          {
+            "day": "Mon",
+            "dish": "Tuvar dal, rice, rotli, cabbage shaak",
+            "price": 11
+          },
+          {
+            "day": "Tue",
+            "dish": "Gujarati kadhi, khichdi, papad",
+            "price": 11
+          },
+          {
+            "day": "Wed",
+            "dish": "Dudhi chana dal shaak, rotli, rice",
+            "price": 11
+          },
+          {
+            "day": "Thu",
+            "dish": "Khaman dhokla, sev tameta shaak, rotli",
+            "price": 12
+          },
+          {
+            "day": "Fri",
+            "dish": "Dal dhokli, bhinda shaak, shrikhand",
+            "price": 12
+          }
+        ]
+      },
+      "contact": {
+        "whatsapp": "14035550113",
+        "phone": "403-555-0113"
+      },
+      "delivery": {
+        "areas": [
+          "Redstone",
+          "Cornerstone",
+          "Coventry Hills",
+          "Harvest Hills",
+          "Skyview Ranch"
+        ],
+        "notes": "Delivery Monday to Friday, 12:00 to 1:30. Weekly and monthly plans."
+      },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
+      "last_posted": "2026-09-21T08:15:00-06:00"
+    },
+    {
+      "slug": "sampaguita-baon",
+      "name": "Sampaguita Baon",
+      "sample": true,
+      "hue": 300,
+      "cuisine": "Filipino",
+      "quadrant": "NE",
+      "area": "Pineridge",
+      "veg_only": false,
+      "halal": false,
+      "jain": false,
+      "description": "Filipino baon, the packed lunch from home: adobo, sinigang and pancit with plenty of rice. Pork on some days.",
+      "price": {
+        "day": 12,
+        "weekly": 70,
+        "monthly": 245
+      },
+      "menu": {
+        "week_of": "2026-09-21",
+        "items": [
+          {
+            "day": "Mon",
+            "dish": "Chicken adobo, garlic rice, atchara",
+            "price": 12
+          },
+          {
+            "day": "Tue",
+            "dish": "Pork sinigang, rice",
+            "price": 13
+          },
+          {
+            "day": "Wed",
+            "dish": "Pancit bihon, lumpia shanghai (3)",
+            "price": 12
+          },
+          {
+            "day": "Thu",
+            "dish": "Chicken tinola, rice",
+            "price": 12
+          },
+          {
+            "day": "Fri",
+            "dish": "Pork menudo, rice, turon",
+            "price": 13
+          }
+        ]
+      },
+      "contact": {
+        "whatsapp": "14035550114",
+        "phone": "403-555-0114"
+      },
+      "delivery": {
+        "areas": [
+          "Pineridge",
+          "Rundle",
+          "Whitehorn",
+          "Temple",
+          "Monterey Park"
+        ],
+        "notes": "Delivery Monday to Friday, 11:30 to 1:00. Pickup after 5 pm on request."
+      },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
+      "last_posted": "2026-09-19T21:00:00-06:00"
+    },
+    {
+      "slug": "sheesham-dabba",
+      "name": "Sheesham Dabba",
+      "sample": true,
+      "hue": 196,
+      "cuisine": "Pakistani",
+      "quadrant": "NW",
+      "area": "Evanston",
+      "veg_only": false,
+      "halal": true,
+      "jain": false,
+      "description": "Halal Pakistani tiffins for the north: a salan or korma with roti or naan, nihari on Thursdays and biryani to end the week.",
+      "price": {
+        "day": 14,
+        "weekly": 82,
+        "monthly": 295
+      },
+      "menu": {
+        "week_of": "2026-09-21",
+        "items": [
+          {
+            "day": "Mon",
+            "dish": "Chicken korma, naan, salad",
+            "price": 14
+          },
+          {
+            "day": "Tue",
+            "dish": "Aloo keema, roti, raita",
+            "price": 14
+          },
+          {
+            "day": "Wed",
+            "dish": "Chana pulao, shami kebab, raita",
+            "price": 14
+          },
+          {
+            "day": "Thu",
+            "dish": "Beef nihari, naan, ginger and lemon",
+            "price": 15
+          },
+          {
+            "day": "Fri",
+            "dish": "Chicken biryani, raita, salad",
+            "price": 15
+          }
+        ]
+      },
+      "contact": {
+        "whatsapp": "14035550115",
+        "phone": "403-555-0115"
+      },
+      "delivery": {
+        "areas": [
+          "Evanston",
+          "Kincora",
+          "Sage Hill",
+          "Nolan Hill",
+          "Carrington"
+        ],
+        "notes": "Delivery Monday to Friday, 12:00 to 1:30. Order by 9 pm the night before."
+      },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
+      "last_posted": "2026-09-21T18:40:00-06:00"
+    },
+    {
+      "slug": "kithul-rice-and-curry",
+      "name": "Kithul Rice & Curry",
+      "sample": true,
+      "hue": 150,
+      "cuisine": "Sri Lankan",
+      "quadrant": "NW",
+      "area": "Hamptons",
+      "veg_only": false,
+      "halal": false,
+      "jain": false,
+      "description": "Sri Lankan rice and curry the way it is served at home, with pol sambol on the side. String hoppers on Thursdays.",
+      "price": {
+        "day": 14,
+        "weekly": 80,
+        "monthly": 285
+      },
+      "menu": {
+        "week_of": "2026-09-21",
+        "items": [
+          {
+            "day": "Mon",
+            "dish": "Parippu, beetroot curry, pol sambol, rice",
+            "price": 13
+          },
+          {
+            "day": "Tue",
+            "dish": "Chicken kottu roti",
+            "price": 14
+          },
+          {
+            "day": "Wed",
+            "dish": "Fish curry, gotu kola sambol, rice",
+            "price": 14
+          },
+          {
+            "day": "Thu",
+            "dish": "String hoppers, kiri hodi, pol sambol",
+            "price": 13
+          },
+          {
+            "day": "Fri",
+            "dish": "Chicken curry, yellow rice, papadam",
+            "price": 14
+          }
+        ]
+      },
+      "contact": {
+        "whatsapp": "14035550116",
+        "phone": "403-555-0116"
+      },
+      "delivery": {
+        "areas": [
+          "Hamptons",
+          "Edgemont",
+          "Hidden Valley",
+          "Panorama Hills",
+          "Country Hills"
+        ],
+        "notes": "Delivery Monday to Friday, 11:45 to 1:15."
+      },
+      "permit": {
+        "status": "pending"
+      },
+      "last_posted": "2026-09-18T17:45:00-06:00"
+    },
+    {
+      "slug": "kansar-kitchen",
+      "name": "Kansar Kitchen",
+      "sample": true,
+      "hue": 58,
+      "cuisine": "Gujarati",
+      "quadrant": "NW",
+      "area": "Royal Oak",
+      "veg_only": true,
+      "halal": false,
+      "jain": false,
+      "description": "Vegetarian Gujarati home food: shaak, dal, rice and rotli, with handvo and dhokla on lighter days.",
+      "price": {
+        "day": 11,
+        "weekly": 60,
+        "monthly": 205
+      },
+      "menu": {
+        "week_of": "2026-09-21",
+        "items": [
+          {
+            "day": "Mon",
+            "dish": "Batata shaak, toor dal, rice, rotli",
+            "price": 11
+          },
+          {
+            "day": "Tue",
+            "dish": "Undhiyu, puri, kadhi",
+            "price": 12
+          },
+          {
+            "day": "Wed",
+            "dish": "Methi thepla, chhundo, plain yogurt",
+            "price": 11
+          },
+          {
+            "day": "Thu",
+            "dish": "Handvo, green chutney, kadhi",
+            "price": 11
+          },
+          {
+            "day": "Fri",
+            "dish": "Khaman dhokla, sev tameta shaak, rotli, shrikhand",
+            "price": 12
+          }
+        ]
+      },
+      "contact": {
+        "whatsapp": "14035550117",
+        "phone": "403-555-0117"
+      },
+      "delivery": {
+        "areas": [
+          "Royal Oak",
+          "Rocky Ridge",
+          "Tuscany",
+          "Arbour Lake",
+          "Citadel"
+        ],
+        "notes": "Delivery Monday to Friday, 11:30 to 1:00. Weekly plan minimum."
+      },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
+      "last_posted": "2026-09-20T10:20:00-06:00"
+    },
+    {
+      "slug": "vehra-rasoi",
+      "name": "Vehra Rasoi",
+      "sample": true,
+      "hue": 20,
+      "cuisine": "Punjabi",
+      "quadrant": "SE",
+      "area": "Copperfield",
+      "veg_only": false,
+      "halal": false,
+      "jain": false,
+      "description": "Punjabi family cooking for the deep southeast: a dal or curry, a sabzi, rice and fresh rotis. Butter chicken on Mondays.",
+      "price": {
+        "day": 13,
+        "weekly": 74,
+        "monthly": 262
+      },
+      "menu": {
+        "week_of": "2026-09-21",
+        "items": [
+          {
+            "day": "Mon",
+            "dish": "Butter chicken, jeera rice, rotis",
+            "price": 14
+          },
+          {
+            "day": "Tue",
+            "dish": "Rajma, jeera rice, rotis, salad",
+            "price": 13
+          },
+          {
+            "day": "Wed",
+            "dish": "Aloo gobi, dal tadka, rotis, raita",
+            "price": 12
+          },
+          {
+            "day": "Thu",
+            "dish": "Chole, jeera rice, rotis, onion salad",
+            "price": 13
+          },
+          {
+            "day": "Fri",
+            "dish": "Egg curry, matar pulao, rotis",
+            "price": 13
+          }
+        ]
+      },
+      "contact": {
+        "whatsapp": "14035550118",
+        "phone": "403-555-0118"
+      },
+      "delivery": {
+        "areas": [
+          "Copperfield",
+          "McKenzie Towne",
+          "New Brighton",
+          "Mahogany"
+        ],
+        "notes": "Delivery Monday to Friday, 11:30 to 1:00. Pickup available."
+      },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
+      "last_posted": "2026-09-21T16:55:00-06:00"
+    },
+    {
+      "slug": "nellikai-tiffins",
+      "name": "Nellikai Tiffins",
+      "sample": true,
+      "hue": 110,
+      "cuisine": "South Indian",
+      "quadrant": "SE",
+      "area": "Forest Lawn",
+      "veg_only": true,
+      "halal": false,
+      "jain": false,
+      "description": "Vegetarian South Indian lunches: sambar rice, a poriyal and curd rice, with idli and medu vada on Fridays.",
+      "price": {
+        "day": 11,
+        "weekly": 62,
+        "monthly": 215
+      },
+      "menu": {
+        "week_of": "2026-09-21",
+        "items": [
+          {
+            "day": "Mon",
+            "dish": "Sambar rice, beetroot poriyal, curd, appalam",
+            "price": 11
+          },
+          {
+            "day": "Tue",
+            "dish": "Tomato rice, avial, rasam",
+            "price": 11
+          },
+          {
+            "day": "Wed",
+            "dish": "Ven pongal, sambar, coconut chutney",
+            "price": 11
+          },
+          {
+            "day": "Thu",
+            "dish": "Lemon rice, kootu, curd rice",
+            "price": 11
+          },
+          {
+            "day": "Fri",
+            "dish": "Idli (4), sambar, tomato chutney, medu vada",
+            "price": 12
+          }
+        ]
+      },
+      "contact": {
+        "whatsapp": "14035550119",
+        "phone": "403-555-0119"
+      },
+      "delivery": {
+        "areas": [
+          "Forest Lawn",
+          "Dover",
+          "Erin Woods",
+          "Applewood Park",
+          "Riverbend"
+        ],
+        "notes": "Delivery Monday to Friday, 11:30 to 1:00."
+      },
+      "permit": {
+        "status": "pending"
+      },
+      "last_posted": "2026-09-17T19:10:00-06:00"
+    },
+    {
+      "slug": "doel-pakhi-kitchen",
+      "name": "Doel Pakhi Kitchen",
+      "sample": true,
+      "hue": 236,
+      "cuisine": "Bengali",
+      "quadrant": "SE",
+      "area": "Seton",
+      "veg_only": false,
+      "halal": true,
+      "jain": false,
+      "description": "Halal Bangladeshi and Bengali home food: bhorta, dal and rice, fish on Wednesdays and polao with korma on Fridays.",
+      "price": {
+        "day": 13,
+        "weekly": 78,
+        "monthly": 270
+      },
+      "menu": {
+        "week_of": "2026-09-21",
+        "items": [
+          {
+            "day": "Mon",
+            "dish": "Aloo bhorta, begun bhorta, masoor dal, rice",
+            "price": 12
+          },
+          {
+            "day": "Tue",
+            "dish": "Chicken rezala, polao",
+            "price": 14
+          },
+          {
+            "day": "Wed",
+            "dish": "Rui macher jhol, shak bhaji, dal, rice",
+            "price": 13
+          },
+          {
+            "day": "Thu",
+            "dish": "Beef bhuna khichuri",
+            "price": 14
+          },
+          {
+            "day": "Fri",
+            "dish": "Chicken korma, polao, borhani",
+            "price": 14
+          }
+        ]
+      },
+      "contact": {
+        "whatsapp": "14035550120",
+        "phone": "403-555-0120"
+      },
+      "delivery": {
+        "areas": [
+          "Seton",
+          "Auburn Bay",
+          "Cranston",
+          "Walden",
+          "Legacy"
+        ],
+        "notes": "Delivery Monday to Friday, 12:00 to 1:30. Order by 8 pm the night before."
+      },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
+      "last_posted": "2026-09-20T21:30:00-06:00"
+    },
+    {
+      "slug": "shomali-sufra",
+      "name": "Shomali Sufra",
+      "sample": true,
+      "hue": 276,
+      "cuisine": "Afghan",
+      "quadrant": "SW",
+      "area": "Signal Hill",
+      "veg_only": false,
+      "halal": true,
+      "jain": false,
+      "description": "Halal Afghan home cooking: qabuli palaw, aushak with yogurt and mint, and bolani with a bowl of shorwa on Fridays.",
+      "price": {
+        "day": 15,
+        "weekly": 88,
+        "monthly": 315
+      },
+      "menu": {
+        "week_of": "2026-09-21",
+        "items": [
+          {
+            "day": "Mon",
+            "dish": "Qabuli palaw with beef, salata",
+            "price": 15
+          },
+          {
+            "day": "Tue",
+            "dish": "Aushak with yogurt and mint",
+            "price": 15
+          },
+          {
+            "day": "Wed",
+            "dish": "Sabzi challow, naan",
+            "price": 13
+          },
+          {
+            "day": "Thu",
+            "dish": "Chicken kofta, challow, salata",
+            "price": 14
+          },
+          {
+            "day": "Fri",
+            "dish": "Bolani (potato), shorwa",
+            "price": 13
+          }
+        ]
+      },
+      "contact": {
+        "whatsapp": "14035550121",
+        "phone": "403-555-0121"
+      },
+      "delivery": {
+        "areas": [
+          "Signal Hill",
+          "Westgate",
+          "Glenbrook",
+          "Christie Park",
+          "Aspen Woods"
+        ],
+        "notes": "Delivery Monday to Friday, 12:00 to 1:30. Order by 9 pm the night before."
+      },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
+      "last_posted": "2026-09-21T20:25:00-06:00"
+    },
+    {
+      "slug": "chembarathi-kitchen",
+      "name": "Chembarathi Kitchen",
+      "sample": true,
+      "hue": 356,
+      "cuisine": "South Indian",
+      "quadrant": "SW",
+      "area": "Shawnessy",
+      "veg_only": false,
+      "halal": false,
+      "jain": false,
+      "description": "Kerala and Chettinad home cooking: fish curry with matta rice, appam with vegetable ishtu, and payasam on Fridays.",
+      "price": {
+        "day": 13,
+        "weekly": 76,
+        "monthly": 265
+      },
+      "menu": {
+        "week_of": "2026-09-21",
+        "items": [
+          {
+            "day": "Mon",
+            "dish": "Kerala fish curry, matta rice, cabbage thoran",
+            "price": 14
+          },
+          {
+            "day": "Tue",
+            "dish": "Appam, vegetable ishtu",
+            "price": 12
+          },
+          {
+            "day": "Wed",
+            "dish": "Sambar, rice, beans thoran, papadam",
+            "price": 12
+          },
+          {
+            "day": "Thu",
+            "dish": "Chicken chettinad, parotta",
+            "price": 14
+          },
+          {
+            "day": "Fri",
+            "dish": "Avial, rasam, rice, payasam",
+            "price": 12
+          }
+        ]
+      },
+      "contact": {
+        "whatsapp": "14035550122",
+        "phone": "403-555-0122"
+      },
+      "delivery": {
+        "areas": [
+          "Shawnessy",
+          "Somerset",
+          "Bridlewood",
+          "Silverado",
+          "Evergreen"
+        ],
+        "notes": "Delivery Monday to Friday, 11:45 to 1:15. Pickup available."
+      },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
+      "last_posted": "2026-09-19T15:35:00-06:00"
+    },
+    {
+      "slug": "sarsabz-kitchen",
+      "name": "Sarsabz Kitchen",
+      "sample": true,
+      "hue": 138,
+      "cuisine": "Pakistani",
+      "quadrant": "SW",
+      "area": "Woodbine",
+      "veg_only": false,
+      "halal": true,
+      "jain": false,
+      "description": "Halal Pakistani everyday food at a gentle price: daal chawal, karahi or keema with roti, and chicken pulao on Fridays.",
+      "price": {
+        "day": 11,
+        "weekly": 62,
+        "monthly": 210
+      },
+      "menu": {
+        "week_of": "2026-09-21",
+        "items": [
+          {
+            "day": "Mon",
+            "dish": "Daal chawal, achar, salad",
+            "price": 11
+          },
+          {
+            "day": "Tue",
+            "dish": "Chicken karahi, roti, raita",
+            "price": 12
+          },
+          {
+            "day": "Wed",
+            "dish": "Keema aloo, roti",
+            "price": 12
+          },
+          {
+            "day": "Thu",
+            "dish": "Kadhi pakora, rice",
+            "price": 11
+          },
+          {
+            "day": "Fri",
+            "dish": "Chicken pulao, raita, salad",
+            "price": 12
+          }
+        ]
+      },
+      "contact": {
+        "whatsapp": "14035550123",
+        "phone": "403-555-0123"
+      },
+      "delivery": {
+        "areas": [
+          "Woodbine",
+          "Woodlands",
+          "Cedarbrae",
+          "Braeside",
+          "Palliser"
+        ],
+        "notes": "Delivery Monday to Friday, 11:30 to 1:00."
+      },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
+      "last_posted": "2026-09-21T12:05:00-06:00"
+    },
+    {
+      "slug": "rangla-chulha",
+      "name": "Rangla Chulha",
+      "sample": true,
+      "hue": 48,
+      "cuisine": "Punjabi",
+      "quadrant": "Airdrie",
+      "area": "Williamstown",
+      "veg_only": true,
+      "halal": false,
+      "jain": false,
+      "description": "Vegetarian Punjabi tiffins for Airdrie: dal makhani, chana masala and a paneer dish each week, with rotis made fresh.",
+      "price": {
+        "day": 12,
+        "weekly": 68,
+        "monthly": 235
+      },
+      "menu": {
+        "week_of": "2026-09-21",
+        "items": [
+          {
+            "day": "Mon",
+            "dish": "Chana masala, jeera rice, rotis",
+            "price": 12
+          },
+          {
+            "day": "Tue",
+            "dish": "Dal makhani, aloo gobi, rotis",
+            "price": 12
+          },
+          {
+            "day": "Wed",
+            "dish": "Kadhi pakora, rice, rotis",
+            "price": 12
+          },
+          {
+            "day": "Thu",
+            "dish": "Paneer butter masala, matar pulao, rotis",
+            "price": 13
+          },
+          {
+            "day": "Fri",
+            "dish": "Rajma, rice, aloo methi, kheer",
+            "price": 13
+          }
+        ]
+      },
+      "contact": {
+        "whatsapp": "14035550124",
+        "phone": "403-555-0124"
+      },
+      "delivery": {
+        "areas": [
+          "Williamstown",
+          "Reunion",
+          "Sagewood",
+          "Midtown",
+          "Hillcrest"
+        ],
+        "notes": "Delivery Monday to Friday, 11:30 to 1:00. Airdrie only."
+      },
+      "permit": {
+        "status": "verified",
+        "verified_on": "2026-09-15",
+        "permit_type": "AHS Food Handling Permit"
+      },
+      "last_posted": "2026-09-20T17:50:00-06:00"
     }
   ]
 }
