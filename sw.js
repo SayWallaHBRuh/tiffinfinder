@@ -2,16 +2,20 @@
    Strategy:
    - Precache the app shell under a versioned cache name (bump VERSION on deploy).
    - Navigations: cache (ignoring the query string) with a background refresh,
-     falling back to the network. Offline with no cached copy (an unknown or
-     mistyped path), serve the cached 404.html, which sets its own <base> so
-     it renders at any depth; then the index shell as a last resort.
-   - data/kitchens.json: network-first, cache fallback.
+     falling back to the network. If the page isn't cached and the network
+     request fails (no connection), serve the cached offline.html, which sets
+     its own <base> so it renders at any depth; then 404.html, then the index
+     shell as a last resort. A failed fetch means no connection, not a missing
+     page: real 404s arrive as responses (GitHub Pages serves 404.html) and
+     are passed through unchanged.
+   - data/kitchens.json: network-first, cache fallback. Offline with nothing
+     cached, answer 503 with {meta:{offline:true}} so the app can say so.
    - Everything else same-origin: cache-first, then network (and cache it).
    - Cross-origin requests (Google Fonts) are never intercepted or cached. */
 
 'use strict';
 
-var VERSION = 'tf-v1.3.0';
+var VERSION = 'tf-v1.4.0';
 var SHELL_CACHE = VERSION + '-shell';
 var DATA_CACHE = VERSION + '-data';
 
@@ -27,6 +31,7 @@ var SHELL = [
   './privacy.html',
   './about.html',
   './404.html',
+  './offline.html',
   './icons/icon.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -131,11 +136,15 @@ function handleNavigation(request) {
         network.catch(function () { /* offline — keep the cached copy */ });
         return cached;
       }
+      /* No cached copy and no connection: offline.html, then 404.html,
+         then the index shell. */
       return network.catch(function () {
-        return cache.match('./404.html').then(function (notFound) {
-          return notFound || cache.match('./index.html').then(function (shell) {
-            return shell || cache.match('./').then(function (rootShell) {
-              return rootShell || Response.error();
+        return cache.match('./offline.html').then(function (offline) {
+          return offline || cache.match('./404.html').then(function (notFound) {
+            return notFound || cache.match('./index.html').then(function (shell) {
+              return shell || cache.match('./').then(function (rootShell) {
+                return rootShell || Response.error();
+              });
             });
           });
         });

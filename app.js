@@ -1,6 +1,6 @@
 /* Tiffin Finder — app.js
    Renders everything from ./data/kitchens.json with DOM APIs.
-   No innerHTML with data, no inline handlers, no eval.
+   Never builds markup from strings, no inline handlers, no eval.
    Loaded in <head> (blocking) so the theme is applied before first paint;
    everything that touches the DOM waits for DOMContentLoaded. */
 (function () {
@@ -16,6 +16,18 @@
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   var QUADRANT_LABEL = { NE: 'Northeast', NW: 'Northwest', SE: 'Southeast', SW: 'Southwest', Airdrie: 'Airdrie' };
   var SVG_NS = 'http://www.w3.org/2000/svg';
+  /* What the list says when kitchens.json can't be loaded: no connection
+     (and no saved copy), or any other failure. */
+  var LOAD_COPY = {
+    offline: {
+      title: 'You’re offline',
+      text: 'Tiffin Finder needs a connection to load kitchens the first time. Reconnect and the list will load on its own, or tap Try again.'
+    },
+    error: {
+      title: 'Kitchens didn’t load',
+      text: 'Something went wrong fetching the list. Please try again in a moment.'
+    }
+  };
 
   var root = document.documentElement;
   var state = {
@@ -23,6 +35,8 @@
     meta: null,
     loaded: false,
     error: false,
+    /* The failed load looked like no connection (see loadData). */
+    offline: false,
     follows: new Set(),
     /* A ?cuisine= value waiting for the cuisine options to exist (they are
        built from the data, so they arrive after the first render). */
@@ -298,10 +312,19 @@
       k.permit && typeof k.permit === 'object';
   }
 
+  /* Offline with no saved copy, the service worker answers with a 503 whose
+     body is {meta:{offline:true}}; without a service worker, fetch rejects
+     with a TypeError. Either one is shown as "You're offline". */
   function loadData() {
     return fetch(DATA_URL, { cache: 'no-cache' })
       .then(function (res) {
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+        if (!res.ok) {
+          return res.json().catch(function () { return null; }).then(function (j) {
+            var e = new Error('HTTP ' + res.status);
+            e.offline = !!(j && j.meta && j.meta.offline);
+            throw e;
+          });
+        }
         return res.json();
       })
       .then(function (json) {
@@ -316,12 +339,49 @@
         state.meta = json && json.meta ? json.meta : null;
         state.loaded = true;
         state.error = false;
+        state.offline = false;
       })
-      .catch(function () {
+      .catch(function (err) {
         state.loaded = true;
         state.error = true;
         state.kitchens = [];
+        state.offline = !!(err && err.offline) || navigator.onLine === false || err instanceof TypeError;
       });
+  }
+
+  /* One load at a time: the first load, Try again and the 'online' event
+     all go through here, so a retry never overlaps a load in flight. */
+  var loadingNow = null;
+
+  function startLoad() {
+    loadingNow = loadData().then(afterData).then(function () {
+      loadingNow = null;
+    }, function (err) {
+      loadingNow = null;
+      throw err;
+    });
+    return loadingNow;
+  }
+
+  /* Try again (any [data-retry] button, or the connection coming back).
+     `trigger` is the button pressed, if any. The pressed button disappears
+     while the list reloads, so focus moves on instead of dropping to the
+     page: to the status line in the list, or to the heading in the kitchen
+     view (renderKitchen then carries it to the loaded page's heading).
+     Done here too because Safari doesn't focus a button on click. */
+  function retryLoad(trigger) {
+    if (loadingNow) return;
+    var from = trigger || document.activeElement;
+    var canCheck = !!(from && from.closest);
+    var fromBrowse = canCheck && !!from.closest('#view-browse [data-retry]');
+    var fromKitchen = canCheck && !!from.closest('#kitchen-detail [data-retry]');
+    state.loaded = false;
+    state.error = false;
+    state.offline = false;
+    render(false);
+    if (fromBrowse) focusQuietly(dom.resultsStatus);
+    else if (fromKitchen) focusQuietly(document.getElementById('kitchen-heading'));
+    startLoad();
   }
 
   /* ---------------------------------------------------------------------
@@ -602,7 +662,10 @@
     dom.results.removeAttribute('aria-busy');
     if (state.error) {
       dom.results.replaceChildren();
-      setStatus(status, 'Couldn’t load kitchens.', false);
+      var copy = LOAD_COPY[state.offline ? 'offline' : 'error'];
+      if (dom.resultsErrorTitle) dom.resultsErrorTitle.textContent = copy.title;
+      if (dom.resultsErrorText) dom.resultsErrorText.textContent = copy.text;
+      setStatus(status, state.offline ? 'You’re offline.' : 'Couldn’t load kitchens.', false);
       dom.resultsError.hidden = false;
       if (dom.filters) dom.filters.classList.remove('has-active');
       return;
@@ -781,6 +844,17 @@
   --------------------------------------------------------------------- */
   function renderFollowing() {
     if (!dom.followingGrid) return;
+    if (state.error) {
+      /* Follows live on the device, but the kitchens they point at didn't load. */
+      dom.followingGrid.replaceChildren();
+      dom.followingEmpty.hidden = true;
+      if (dom.followingStatus) {
+        dom.followingStatus.textContent = state.offline
+          ? 'You’re offline. Your follows are saved on this device and will show when you reconnect.'
+          : 'Couldn’t load kitchens. Please try again in a moment.';
+      }
+      return;
+    }
     var list = state.kitchens.filter(function (k) { return state.follows.has(k.slug); });
     fillGrid(dom.followingGrid, list, 'following');
     dom.followingEmpty.hidden = list.length > 0 || !state.loaded;
@@ -794,9 +868,76 @@
   /* ---------------------------------------------------------------------
      Kitchen detail view
   --------------------------------------------------------------------- */
+  /* Placeholder kitchen page while kitchens.json loads. It reuses the real
+     .k-head / .k-section boxes, so the page grid places it exactly where the
+     loaded page will be. The view always has one h1 (the hero's is hidden),
+     so a visually hidden one names the page until the data arrives. */
+  function kitchenSkeleton() {
+    var frag = document.createDocumentFragment();
+    frag.appendChild(el('h1', { class: 'visually-hidden', id: 'kitchen-heading', tabindex: '-1', text: 'Loading kitchen…' }));
+
+    frag.appendChild(el('div', { class: 'k-head is-skeleton', 'aria-hidden': 'true' }, [
+      el('div', { class: 'k-head-top' }, [
+        el('span', { class: 'skel skel-tile-lg' }),
+        el('div', { class: 'k-head-title' }, [
+          el('span', { class: 'skel skel-tag' }),
+          el('span', { class: 'skel skel-h1' }),
+          el('span', { class: 'skel skel-line short' })
+        ])
+      ]),
+      el('span', { class: 'skel skel-pill' }),
+      el('span', { class: 'skel skel-line' }),
+      el('span', { class: 'skel skel-line mid' }),
+      el('div', { class: 'k-actions' }, [
+        el('span', { class: 'skel skel-btn' }),
+        el('span', { class: 'skel skel-btn' })
+      ])
+    ]));
+
+    var menu = el('div', { class: 'k-section k-menu is-skeleton', 'aria-hidden': 'true' }, [
+      el('span', { class: 'skel skel-h2' }),
+      el('span', { class: 'skel skel-line short' })
+    ]);
+    for (var i = 0; i < 5; i++) {
+      menu.appendChild(el('div', { class: 'skel-row' }, [
+        el('span', { class: 'skel skel-day' }),
+        el('span', { class: 'skel skel-line' }),
+        el('span', { class: 'skel skel-amt' })
+      ]));
+    }
+    frag.appendChild(menu);
+
+    frag.appendChild(el('div', { class: 'k-section k-prices is-skeleton', 'aria-hidden': 'true' }, [
+      el('span', { class: 'skel skel-h2' }),
+      el('div', { class: 'skel-cells' }, [
+        el('span', { class: 'skel skel-cell' }),
+        el('span', { class: 'skel skel-cell' }),
+        el('span', { class: 'skel skel-cell' })
+      ])
+    ]));
+
+    frag.appendChild(el('div', { class: 'k-side' }, [
+      el('div', { class: 'k-section k-delivery is-skeleton', 'aria-hidden': 'true' }, [
+        el('span', { class: 'skel skel-h2' }),
+        el('div', { class: 'skel-chips' }, [
+          el('span', { class: 'skel skel-chip' }),
+          el('span', { class: 'skel skel-chip' }),
+          el('span', { class: 'skel skel-chip' })
+        ]),
+        el('span', { class: 'skel skel-line short' })
+      ])
+    ]));
+
+    return frag;
+  }
+
   function renderKitchen(slug) {
+    /* If focus was inside the view (a link, Try again, or the heading), it
+       follows the new heading through loading, data and retry instead of
+       dropping to the page. */
     var container = dom.kitchenDetail;
     if (!container) return;
+    var hadFocus = container.contains(document.activeElement);
     container.replaceChildren();
 
     /* Back to the list with the filters the form still holds (it keeps its
@@ -807,7 +948,24 @@
     container.appendChild(back);
 
     if (!state.loaded) {
-      container.appendChild(el('p', { class: 'results-status', text: 'Loading kitchen…' }));
+      container.appendChild(kitchenSkeleton());
+      container.setAttribute('aria-busy', 'true');
+      if (hadFocus) focusQuietly(document.getElementById('kitchen-heading'));
+      return;
+    }
+    container.removeAttribute('aria-busy');
+
+    if (state.error) {
+      var failed = el('div', { class: 'empty' });
+      failed.appendChild(dabbaMark(120, 56));
+      failed.appendChild(el('h1', { id: 'kitchen-heading', tabindex: '-1', text: state.offline ? 'You’re offline' : 'This kitchen didn’t load' }));
+      failed.appendChild(el('p', { text: state.offline ? 'This kitchen needs a connection to load. Reconnect and it will appear on its own, or tap Try again.' : LOAD_COPY.error.text }));
+      failed.appendChild(el('div', { class: 'page-actions' }, [
+        el('button', { type: 'button', class: 'btn btn-primary', 'data-retry': '', text: 'Try again' }),
+        el('a', { href: browseHref(), class: 'btn btn-secondary', 'data-route': '', text: 'All kitchens' })
+      ]));
+      container.appendChild(failed);
+      if (hadFocus) focusQuietly(document.getElementById('kitchen-heading'));
       return;
     }
 
@@ -816,9 +974,10 @@
       var missing = el('div', { class: 'empty' });
       missing.appendChild(dabbaMark(300, 56));
       missing.appendChild(el('h1', { text: 'Kitchen not found', id: 'kitchen-heading', tabindex: '-1' }));
-      missing.appendChild(el('p', { text: state.error ? 'We couldn’t load the kitchen list. Check your connection and try again.' : 'That listing isn’t here. It may have been removed or the link is wrong.' }));
+      missing.appendChild(el('p', { text: 'That listing isn’t here. It may have been removed or the link is wrong.' }));
       missing.appendChild(el('a', { href: browseHref(), class: 'btn btn-primary', 'data-route': '', text: 'Browse all kitchens' }));
       container.appendChild(missing);
+      if (hadFocus) focusQuietly(document.getElementById('kitchen-heading'));
       return;
     }
 
@@ -951,6 +1110,7 @@
     side.appendChild(order);
     side.appendChild(delivery);
     container.appendChild(side);
+    if (hadFocus) focusQuietly(document.getElementById('kitchen-heading'));
   }
 
   /* ---------------------------------------------------------------------
@@ -995,6 +1155,7 @@
     dom.viewBrowse.hidden = !isBrowse;
     dom.viewFollowing.hidden = !isFollowing;
     dom.viewKitchen.hidden = !isKitchen;
+    if (dom.faq) dom.faq.hidden = isKitchen;
 
     dom.tabAll.setAttribute('aria-current', isBrowse ? 'page' : 'false');
     dom.tabFollowing.setAttribute('aria-current', isFollowing ? 'page' : 'false');
@@ -1007,7 +1168,8 @@
     if (isKitchen) {
       renderKitchen(route.slug);
       var k = findKitchen(route.slug);
-      title = (k ? k.name : 'Kitchen') + ' — Tiffin Finder';
+      if (state.error) title = state.offline ? 'Offline — Tiffin Finder' : 'Kitchen — Tiffin Finder';
+      else title = (k ? k.name : 'Kitchen') + ' — Tiffin Finder';
     } else if (isFollowing) {
       renderFollowing();
       title = 'Following — Tiffin Finder';
@@ -1033,6 +1195,12 @@
   }
 
   function onPopState(event) {
+    /* An in-page link (the skip link, or the FAQ's link to the alerts box)
+       also fires popstate, with no state and a #fragment. It can't change
+       the view, so leave the page and the browser's scroll alone. Entries
+       written here either carry a state (navigate) or drop the fragment
+       (syncFiltersToURL), so they never match this test. */
+    if (event.state === null && window.location.hash) return;
     render(false);
     var y = event.state && typeof event.state.scrollY === 'number' ? event.state.scrollY : 0;
     window.scrollTo({ top: y, behavior: 'auto' });
@@ -1487,6 +1655,7 @@
     dom.countVerified = document.getElementById('count-verified');
     dom.countPending = document.getElementById('count-pending');
     dom.countPendingWrap = document.getElementById('count-pending-wrap');
+    dom.countLabel = document.getElementById('count-label');
 
     dom.filtersSection = document.getElementById('filters-section');
     dom.filters = document.getElementById('filters');
@@ -1503,6 +1672,8 @@
     dom.resultsStatus = document.getElementById('results-status');
     dom.resultsEmpty = document.getElementById('results-empty');
     dom.resultsError = document.getElementById('results-error');
+    dom.resultsErrorTitle = document.getElementById('results-error-title');
+    dom.resultsErrorText = document.getElementById('results-error-text');
 
     dom.viewFollowing = document.getElementById('view-following');
     dom.followingHeading = document.getElementById('following-heading');
@@ -1512,6 +1683,7 @@
 
     dom.viewKitchen = document.getElementById('view-kitchen');
     dom.kitchenDetail = document.getElementById('kitchen-detail');
+    dom.faq = document.getElementById('faq');
 
     dom.alertsForm = document.getElementById('alerts-form');
     dom.alertsFields = document.getElementById('alerts-fields');
@@ -1529,7 +1701,8 @@
   function updateHeroCount() {
     if (!dom.countVerified) return;
     if (!state.loaded || state.error) {
-      dom.countVerified.textContent = state.error ? '0' : '–';
+      /* Unknown, not zero: a failed load says nothing about how many kitchens there are. */
+      dom.countVerified.textContent = '–';
       if (dom.countPendingWrap) dom.countPendingWrap.hidden = true;
       return;
     }
@@ -1540,6 +1713,12 @@
       else pending += 1;
     });
     dom.countVerified.textContent = String(verified);
+    /* While the listings are samples, don't call them permit-verified. */
+    if (dom.countLabel) {
+      dom.countLabel.textContent = (state.meta && state.meta.sample_data === true)
+        ? plural(verified, 'sample kitchen', 'sample kitchens') + ' marked verified'
+        : plural(verified, 'permit-verified kitchen', 'permit-verified kitchens');
+    }
     if (dom.countPending) dom.countPending.textContent = String(pending);
     if (dom.countPendingWrap) dom.countPendingWrap.hidden = pending === 0;
   }
@@ -1561,6 +1740,13 @@
     var followBtn = target.closest('[data-follow]');
     if (followBtn) {
       toggleFollow(followBtn.getAttribute('data-follow'));
+      return;
+    }
+
+    /* "Try again" in the list's error state and in the kitchen view's. */
+    var retryBtn = target.closest('[data-retry]');
+    if (retryBtn && dom.viewBrowse) {
+      retryLoad(retryBtn);
       return;
     }
 
@@ -1612,6 +1798,38 @@
     document.addEventListener('click', onDocumentClick);
     initContactForm();
     initClearData();
+    initOfflinePage();
+  }
+
+  /* offline.html (served by the service worker when a page isn't saved and
+     there's no connection): Try again, or coming back online, reloads. The
+     page's <base> only changes relative URLs, so reload() reopens the address
+     the person actually asked for. */
+  function initOfflinePage() {
+    var btn = document.getElementById('offline-retry');
+    if (!btn) return;
+    var go = function () { window.location.reload(); };
+    btn.addEventListener('click', go);
+    window.addEventListener('online', go);
+  }
+
+  /* Household FAQ (index.html #faq). The markup ships every answer open, so
+     it reads fine without JavaScript; here it becomes an accordion. Items
+     open independently; the buttons' own Enter/Space handling is enough. */
+  function initFaq() {
+    var faq = document.getElementById('faq');
+    if (!faq) return;
+    faq.classList.add('is-enhanced');
+    Array.prototype.forEach.call(faq.querySelectorAll('.faq-q button'), function (btn) {
+      var item = btn.closest('.faq-item');
+      btn.setAttribute('aria-expanded', 'false');
+      if (item) item.classList.remove('is-open');
+      btn.addEventListener('click', function () {
+        var open = btn.getAttribute('aria-expanded') !== 'true';
+        btn.setAttribute('aria-expanded', String(open));
+        if (item) item.classList.toggle('is-open', open);
+      });
+    });
   }
 
   function initApp() {
@@ -1632,14 +1850,17 @@
     if (dom.resetFilters) dom.resetFilters.addEventListener('click', resetFilters);
     var emptyReset = document.getElementById('empty-reset');
     if (emptyReset) emptyReset.addEventListener('click', resetFilters);
-    var retry = document.getElementById('results-retry');
-    if (retry) {
-      retry.addEventListener('click', function () {
-        state.loaded = false;
-        render(false);
-        loadData().then(afterData);
-      });
-    }
+    /* Try again buttons ([data-retry]) are handled in onDocumentClick. When
+       the connection comes back after a failed load, retry on our own. */
+    window.addEventListener('online', function () {
+      if (state.error) retryLoad();
+    });
+
+    /* The tiffin illustration in each empty / error state. */
+    Array.prototype.forEach.call(document.querySelectorAll('.empty-art[data-hue]'), function (n) {
+      n.appendChild(dabbaMark(Number(n.getAttribute('data-hue')), 56));
+    });
+    initFaq();
 
     if (dom.alertsForm) {
       dom.alertsForm.addEventListener('submit', onAlertsSubmit);
@@ -1649,7 +1870,7 @@
 
     updateFollowCount();
     render(false);
-    loadData().then(afterData);
+    startLoad();
   }
 
   function afterData() {

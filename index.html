@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Tiffin Finder — permit-verified home tiffin kitchens in Calgary</title>
-  <meta name="description" content="Browse Calgary home tiffin kitchens by quadrant, cuisine and price. Every listed kitchen’s AHS Food Handling Permit has been checked. See this week’s menu and order by WhatsApp or phone.">
+  <meta name="description" content="Browse Calgary home tiffin kitchens by quadrant, cuisine and price. Every kitchen listed has its AHS Food Handling Permit checked first. See the week’s menu and order by WhatsApp or phone.">
   <link rel="canonical" href="https://tiffinfinder.ca/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Tiffin Finder">
   <meta property="og:locale" content="en_CA">
   <meta property="og:title" content="Tiffin Finder — permit-verified home tiffin kitchens in Calgary">
-  <meta property="og:description" content="Browse Calgary home tiffin kitchens by quadrant, cuisine and price. Every listed kitchen’s AHS Food Handling Permit has been checked. See this week’s menu and order by WhatsApp or phone.">
+  <meta property="og:description" content="Browse Calgary home tiffin kitchens by quadrant, cuisine and price. Every kitchen listed has its AHS Food Handling Permit checked first. See the week’s menu and order by WhatsApp or phone.">
   <meta property="og:url" content="https://tiffinfinder.ca/">
   <meta property="og:image" content="https://tiffinfinder.ca/og-image.png">
   <meta property="og:image:type" content="image/png">
@@ -19,7 +19,7 @@
   <meta property="og:image:alt" content="Tiffin Finder — Find a home tiffin kitchen in Calgary, with a stacked saffron tiffin on leaf green">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Tiffin Finder — permit-verified home tiffin kitchens in Calgary">
-  <meta name="twitter:description" content="Browse Calgary home tiffin kitchens by quadrant, cuisine and price. Every listed kitchen’s AHS Food Handling Permit has been checked. See this week’s menu and order by WhatsApp or phone.">
+  <meta name="twitter:description" content="Browse Calgary home tiffin kitchens by quadrant, cuisine and price. Every kitchen listed has its AHS Food Handling Permit checked first. See the week’s menu and order by WhatsApp or phone.">
   <meta name="twitter:image" content="https://tiffinfinder.ca/og-image.png">
   <meta name="twitter:image:alt" content="Tiffin Finder — Find a home tiffin kitchen in Calgary, with a stacked saffron tiffin on leaf green">
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#1f5c3a">
@@ -88,11 +88,11 @@
     <section class="hero" id="hero" aria-labelledby="hero-heading">
       <div class="wrap hero-inner">
         <p class="eyebrow">Calgary · home tiffin kitchens</p>
-        <h1 id="hero-heading" tabindex="-1">Home-cooked tiffins, from kitchens whose AHS permit we’ve checked.</h1>
+        <h1 id="hero-heading" tabindex="-1">Home-cooked tiffins. Every kitchen’s permit checked first.</h1>
         <p class="lede">Browse by quadrant, cuisine and price. See this week’s menu, follow a kitchen, and order by WhatsApp or phone the way you already do.</p>
         <p class="hero-count">
           <span class="num" id="count-verified">–</span>
-          <span class="hero-count-text">permit-verified kitchens<span class="long"> across Calgary and Airdrie</span><span id="count-pending-wrap" hidden> <span class="sep">·</span> <span id="count-pending">–</span> pending<span class="long"> verification</span></span></span>
+          <span class="hero-count-text"><span id="count-label">sample kitchens marked verified</span><span class="long"> across Calgary and Airdrie</span><span id="count-pending-wrap" hidden> <span class="sep">·</span> <span id="count-pending">–</span> pending<span class="long"> verification</span></span></span>
         </p>
       </div>
       <svg class="hero-art" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
@@ -187,12 +187,16 @@
       <p class="results-status" id="results-status" role="status" aria-live="polite" tabindex="-1">Loading kitchens…</p>
       <div class="grid" id="results"></div>
       <div class="empty" id="results-empty" hidden>
-        <p>No kitchens match those filters yet. Try widening the quadrant or clearing a filter.</p>
+        <span class="empty-art" data-hue="30" aria-hidden="true"></span>
+        <h3 class="empty-title">Nothing matches yet</h3>
+        <p>No kitchens match those filters. Try widening the quadrant or clearing a filter.</p>
         <button type="button" class="btn btn-secondary" id="empty-reset">Reset filters</button>
       </div>
       <div class="empty" id="results-error" hidden>
-        <p>We couldn’t load the kitchen list. Check your connection and try again.</p>
-        <button type="button" class="btn btn-secondary" id="results-retry">Try again</button>
+        <span class="empty-art" data-hue="300" aria-hidden="true"></span>
+        <h3 class="empty-title" id="results-error-title">You’re offline</h3>
+        <p id="results-error-text">Tiffin Finder needs a connection to load kitchens the first time. Reconnect and the list will load on its own, or tap Try again.</p>
+        <button type="button" class="btn btn-primary" id="results-retry" data-retry>Try again</button>
       </div>
       <noscript>
         <div class="empty">
@@ -208,6 +212,8 @@
       </div>
       <div class="grid" id="following-grid"></div>
       <div class="empty" id="following-empty" hidden>
+        <span class="empty-art" data-hue="96" aria-hidden="true"></span>
+        <h3 class="empty-title">No follows yet</h3>
         <p>You’re not following any kitchens yet. Tap <strong>Follow</strong> on a kitchen and it will show up here. Follows are saved on this device.</p>
         <a href="./" class="btn btn-secondary" data-route>Browse kitchens</a>
       </div>
@@ -215,6 +221,42 @@
 
     <section class="wrap" id="view-kitchen" hidden>
       <div class="kitchen" id="kitchen-detail"></div>
+    </section>
+
+    <section class="faq" id="faq" aria-labelledby="faq-heading">
+      <div class="wrap faq-inner">
+        <div class="faq-intro">
+          <p class="eyebrow">Good to know</p>
+          <h2 id="faq-heading">Questions households ask</h2>
+          <p class="faq-lede">Short answers about ordering, permits and what’s coming next.</p>
+        </div>
+        <div class="faq-list">
+          <div class="faq-item is-open">
+            <h3 class="faq-q"><button type="button" id="faq-q-order" aria-expanded="true" aria-controls="faq-a-order"><span>How do I order a tiffin?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
+            <div class="faq-a" id="faq-a-order" role="region" aria-labelledby="faq-q-order"><div class="faq-a-inner"><p>Straight from the kitchen. Open a kitchen and tap <strong>Order on WhatsApp</strong> or <strong>Call</strong>, then sort out the days, delivery or pickup, and payment with the cook, the way you already do. Tiffin Finder doesn’t take orders or payments and isn’t the seller of any meal.</p></div></div>
+          </div>
+          <div class="faq-item is-open">
+            <h3 class="faq-q"><button type="button" id="faq-q-permit" aria-expanded="true" aria-controls="faq-a-permit"><span>What does “Permit verified” mean?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
+            <div class="faq-a" id="faq-a-permit" role="region" aria-labelledby="faq-q-permit"><div class="faq-a-inner"><p>It means the kitchen showed us a valid AHS Food Handling Permit for the kitchen it cooks in, and the date on the badge is when we checked. It isn’t an inspection result, a grade or an endorsement by Alberta Health Services. <strong>Verification pending</strong> means we’re still checking, and ordering stays closed until we’re done. <a href="./permitted.html">How permits work</a></p></div></div>
+          </div>
+          <div class="faq-item is-open">
+            <h3 class="faq-q"><button type="button" id="faq-q-free" aria-expanded="true" aria-controls="faq-a-free"><span>Is it free?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
+            <div class="faq-a" id="faq-a-free" role="region" aria-labelledby="faq-q-free"><div class="faq-a-inner"><p>Yes. Browsing and following kitchens cost households nothing, and alerts will be free too. There’s no markup: you pay the kitchen its own price. Listing is free for kitchens as well, with no commission.</p></div></div>
+          </div>
+          <div class="faq-item is-open">
+            <h3 class="faq-q"><button type="button" id="faq-q-alerts" aria-expanded="true" aria-controls="faq-a-alerts"><span>How will menu alerts work?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
+            <div class="faq-a" id="faq-a-alerts" role="region" aria-labelledby="faq-q-alerts"><div class="faq-a-inner"><p>Follow the kitchens you like, then leave your email in <a href="#alerts">the alerts box</a>. When alerts launch, you’ll get an email when a kitchen you follow posts its menu for the week, and every message has an unsubscribe link. Until then your follows and email stay on this device only. Nothing is sent.</p></div></div>
+          </div>
+          <div class="faq-item is-open">
+            <h3 class="faq-q"><button type="button" id="faq-q-suggest" aria-expanded="true" aria-controls="faq-a-suggest"><span>Can I suggest a kitchen?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
+            <div class="faq-a" id="faq-a-suggest" role="region" aria-labelledby="faq-q-suggest"><div class="faq-a-inner"><p>Please do. Point the cook to <a href="./kitchens.html">our page for kitchens</a>, where listing is free. When our contact form is connected at launch, you’ll be able to suggest one directly. We only list a kitchen once its permit checks out, and only with the cook’s permission.</p></div></div>
+          </div>
+          <div class="faq-item is-open">
+            <h3 class="faq-q"><button type="button" id="faq-q-real" aria-expanded="true" aria-controls="faq-a-real"><span>Are these real kitchens?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
+            <div class="faq-a" id="faq-a-real" role="region" aria-labelledby="faq-q-real"><div class="faq-a-inner"><p>Not yet. Tiffin Finder is in preview, so every kitchen here is a made-up sample, marked <strong>Sample</strong>, with a 555 phone number. Real kitchens are added only after their permit is checked, and with their permission.</p></div></div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section class="alerts" id="alerts" aria-labelledby="alerts-heading">

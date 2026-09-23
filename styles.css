@@ -72,10 +72,13 @@
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-  --ease-spring: cubic-bezier(0.34, 1.45, 0.64, 1);
+  --ease-spring: cubic-bezier(0.34, 1.2, 0.64, 1);
   --dur-1: 160ms;
   --dur-2: 320ms;
-  --dur-3: 640ms;
+  --dur-3: 520ms;
+
+  /* A soft green light at the top of the page. Dark theme only. */
+  --page-glow: none;
 
   --wrap: 1120px;
   --gutter: 16px;
@@ -135,6 +138,7 @@
     --shadow-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 28px -14px rgb(0 0 0 / 0.6);
     --shadow-2: 0 2px 4px rgb(0 0 0 / 0.35), 0 24px 48px -20px rgb(0 0 0 / 0.7);
     --shadow-sheet: 0 -12px 40px -12px rgb(0 0 0 / 0.7);
+    --page-glow: radial-gradient(90% 100% at 50% 0%, rgb(127 203 162 / 0.07), transparent 70%);
   }
 }
 
@@ -190,6 +194,7 @@
   --shadow-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 28px -14px rgb(0 0 0 / 0.6);
   --shadow-2: 0 2px 4px rgb(0 0 0 / 0.35), 0 24px 48px -20px rgb(0 0 0 / 0.7);
   --shadow-sheet: 0 -12px 40px -12px rgb(0 0 0 / 0.7);
+  --page-glow: radial-gradient(90% 100% at 50% 0%, rgb(127 203 162 / 0.07), transparent 70%);
 }
 
 /* ---------- 2. Reset & base ---------------------------------------------- */
@@ -208,7 +213,7 @@ html {
 body {
   margin: 0;
   min-height: 100dvh;
-  background: var(--bg);
+  background: var(--page-glow) top center / 100% 900px no-repeat, var(--bg);
   color: var(--ink);
   font-family: var(--font-body);
   font-size: 1rem;
@@ -277,6 +282,13 @@ textarea {
 
 button {
   cursor: pointer;
+}
+
+/* No grey tap flash on phones: each of these has its own :active state. */
+a,
+button,
+label {
+  -webkit-tap-highlight-color: transparent;
 }
 
 :focus-visible {
@@ -481,7 +493,7 @@ main[tabindex="-1"]:focus {
   border-radius: 2px;
   transform: scaleX(0);
   transform-origin: right;
-  transition: transform var(--dur-2) var(--ease-out);
+  transition: transform var(--dur-2) var(--ease-out), opacity var(--dur-1) var(--ease-out);
 }
 
 .site-nav a:hover::after,
@@ -701,8 +713,12 @@ main[tabindex="-1"]:focus {
   flex: none;
 }
 
-.btn:hover {
-  transform: translateY(-2px);
+/* Lifts only where a real pointer hovers; on touch a tapped element would
+   otherwise stay lifted. The colour hovers below stay global. */
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover {
+    transform: translateY(-2px);
+  }
 }
 
 .btn:active {
@@ -881,9 +897,9 @@ main[tabindex="-1"]:focus {
 }
 
 @media (max-width: 559px) {
+  /* At phone width the ghost tiffin sat under the count pill and peeked out. */
   .hero-art {
-    width: 180px;
-    opacity: 0.12;
+    display: none;
   }
 
   .hero-count .long {
@@ -1044,9 +1060,11 @@ main[tabindex="-1"]:focus {
   transition: background var(--dur-2) var(--ease-out), color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out), transform var(--dur-2) var(--ease-spring);
 }
 
-.chip-group label:hover {
-  border-color: var(--ink-2);
-  transform: translateY(-1px);
+@media (hover: hover) and (pointer: fine) {
+  .chip-group label:hover {
+    border-color: var(--ink-2);
+    transform: translateY(-1px);
+  }
 }
 
 .chip-group label:active {
@@ -1364,11 +1382,12 @@ main[tabindex="-1"]:focus {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-1);
+  /* The inset top line is an edge light in dark mode (transparent in light). */
+  box-shadow: inset 0 1px 0 var(--inset-hi), var(--shadow-1);
   /* `backwards` (not `both`) so the finished keyframe releases `transform`
      and the hover lift below can run. */
   animation: rise var(--dur-3) var(--ease-out) backwards;
-  animation-delay: calc(min(var(--i), 8) * 55ms);
+  animation-delay: calc(min(var(--i), 6) * 40ms);
   transition: transform var(--dur-2) var(--ease-spring), box-shadow var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out);
 }
 
@@ -1377,10 +1396,12 @@ main[tabindex="-1"]:focus {
   animation: fade var(--dur-1) var(--ease-out) backwards;
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-2);
-  border-color: var(--line-strong);
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: inset 0 1px 0 var(--inset-hi), var(--shadow-2);
+    border-color: var(--line-strong);
+  }
 }
 
 .card:active {
@@ -1415,8 +1436,10 @@ main[tabindex="-1"]:focus {
   transition: transform var(--dur-2) var(--ease-spring);
 }
 
-.card:hover .dabba-tile {
-  transform: rotate(-4deg) scale(1.04);
+@media (hover: hover) and (pointer: fine) {
+  .card:hover .dabba-tile {
+    transform: rotate(-4deg) scale(1.04);
+  }
 }
 
 .dabba {
@@ -1615,7 +1638,7 @@ main[tabindex="-1"]:focus {
 }
 
 .empty {
-  padding: 36px 20px;
+  padding: 40px 24px;
   text-align: center;
   border: 1px dashed var(--line-strong);
   border-radius: var(--radius);
@@ -1625,12 +1648,31 @@ main[tabindex="-1"]:focus {
 
 .empty p {
   margin-bottom: 12px;
+  max-width: 46ch;
+  margin-inline: auto;
+}
+
+/* app.js puts a dabba illustration in each .empty-art (see .empty .dabba). */
+.empty-art {
+  display: block;
+}
+
+.empty-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.3rem;
+  margin: 0 0 6px;
+  color: var(--ink);
 }
 
 .empty .dabba {
   margin: 0 auto 12px;
   width: 56px;
   height: 56px;
+}
+
+.empty .page-actions {
+  justify-content: center;
 }
 
 /* Loading skeletons while kitchens.json is fetched. They fade in after a
@@ -1642,7 +1684,7 @@ main[tabindex="-1"]:focus {
 
 .card.skeleton:hover {
   transform: none;
-  box-shadow: var(--shadow-1);
+  box-shadow: inset 0 1px 0 var(--inset-hi), var(--shadow-1);
 }
 
 .skel {
@@ -1690,6 +1732,91 @@ main[tabindex="-1"]:focus {
   border-radius: var(--radius-pill);
 }
 
+/* Kitchen page skeleton (app.js kitchenSkeleton). It uses the real .k-head /
+   .k-section boxes, so the page grid lays it out like the loaded page. Like
+   the cards, it fades in late so a fast load never flashes it. The .kitchen
+   prefix outranks the per-section delays in section 10. */
+.kitchen .k-head.is-skeleton,
+.kitchen .k-section.is-skeleton {
+  animation: fade var(--dur-2) var(--ease-out) 180ms backwards;
+  pointer-events: none;
+}
+
+.k-section.is-skeleton {
+  display: grid;
+  gap: 12px;
+}
+
+.skel-tile-lg {
+  width: 92px;
+  height: 92px;
+  border-radius: 26px;
+}
+
+.skel-tag {
+  width: 64px;
+  height: 22px;
+  border-radius: var(--radius-pill);
+}
+
+.skel-h1 {
+  height: 34px;
+  width: min(100%, 320px);
+}
+
+.skel-h2 {
+  height: 22px;
+  width: 160px;
+}
+
+.skel-line.mid {
+  width: 72%;
+}
+
+.skel-row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 36px;
+  gap: 14px;
+  align-items: center;
+  padding-block: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.skel-row .skel-line {
+  width: auto;
+}
+
+.skel-day {
+  height: 12px;
+}
+
+.skel-amt {
+  height: 16px;
+}
+
+.skel-cells {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.skel-cell {
+  height: 76px;
+  border-radius: var(--radius-sm);
+}
+
+.skel-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.skel-chip {
+  width: 96px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+}
+
 /* ---------- 10. Kitchen detail ------------------------------------------- */
 .kitchen {
   display: grid;
@@ -1731,7 +1858,7 @@ main[tabindex="-1"]:focus {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-1);
+  box-shadow: inset 0 1px 0 var(--inset-hi), var(--shadow-1);
   animation: rise var(--dur-3) var(--ease-out) backwards;
 }
 
@@ -1775,6 +1902,12 @@ main[tabindex="-1"]:focus {
     width: 44px;
     height: 44px;
   }
+
+  .skel-tile-lg {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+  }
 }
 
 .k-head .desc {
@@ -1794,7 +1927,7 @@ main[tabindex="-1"]:focus {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-1);
+  box-shadow: inset 0 1px 0 var(--inset-hi), var(--shadow-1);
   animation: rise var(--dur-3) var(--ease-out) backwards;
 }
 
@@ -1820,7 +1953,7 @@ main[tabindex="-1"]:focus {
 
 .k-section h2 {
   font-size: 1.3rem;
-  margin: 0 0 4px;
+  margin: 0 0 12px;
 }
 
 .k-section .sub {
@@ -1828,6 +1961,26 @@ main[tabindex="-1"]:focus {
   color: var(--muted);
   font-size: 0.92rem;
   font-weight: 600;
+}
+
+/* The menu's "Week of…" line stays tucked under its heading. */
+.k-section h2 + .sub {
+  margin-top: -8px;
+}
+
+/* "How permits work": a faint saffron underline that goes solid on hover. */
+.k-permit .link {
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+
+.k-permit .link::after {
+  transform: scaleX(1);
+  opacity: 0.35;
+}
+
+.k-permit .link:hover::after {
+  opacity: 1;
 }
 
 .menu-list {
@@ -2115,12 +2268,156 @@ main[tabindex="-1"]:focus {
   .kitchen .order-bar {
     position: static;
   }
+
+  .order-bar {
+    padding: 16px 18px;
+    gap: 12px;
+  }
+
+  .order-bar h2 {
+    font-size: 1.15rem;
+  }
+}
+
+/* ---------- 9b. FAQ ------------------------------------------------------ */
+/* Questions households ask (index.html #faq). Without JavaScript every answer
+   shows; app.js adds .is-enhanced and closes them into an accordion. */
+.faq {
+  padding-block: clamp(48px, 7vw, 88px) 0;
+}
+
+.faq-inner {
+  display: grid;
+  gap: 20px;
+}
+
+.faq-intro h2 {
+  margin: 6px 0 8px;
+}
+
+.faq-lede {
+  margin: 0;
+  color: var(--muted);
+  max-width: 40ch;
+}
+
+@media (min-width: 900px) {
+  .faq-inner {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.4fr);
+    gap: 56px;
+    align-items: start;
+  }
+
+  .faq-intro {
+    position: sticky;
+    top: calc(var(--header-h) + 24px);
+  }
+}
+
+.faq-list {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: inset 0 1px 0 var(--inset-hi), var(--shadow-1);
+  overflow: hidden;
+}
+
+.faq-item + .faq-item {
+  border-top: 1px solid var(--line);
+}
+
+.faq-q {
+  margin: 0;
+  font: inherit;
+}
+
+.faq-q button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  min-height: 60px;
+  padding: 16px 20px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.35;
+  transition: background var(--dur-1) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .faq-q button:hover {
+    background: var(--surface-2);
+  }
+}
+
+.faq-q button:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -4px;
+  border-radius: calc(var(--radius) - 6px);
+}
+
+.faq-chev {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  transition: transform var(--dur-2) var(--ease-out), background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
+}
+
+.faq-item.is-open .faq-chev {
+  transform: rotate(180deg);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+/* The padding lives on the paragraph, not on .faq-a-inner, so a closed
+   answer collapses to nothing instead of keeping a 20px sliver. */
+.faq-a-inner > p {
+  margin: 0;
+  padding: 0 20px 20px;
+  max-width: calc(64ch + 40px);
+  color: var(--ink-2);
+}
+
+.faq-a a {
+  color: var(--accent-ink);
+  font-weight: 700;
+  text-underline-offset: 0.15em;
+}
+
+/* Closed answers are hidden (out of the tab order and the accessibility
+   tree) once the height has finished animating to zero. */
+.faq.is-enhanced .faq-a {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition: grid-template-rows var(--dur-2) var(--ease-out), visibility 0s linear var(--dur-2);
+}
+
+.faq.is-enhanced .faq-item.is-open .faq-a {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition: grid-template-rows var(--dur-2) var(--ease-out), visibility 0s;
+}
+
+.faq.is-enhanced .faq-a-inner {
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* ---------- 11. Alerts panel --------------------------------------------- */
 .alerts {
   --focus: var(--on-brand-accent);
-  margin-top: 40px;
+  margin-top: clamp(48px, 7vw, 88px);
   color: var(--on-brand);
   background:
     radial-gradient(70% 80% at 0% 0%, rgb(60 140 90 / 0.22), transparent 60%),
@@ -2764,7 +3061,7 @@ main[tabindex="-1"]:focus {
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(10px);
   }
 
   to {
@@ -2796,20 +3093,20 @@ main[tabindex="-1"]:focus {
 }
 
 .hero-inner > :nth-child(2) {
-  animation-delay: 70ms;
+  animation-delay: 60ms;
 }
 
 .hero-inner > :nth-child(3) {
-  animation-delay: 140ms;
+  animation-delay: 120ms;
 }
 
 .hero-inner > :nth-child(4) {
-  animation-delay: 210ms;
+  animation-delay: 180ms;
 }
 
 .filters {
   animation: rise var(--dur-3) var(--ease-out) backwards;
-  animation-delay: 200ms;
+  animation-delay: 120ms;
 }
 
 .page-hero-inner > * {
@@ -2817,11 +3114,11 @@ main[tabindex="-1"]:focus {
 }
 
 .page-hero-inner > :nth-child(2) {
-  animation-delay: 70ms;
+  animation-delay: 60ms;
 }
 
 .page-hero-inner > :nth-child(3) {
-  animation-delay: 140ms;
+  animation-delay: 120ms;
 }
 
 @media (prefers-reduced-motion: reduce) {

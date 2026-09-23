@@ -30,7 +30,11 @@ The home page (`./`) reads these from the address:
 
 ## Paths
 
-All paths are relative (no leading `/`), so the same files work at the custom domain, at a GitHub Pages project URL, or in a subfolder. The only absolute URLs are the `canonical`, `og:url`, `og:image` and `twitter:image` tags, which point at `https://tiffinfinder.ca/`. `404.html` sets a `<base>` from the address at load, so it renders correctly for mistyped addresses at any depth.
+All paths are relative (no leading `/`), so the same files work at the custom domain, at a GitHub Pages project URL, or in a subfolder. The only absolute URLs are the `canonical`, `og:url`, `og:image` and `twitter:image` tags, which point at `https://tiffinfinder.ca/`. `404.html` and `offline.html` each set their own `<base>` from the address at load, so they render correctly at any depth (a mistyped address, or any address opened offline).
+
+## Offline
+
+After the first visit, the service worker (`sw.js`) keeps the app shell on the device. Opening a page that isn't saved while there's no connection shows `offline.html` ("You're offline", with Try again). The kitchen list falls back to its last saved copy; if there is no saved copy, the page shows a "You're offline" state that retries by itself when the connection comes back. The very first visit needs a connection: until the service worker is installed, the browser shows its own offline page.
 
 ## Link previews
 

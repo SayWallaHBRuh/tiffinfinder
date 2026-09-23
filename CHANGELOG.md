@@ -8,3 +8,14 @@
 - The "page not found" screen now looks right and its links work, even for long or mistyped addresses, and it has the theme switch and Menu button like the other pages.
 - Small fixes: the kitchen list no longer redraws twice for every tap, and the Install button fits on small phones.
 - The kitchens shown are still made-up samples for testing, each marked "Sample".
+
+## Round 2 — 2026-09-23
+
+- Smoother, quicker page animations. On phones, cards no longer stay "lifted" after you tap them.
+- While a kitchen's page loads, you now see grey placeholder shapes instead of a blank space.
+- A proper "You're offline" screen when there's no connection, and the kitchen list reloads by itself when you're back online.
+- Friendlier "nothing here" screens with the tiffin illustration.
+- A short "Questions households ask" section on the home page: how ordering works, what "Permit verified" means, what it costs, how alerts will work, how to suggest a kitchen, and that the current kitchens are samples.
+- The home page headline and link previews now describe how permit checking works, instead of claiming the sample kitchens were checked. The count now says "sample kitchens".
+- Richer dark mode.
+- The kitchens shown are still made-up samples for testing, each marked "Sample".
