@@ -338,6 +338,12 @@ main {
   transform: none;
 }
 
+/* The 404 page makes <main> focusable so its skip link works under <base>;
+   it is a landing point, not a control, so it needs no ring. */
+main[tabindex="-1"]:focus {
+  outline: none;
+}
+
 .preview-bar {
   background: var(--preview-bg);
   color: var(--ink);
@@ -568,6 +574,104 @@ main {
 
   .header-inner .header-actions {
     grid-column: 3;
+  }
+}
+
+/* Phone menu: a button in the header opens the site links in a bottom sheet
+   (the .sheet component in section 13). From 720px the header nav shows, so
+   both are removed. .sheet sets display later in the file, hence the doubled
+   class on the sheet here. */
+@media (min-width: 720px) {
+  .menu-btn,
+  .sheet.nav-sheet {
+    display: none;
+  }
+}
+
+.nav-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+/* .sheet-panel h2 (section 13) sets a bottom margin; this row centres its title. */
+.sheet-panel .nav-sheet-head h2 {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.nav-sheet-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.nav-sheet-list a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--ink);
+  text-decoration: none;
+  transition: background var(--dur-1) var(--ease-out);
+}
+
+.nav-sheet-list a:hover {
+  background: var(--surface-2);
+}
+
+.nav-sheet-list a[aria-current="page"] {
+  background: var(--accent-soft);
+}
+
+.nav-chev {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  color: var(--muted);
+}
+
+.nav-sheet-list a[aria-current="page"] .nav-chev {
+  color: var(--accent-ink);
+}
+
+/* Header fit on small phones: with Install showing, the row holds three
+   44px buttons. Install becomes icon-only; its text stays the accessible name. */
+@media (max-width: 519px) {
+  #install-btn {
+    position: relative;
+    width: 44px;
+    padding: 0;
+    gap: 0;
+  }
+
+  #install-btn .btn-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 399px) {
+  .header-actions {
+    gap: 4px;
+  }
+
+  .header-inner .wordmark {
+    font-size: 1.125rem;
   }
 }
 
@@ -2621,6 +2725,9 @@ main {
 }
 
 .notfound .dabba-tile {
+  /* The tile's colour reads --hue, which cards and kitchen headers set; the
+     404 tile has neither parent, so give it the saffron default here. */
+  --hue: 30;
   margin: 0 auto 20px;
 }
 

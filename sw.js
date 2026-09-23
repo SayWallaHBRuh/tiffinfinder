@@ -2,14 +2,16 @@
    Strategy:
    - Precache the app shell under a versioned cache name (bump VERSION on deploy).
    - Navigations: cache (ignoring the query string) with a background refresh,
-     falling back to the network, then to the cached shell when offline.
+     falling back to the network. Offline with no cached copy (an unknown or
+     mistyped path), serve the cached 404.html, which sets its own <base> so
+     it renders at any depth; then the index shell as a last resort.
    - data/kitchens.json: network-first, cache fallback.
    - Everything else same-origin: cache-first, then network (and cache it).
    - Cross-origin requests (Google Fonts) are never intercepted or cached. */
 
 'use strict';
 
-var VERSION = 'tf-v1.2.2';
+var VERSION = 'tf-v1.3.0';
 var SHELL_CACHE = VERSION + '-shell';
 var DATA_CACHE = VERSION + '-data';
 
@@ -130,9 +132,11 @@ function handleNavigation(request) {
         return cached;
       }
       return network.catch(function () {
-        return cache.match('./index.html').then(function (shell) {
-          return shell || cache.match('./').then(function (rootShell) {
-            return rootShell || Response.error();
+        return cache.match('./404.html').then(function (notFound) {
+          return notFound || cache.match('./index.html').then(function (shell) {
+            return shell || cache.match('./').then(function (rootShell) {
+              return rootShell || Response.error();
+            });
           });
         });
       });

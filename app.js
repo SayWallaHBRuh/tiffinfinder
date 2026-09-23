@@ -23,7 +23,10 @@
     meta: null,
     loaded: false,
     error: false,
-    follows: new Set()
+    follows: new Set(),
+    /* A ?cuisine= value waiting for the cuisine options to exist (they are
+       built from the data, so they arrive after the first render). */
+    pendingCuisine: ''
   };
   var dom = {};
   var deferredInstallPrompt = null;
@@ -562,6 +565,7 @@
   function populateCuisines() {
     if (!dom.cuisine) return;
     var current = dom.cuisine.value;
+    var desired = state.pendingCuisine || current;
     var seen = {};
     var list = [];
     state.kitchens.forEach(function (k) {
@@ -575,7 +579,8 @@
     list.forEach(function (c) {
       dom.cuisine.appendChild(el('option', { value: c, text: c }));
     });
-    dom.cuisine.value = list.indexOf(current) !== -1 ? current : '';
+    dom.cuisine.value = list.indexOf(desired) !== -1 ? desired : '';
+    state.pendingCuisine = '';
   }
 
   function renderResults() {
@@ -620,6 +625,10 @@
   function resetFilters() {
     if (!dom.filters) return;
     dom.filters.reset();
+    state.pendingCuisine = '';
+    clearTimeout(searchTimer);
+    searchTimer = null;
+    syncFiltersToURL();
     renderResults();
     /* With a pointer, put the cursor back in search. On a phone that would
        open the keyboard and scroll the page, so land on the count instead. */
@@ -631,13 +640,139 @@
     }
   }
 
+  /* One render per change. Typing in search is debounced through 'input';
+     every other control (radio, select, checkbox) reports through 'change'.
+     Each handler ignores the other's controls, so nothing renders twice and
+     leaving the search box does not render again. */
   var searchTimer = null;
   function onFilterInput(event) {
-    if (event.target && event.target.name === 'q') {
-      clearTimeout(searchTimer);
-      searchTimer = setTimeout(renderResults, 120);
-    } else {
-      renderResults();
+    if (!event.target || event.target.name !== 'q') return;
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(onFiltersChanged, 120);
+  }
+
+  function onFilterChange(event) {
+    if (event.target && event.target.name === 'q') return;
+    onFiltersChanged();
+  }
+
+  function onFiltersChanged() {
+    /* Reads the whole form, so any search still waiting on its debounce is included. */
+    clearTimeout(searchTimer);
+    searchTimer = null;
+    syncFiltersToURL();
+    renderResults();
+  }
+
+  /* ---------------------------------------------------------------------
+     Filters in the address
+     The browse view mirrors the form as ?q=&area=&cuisine=&price=&veg=1
+     &halal=1&jain=1, so a filtered list can be reloaded, shared, or come
+     back on Back. User changes replace the current history entry (never
+     push); render() reads the address back into the form.
+  --------------------------------------------------------------------- */
+  var FILTER_KEYS = ['q', 'area', 'cuisine', 'price', 'veg', 'halal', 'jain'];
+  var DIET_KEYS = ['veg', 'halal', 'jain'];
+  var PRICE_BANDS = ['low', 'mid', 'high'];
+  var QUERY_MAX = 100;
+
+  /* The form's filters as URL parameters, in the fixed key order, defaults omitted. */
+  function filterParams() {
+    var params = new URLSearchParams();
+    var form = dom.filters;
+    if (!form) return params;
+    var q = form.elements.q ? form.elements.q.value.trim().slice(0, QUERY_MAX) : '';
+    if (q) params.append('q', q);
+    var quad = form.querySelector('input[name="quadrant"]:checked');
+    if (quad && quad.value) params.append('area', quad.value);
+    var cuisine = dom.cuisine ? dom.cuisine.value : '';
+    /* Until the data arrives the select has no cuisine options, so keep the
+       one from the address rather than letting an early keystroke drop it. */
+    if (!state.loaded && state.pendingCuisine) cuisine = state.pendingCuisine;
+    if (cuisine) params.append('cuisine', cuisine);
+    var price = form.elements.price ? form.elements.price.value : '';
+    if (PRICE_BANDS.indexOf(price) !== -1) params.append('price', price);
+    DIET_KEYS.forEach(function (key) {
+      if (form.elements[key] && form.elements[key].checked) params.append(key, '1');
+    });
+    return params;
+  }
+
+  /* Link back to the browse view with the current filters (no other params). */
+  function browseHref() {
+    var qs = filterParams().toString();
+    return './' + (qs ? '?' + qs : '');
+  }
+
+  /* The "All kitchens" tab and the menu's "Browse kitchens" link keep the filters. */
+  function updateBrowseLinks() {
+    var href = browseHref();
+    if (dom.tabAll) dom.tabAll.setAttribute('href', href);
+    if (dom.navBrowse) dom.navBrowse.setAttribute('href', href);
+  }
+
+  function syncFiltersToURL() {
+    if (parseRoute().view !== 'browse') return;
+    /* Unknown params (fbclid, utm_*) keep their place; the filter keys follow. */
+    var params = new URLSearchParams(window.location.search);
+    FILTER_KEYS.forEach(function (key) { params.delete(key); });
+    filterParams().forEach(function (value, key) { params.append(key, value); });
+    var qs = params.toString();
+    var url = new URL(window.location.href);
+    url.search = qs ? '?' + qs : '';
+    url.hash = '';
+    if (url.href !== window.location.href) {
+      try { history.replaceState(history.state, '', url.href); } catch (e) { /* ignore */ }
+    }
+    updateBrowseLinks();
+  }
+
+  function isOnValue(value) {
+    return /^(1|true|yes|on)$/i.test(value || '');
+  }
+
+  function hasOption(select, value) {
+    for (var i = 0; i < select.options.length; i++) {
+      if (select.options[i].value === value) return true;
+    }
+    return false;
+  }
+
+  /* Sets .value / .checked only (never the defaults), so form.reset() still
+     returns to the page's own defaults. */
+  function applyFiltersFromURL() {
+    var form = dom.filters;
+    if (!form) return;
+    var params = new URLSearchParams(window.location.search);
+
+    if (form.elements.q) form.elements.q.value = (params.get('q') || '').trim().slice(0, QUERY_MAX);
+
+    var area = (params.get('area') || '').toLowerCase();
+    var match = null;
+    Array.prototype.forEach.call(form.querySelectorAll('input[name="quadrant"]'), function (radio) {
+      if (area && radio.value && radio.value.toLowerCase() === area) match = radio;
+    });
+    if (!match) match = document.getElementById('quad-all');
+    if (match) match.checked = true;
+
+    if (form.elements.price) {
+      var price = (params.get('price') || '').toLowerCase();
+      form.elements.price.value = PRICE_BANDS.indexOf(price) !== -1 ? price : '';
+    }
+
+    DIET_KEYS.forEach(function (key) {
+      if (form.elements[key]) form.elements[key].checked = isOnValue(params.get(key));
+    });
+
+    if (dom.cuisine) {
+      var cuisine = params.get('cuisine') || '';
+      if (cuisine && hasOption(dom.cuisine, cuisine)) {
+        dom.cuisine.value = cuisine;
+        state.pendingCuisine = '';
+      } else {
+        dom.cuisine.value = '';
+        state.pendingCuisine = cuisine;
+      }
     }
   }
 
@@ -664,7 +799,9 @@
     if (!container) return;
     container.replaceChildren();
 
-    var back = el('a', { href: './', class: 'back-link', 'data-route': '' });
+    /* Back to the list with the filters the form still holds (it keeps its
+       state while hidden); a direct ?k= load has none, which gives './'. */
+    var back = el('a', { href: browseHref(), class: 'back-link', 'data-route': '' });
     back.appendChild(icon('back', 18));
     back.appendChild(el('span', { text: 'All kitchens' }));
     container.appendChild(back);
@@ -680,7 +817,7 @@
       missing.appendChild(dabbaMark(300, 56));
       missing.appendChild(el('h1', { text: 'Kitchen not found', id: 'kitchen-heading', tabindex: '-1' }));
       missing.appendChild(el('p', { text: state.error ? 'We couldn’t load the kitchen list. Check your connection and try again.' : 'That listing isn’t here. It may have been removed or the link is wrong.' }));
-      missing.appendChild(el('a', { href: './', class: 'btn btn-primary', 'data-route': '', text: 'Browse all kitchens' }));
+      missing.appendChild(el('a', { href: browseHref(), class: 'btn btn-primary', 'data-route': '', text: 'Browse all kitchens' }));
       container.appendChild(missing);
       return;
     }
@@ -861,6 +998,10 @@
 
     dom.tabAll.setAttribute('aria-current', isBrowse ? 'page' : 'false');
     dom.tabFollowing.setAttribute('aria-current', isFollowing ? 'page' : 'false');
+    if (dom.navBrowse) {
+      if (isBrowse) dom.navBrowse.setAttribute('aria-current', 'page');
+      else dom.navBrowse.removeAttribute('aria-current');
+    }
 
     var title = 'Tiffin Finder — permit-verified home tiffin kitchens in Calgary';
     if (isKitchen) {
@@ -871,6 +1012,14 @@
       renderFollowing();
       title = 'Following — Tiffin Finder';
     } else {
+      /* The address is the source of truth for the browse filters: first
+         load, Back from a kitchen, or a link to a filtered list. Reading it
+         never writes it; only user changes do. A search still waiting on its
+         debounce is superseded by the address being shown. */
+      clearTimeout(searchTimer);
+      searchTimer = null;
+      applyFiltersFromURL();
+      updateBrowseLinks();
       renderResults();
     }
     document.title = title;
@@ -1064,24 +1213,142 @@
     }, reduce ? 0 : 420);
   }
 
+  /* Keep Tab / Shift+Tab inside an open sheet: wrap from the last focusable
+     element to the first and back. Shared by the install and menu sheets. */
+  function trapFocus(container, event) {
+    var nodes = container.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]');
+    var focusables = Array.prototype.filter.call(nodes, function (node) {
+      return node.tabIndex >= 0 && !node.closest('[hidden]');
+    });
+    if (!focusables.length) return;
+    var first = focusables[0];
+    var last = focusables[focusables.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
   function onSheetKeydown(event) {
     if (event.key === 'Escape') {
       closeSheet();
       return;
     }
-    if (event.key === 'Tab' && dom.iosSheet) {
-      var focusables = dom.iosSheet.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-      if (!focusables.length) return;
-      var first = focusables[0];
-      var last = focusables[focusables.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
+    if (event.key === 'Tab' && dom.iosSheet) trapFocus(dom.iosSheet, event);
+  }
+
+  /* ---------------------------------------------------------------------
+     Phone menu: #menu-btn opens the site links in #nav-sheet (below 720px;
+     from 720px the header nav shows and CSS removes both)
+  --------------------------------------------------------------------- */
+  var lastFocusBeforeNav = null, navTimer = null;
+  var navOpen = false;
+
+  function prefersReducedMotion() {
+    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  function focusQuietly(node) {
+    if (!node || typeof node.focus !== 'function') return;
+    try { node.focus({ preventScroll: true }); } catch (e) { node.focus(); }
+  }
+
+  function openNav() {
+    var sheet = dom.navSheet;
+    if (!sheet || sheet.classList.contains('is-open')) return;
+    clearTimeout(navTimer);
+    navTimer = null;
+    lastFocusBeforeNav = document.activeElement;
+    navOpen = true;
+    sheet.hidden = false;
+    document.body.classList.add('sheet-open');
+    if (dom.menuBtn) dom.menuBtn.setAttribute('aria-expanded', 'true');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        /* Skip if it was closed again within these two frames. */
+        if (navOpen) sheet.classList.add('is-open');
+      });
+    });
+    var firstLink = sheet.querySelector('.nav-sheet-list a');
+    if (firstLink) {
+      setTimeout(function () {
+        if (navOpen) focusQuietly(firstLink);
+      }, 60);
     }
+    document.addEventListener('keydown', onNavKeydown);
+  }
+
+  function closeNav(restoreFocus) {
+    var sheet = dom.navSheet;
+    if (!sheet || sheet.hidden) return;
+    navOpen = false;
+    sheet.classList.remove('is-open');
+    if (dom.menuBtn) dom.menuBtn.setAttribute('aria-expanded', 'false');
+    document.removeEventListener('keydown', onNavKeydown);
+    if (!dom.iosSheet || dom.iosSheet.hidden) document.body.classList.remove('sheet-open');
+    clearTimeout(navTimer);
+    navTimer = setTimeout(function () {
+      navTimer = null;
+      sheet.hidden = true;
+      if (restoreFocus !== false) {
+        /* Back to the Menu button; if it is not on screen, to where focus was. */
+        var back = dom.menuBtn && dom.menuBtn.getClientRects().length ? dom.menuBtn : lastFocusBeforeNav;
+        focusQuietly(back);
+      }
+      lastFocusBeforeNav = null;
+    }, prefersReducedMotion() ? 0 : 420);
+  }
+
+  /* Hide at once, without the transition or moving focus: used when the page
+     comes back from the back/forward cache and when the viewport widens. */
+  function closeNavNow() {
+    var sheet = dom.navSheet;
+    if (!sheet) return;
+    var wasShown = !sheet.hidden;
+    clearTimeout(navTimer);
+    navTimer = null;
+    navOpen = false;
+    sheet.classList.remove('is-open');
+    sheet.hidden = true;
+    if (dom.menuBtn) dom.menuBtn.setAttribute('aria-expanded', 'false');
+    document.removeEventListener('keydown', onNavKeydown);
+    if (wasShown && (!dom.iosSheet || dom.iosSheet.hidden)) document.body.classList.remove('sheet-open');
+    lastFocusBeforeNav = null;
+  }
+
+  function onNavKeydown(event) {
+    if (event.key === 'Escape') {
+      closeNav(true);
+      return;
+    }
+    if (event.key === 'Tab' && dom.navSheet) trapFocus(dom.navSheet, event);
+  }
+
+  function initNav() {
+    var btn = dom.menuBtn;
+    var sheet = dom.navSheet;
+    if (!btn || !sheet) return;
+    btn.addEventListener('click', function () {
+      if (btn.getAttribute('aria-expanded') !== 'true') openNav();
+      else closeNav(true);
+    });
+    Array.prototype.forEach.call(sheet.querySelectorAll('[data-close-nav]'), function (node) {
+      node.addEventListener('click', function () { closeNav(true); });
+    });
+    if (window.matchMedia) {
+      var wide = window.matchMedia('(min-width: 720px)');
+      var onWide = function (event) {
+        if (event.matches) closeNavNow();
+      };
+      if (typeof wide.addEventListener === 'function') wide.addEventListener('change', onWide);
+      else if (typeof wide.addListener === 'function') wide.addListener(onWide);
+    }
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted) closeNavNow();
+    });
   }
 
   function initInstall() {
@@ -1211,6 +1478,9 @@
     dom.installBtn = document.getElementById('install-btn');
     dom.iosSheet = document.getElementById('ios-sheet');
     dom.toast = document.getElementById('toast');
+    dom.menuBtn = document.getElementById('menu-btn');
+    dom.navSheet = document.getElementById('nav-sheet');
+    dom.navBrowse = document.querySelector('#nav-sheet [data-nav="browse"]');
 
     dom.hero = document.getElementById('hero');
     dom.heroHeading = document.getElementById('hero-heading');
@@ -1279,6 +1549,15 @@
     var target = event.target;
     if (!(target instanceof Element)) return;
 
+    /* A plain click on a menu link closes the sheet and carries on (no return),
+       so index's data-route link still reaches navigate(), which moves focus.
+       If that link is the page already shown, navigate() only scrolls, so
+       focus goes back to the Menu button instead. */
+    var navLink = target.closest('#nav-sheet a[href]');
+    if (navLink && event.button === 0 && !(event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) {
+      closeNav(!!(dom.viewBrowse && navLink.hasAttribute('data-route') && navLink.href === window.location.href));
+    }
+
     var followBtn = target.closest('[data-follow]');
     if (followBtn) {
       toggleFollow(followBtn.getAttribute('data-follow'));
@@ -1287,6 +1566,20 @@
 
     if (target.closest('#share-btn')) {
       onShare();
+      return;
+    }
+
+    /* With a <base> (the 404 page), href="#main" would resolve to the site
+       root and leave the page; handle in-page links here instead. */
+    var hashLink = target.closest('a[href^="#"]');
+    if (hashLink && document.querySelector('base')) {
+      var id = hashLink.getAttribute('href').slice(1);
+      var hashTarget = id && document.getElementById(id);
+      if (hashTarget) {
+        event.preventDefault();
+        hashTarget.scrollIntoView();
+        try { hashTarget.focus({ preventScroll: true }); } catch (e) { hashTarget.focus(); }
+      }
       return;
     }
 
@@ -1301,6 +1594,7 @@
 
   function initCommon() {
     cacheDom();
+    initNav();
     syncThemeUI();
     initPreviewBar();
     registerServiceWorker();
@@ -1327,9 +1621,13 @@
     window.addEventListener('popstate', onPopState);
 
     if (dom.filters) {
-      dom.filters.addEventListener('submit', function (event) { event.preventDefault(); renderResults(); });
+      dom.filters.addEventListener('submit', function (event) {
+        event.preventDefault();
+        clearTimeout(searchTimer);
+        onFiltersChanged();
+      });
       dom.filters.addEventListener('input', onFilterInput);
-      dom.filters.addEventListener('change', onFilterInput);
+      dom.filters.addEventListener('change', onFilterChange);
     }
     if (dom.resetFilters) dom.resetFilters.addEventListener('click', resetFilters);
     var emptyReset = document.getElementById('empty-reset');
@@ -1356,6 +1654,14 @@
 
   function afterData() {
     populateCuisines();
+    /* A search typed while the data loaded may still be on its debounce.
+       Write it to the address now (after the cuisine options exist), so the
+       render below reads it back instead of the older address. */
+    if (searchTimer && parseRoute().view === 'browse') {
+      clearTimeout(searchTimer);
+      searchTimer = null;
+      syncFiltersToURL();
+    }
     updateHeroCount();
     updateFollowCount();
     render(false);
