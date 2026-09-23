@@ -1,6 +1,6 @@
 # Tiffin Finder
 
-Tiffin Finder is a Calgary directory of permit-verified home tiffin kitchens: households browse by quadrant, cuisine and price, open a kitchen to see this week's menu, follow it, and order by WhatsApp or phone directly with the kitchen. This is phase one: a read-only static PWA (no accounts, ordering, payments or delivery) built with plain HTML, CSS and JavaScript, and **`data/kitchens.json` is sample data** — fictional kitchens with 403-555-01xx numbers, labelled "Sample" on every card; real kitchens are added only after permit verification and with their permission.
+Tiffin Finder is a Calgary directory of permit-checked home tiffin kitchens: households browse by quadrant, cuisine and price, open a kitchen to see this week's menu, follow it, and order by WhatsApp or phone directly with the kitchen. This is phase one: a read-only static PWA (no accounts, ordering, payments or delivery) built with plain HTML, CSS and JavaScript, and **`data/kitchens.json` is sample data** — fictional kitchens with 403-555-01xx numbers, labelled "Sample" on every card; real kitchens are added only after their permit is checked and with their permission.
 
 The live site is **<https://tiffinfinder.ca>** (the `CNAME` file points GitHub Pages at it; leave that file as it is).
 
@@ -20,6 +20,20 @@ Open <http://localhost:8000/>. (The service worker registers on `localhost` and 
 3. The site is served at the custom domain in `CNAME` (<https://tiffinfinder.ca>), and also works at `https://<your-user>.github.io/tiffinfinder/`.
 4. When you change any file, bump `VERSION` in `sw.js` so installed copies pick up the new shell.
 
+## Showing or hiding the sample kitchens
+
+The made-up sample kitchens can be switched off in one place, for example when the site is about to launch. With them off, the home page shows a "Launching in NE Calgary" page (with "List your kitchen, free" and "See how it works") until real kitchens are added.
+
+1. On GitHub, open `data/kitchens.json` and click the pencil (**Edit**).
+2. Near the top, find `"show_samples": true`.
+3. Change `true` to `false`, with no quote marks.
+4. Click **Commit changes**.
+5. Within a few minutes <https://tiffinfinder.ca> shows the "Launching in NE Calgary" page instead of the samples, and installed copies pick it up the next time they're online.
+6. To look at the samples anyway, open <https://tiffinfinder.ca/?demo=1>. It shows a "Demo" banner and asks search engines not to list it.
+7. To undo, set it back to `true`.
+
+Real kitchens (those without `"sample": true`) always show, whatever the switch says. If `show_samples` is missing, the samples show.
+
 ## Addresses the app understands
 
 The home page (`./`) reads these from the address:
@@ -30,11 +44,22 @@ The home page (`./`) reads these from the address:
 - `service=pickup` shows the kitchens that offer pickup (pickup-only, and pickup & delivery); `service=delivery` shows the kitchens that deliver (delivery-only, and pickup & delivery). It is the "Pickup / Delivery" chips under the quadrants, and the value is read in any case (`service=Pickup` works). Anything else means all kitchens.
 - `near=<community>` shows the kitchens with pickup or delivery in that community, for example `./?near=saddle-ridge`: kitchens that deliver there, and kitchens whose pickup spot is there. A "Pickup or delivery in Saddle Ridge" pill above the list removes it. The community is written in lowercase letters and numbers, with apostrophes removed and any other characters, such as spaces, turned into a single hyphen ("King's Heights" becomes `kings-heights`, "McKenzie Towne" becomes `mckenzie-towne`). A community no kitchen serves is ignored. The delivery areas and the "See it on the map" button on each kitchen's page, and the "Browse by neighbourhood" section on the home page, link to it.
 - Search also matches delivery communities, pickup spots (without the "Sample location ·" prefix) and the words "pickup" and "delivery", ignoring case, apostrophes and hyphens, so `saddle-ridge` and `kings heights` both work.
+- `?demo=1` is the demo: every kitchen shows, samples included, even when `show_samples` is `false`. A "Demo" banner says the kitchens are made up, the page asks search engines not to list it (`noindex`), and the links inside the app keep `demo=1` so you stay in the demo. "Leave demo" goes back to the normal home page. `demo=true`, `yes` and `on` work too.
 - `view=map` opens the map instead of the list, for example `./?view=map&area=NE`. Filters apply to the map too, and a quadrant zooms it in. The list is the default, so it has no `view=` at all. The "List" / "Map" switch above the results updates the address in place like a filter, so the "All kitchens" tab and a kitchen's back link return to the map when it was showing. `?k=` always wins over `view=map`, and any other `view=` value (except `following`) shows the list.
 
 ## Data
 
 - `data/kitchens.json` is **sample data**: fictional kitchens with 403-555-01xx numbers, labelled "Sample" on every card.
+- `meta.show_samples` (the first key in `meta`) switches the sample kitchens (`"sample": true`) on or off; see "Showing or hiding the sample kitchens" above. Only `false` (or `0`, or the text `"false"`, `"no"`, `"off"` or `"0"`) hides them.
+- Each kitchen has a `permit` object: `{"status", "checked_on", "expires", "source_url", "method"}`.
+  - `status` is `"verified"` once the permit has been checked, or `"pending"` while it's still being checked.
+  - `checked_on` (`YYYY-MM-DD`) is the day we checked it. Older entries may have `verified_on` instead; it is used when `status` is `"verified"` and there is no `checked_on`. With no valid date, or a date in the future, the kitchen shows "Verification pending" and ordering stays closed.
+  - `expires` (`YYYY-MM-DD`) is the permit's expiry date, if known. Once that date is before today, the kitchen shows "Permit being re-checked", ordering is paused ("Ordering paused"), and it isn't counted as permit-checked. A kitchen whose expiry date is today still counts. A value that isn't a real date is treated as expired, so fix it rather than guess. With no `expires` at all, no expiry is known and the kitchen stays "Permit checked".
+  - `source_url` (optional) is a link to the public record, starting with `https://`. It shows as "See the public record" on the kitchen's page.
+  - `method` (optional, up to 120 characters) is a short note shown as "How we checked: …".
+  - The badge reads "Permit checked · <date>". The page also says "Not a food-safety inspection or endorsement." `permit_type` can stay in the data but isn't shown.
+- A sample kitchen (`"sample": true`) always shows "Sample listing" and never any permit wording, whatever its `permit` says. Its page has an "About this listing" section instead of "Permit", and its made-up order buttons stay on so the demo shows how ordering works.
+- The "Order on WhatsApp" button opens WhatsApp with a message that always starts "Hi, I found you on Tiffin Finder.", so a kitchen can tell who found it here. It is built in one place in `app.js` (`orderMessage`).
 - `data/dishes.json` is the dish glossary shown on kitchen pages: a dish name on a menu that matches one of an entry's `terms` gets a dotted underline and opens that entry's one-line description. If the file can't load, menus show as plain text.
 - `docs/research-notes.md` lists the sources for community names, quadrants and dish descriptions. Delivery communities must come from the lists named there, with each community in one quadrant only.
 - `data/map/calgary.json` and `data/map/airdrie.json` are the map shapes (Calgary communities and Airdrie neighbourhoods as ready-made SVG paths), from the City of Calgary's and City of Airdrie's open data. `docs/map-data.md` explains where they come from, their licences and how to refresh them. The map must always show the two credit lines under it ("Contains information licensed under the Open Government Licence – City of Calgary." and "Contains information licensed under the Open Data Licence – City of Airdrie."), and must not use either City's logo.

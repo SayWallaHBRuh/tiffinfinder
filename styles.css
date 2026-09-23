@@ -477,6 +477,64 @@ main[tabindex="-1"]:focus {
   color: var(--ink);
 }
 
+/* Demo notice (?demo=1): deep green with a saffron pill, so it reads as
+   part of the product, not an error. It has no dismiss; "Leave demo"
+   reloads the real home page. Text 10.8:1+ and link 8.1:1+ on --brand-3
+   in both themes; the pill uses the button's saffron + dark ink pair
+   (6.3:1 light, 8.7:1 dark). */
+.demo-bar {
+  background: var(--brand-3);
+  color: var(--on-brand);
+}
+
+.demo-bar-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  min-height: 44px;
+  padding-block: 6px;
+  font-size: 0.88rem;
+}
+
+/* The notice and "Leave demo" share one row down to phone width. */
+.demo-bar-inner p {
+  margin: 0;
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.demo-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 1px 9px;
+  margin-right: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 800;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.demo-leave {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-left: auto;
+  color: var(--on-brand-accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.demo-leave:focus-visible {
+  outline: 2px solid var(--on-brand-accent);
+  outline-offset: 2px;
+}
+
 /* ---------- 4. Header ---------------------------------------------------- */
 .site-header {
   position: sticky;
@@ -966,6 +1024,44 @@ main[tabindex="-1"]:focus {
 
 .hero-count .sep {
   color: var(--on-brand-muted);
+}
+
+/* Launch page (no kitchens to show yet): a longer headline, two buttons
+   and a note in place of the count. Buttons wrap at phone width. */
+.hero.is-launch h1 {
+  max-width: 22ch;
+  font-size: clamp(1.85rem, 1.1rem + 3.4vw, 3.2rem);
+}
+
+.hero-launch {
+  display: grid;
+  gap: 14px;
+}
+
+.hero-launch[hidden] {
+  display: none;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hero-launch-note {
+  margin: 0;
+  max-width: 54ch;
+  color: var(--on-brand-muted);
+  font-size: 0.95rem;
+}
+
+.hero .btn-ghost {
+  color: var(--on-brand);
+  border-color: var(--brand-field-line);
+}
+
+.hero .btn-ghost:hover {
+  background: var(--brand-field);
 }
 
 .hero-art {
@@ -1855,6 +1951,15 @@ main[tabindex="-1"]:focus {
 .badge-pending {
   background: var(--pending-soft);
   color: var(--pending);
+}
+
+/* "Sample listing": dashed and unfilled, the same placeholder language as
+   .tag-sample, so a made-up kitchen never looks like a checked one.
+   --ink-2 on the card surfaces is 9:1+ in light and 10:1+ in dark. */
+.badge-sample {
+  background: transparent;
+  border: 1px dashed var(--line-strong);
+  color: var(--ink-2);
 }
 
 /* "Pickup", "Delivery" or "Pickup & delivery" beside the permit badge.
@@ -4496,6 +4601,10 @@ main[tabindex="-1"]:focus {
 }
 
 .hero-inner > :nth-child(4) {
+  animation-delay: 180ms;
+}
+
+.hero-inner > :nth-child(5) {
   animation-delay: 180ms;
 }
 

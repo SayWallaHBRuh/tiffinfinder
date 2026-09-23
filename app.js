@@ -35,6 +35,10 @@
     preview: 'tf.previewDismissed'
   };
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  /* Every prefilled order message starts with this (see orderMessage), so
+     a kitchen can tell who found it here. */
+  var WA_INTRO = 'Hi, I found you on Tiffin Finder.';
+  var DEFAULT_TITLE = 'Tiffin Finder — permit-checked home tiffin kitchens in Calgary';
   var QUADRANT_LABEL = { NE: 'Northeast', NW: 'Northwest', SE: 'Southeast', SW: 'Southwest', Airdrie: 'Airdrie' };
   var SVG_NS = 'http://www.w3.org/2000/svg';
   /* What the list says when kitchens.json can't be loaded: no connection
@@ -58,6 +62,13 @@
     error: false,
     /* The failed load looked like no connection (see loadData). */
     offline: false,
+    /* ?demo=1: every kitchen shows, samples included, whatever
+       meta.show_samples says (set once in initApp). */
+    demo: false,
+    /* Slugs of sample kitchens left out because meta.show_samples is off,
+       so a kitchen page for one can say so (see renderKitchen). No
+       prototype, so a slug such as "constructor" is never "found". */
+    sampleSlugs: Object.create(null),
     follows: new Set(),
     /* A ?cuisine= value waiting for the cuisine options to exist (they are
        built from the data, so they arrive after the first render). */
@@ -391,8 +402,16 @@
     return parts.filter(Boolean).join(' · ');
   }
 
+  /* An address in the app, with demo=1 carried along in demo mode so every
+     link keeps showing the samples. Always relative ('./' or './?...'). */
+  function withDemo(params) {
+    if (state.demo) params.append('demo', '1');
+    var qs = params.toString();
+    return './' + (qs ? '?' + qs : '');
+  }
+
   function kitchenHref(slug) {
-    return './?k=' + encodeURIComponent(slug);
+    return withDemo(new URLSearchParams({ k: slug }));
   }
 
   /* A community's address form: "King's Heights" -> kings-heights,
@@ -523,6 +542,16 @@
       normalizeService(k));
   }
 
+  /* meta.show_samples: the one switch for the sample kitchens. Only an
+     explicit "off" (false, 0, or "false" / "no" / "off" / "0" as text)
+     hides them; a missing key or any other value shows them. */
+  function samplesOn(meta) {
+    var v = meta ? meta.show_samples : undefined;
+    if (v === false || v === 0) return false;
+    if (typeof v === 'string' && /^(false|no|off|0)$/i.test(v.trim())) return false;
+    return true;
+  }
+
   /* Offline with no saved copy, the service worker answers with a 503 whose
      body is {meta:{offline:true}}; without a service worker, fetch rejects
      with a TypeError. Either one is shown as "You're offline". */
@@ -540,10 +569,27 @@
       })
       .then(function (json) {
         var list = (json && Array.isArray(json.kitchens)) ? json.kitchens.filter(isValidKitchen) : [];
+        /* Samples switched off (and not the demo): take them out before
+           anything is built from the list, so search, cuisines, the
+           communities, the map, Following and every count leave them out.
+           Saved follows are left alone; they come back with the samples. */
+        state.sampleSlugs = Object.create(null);
+        if (!state.demo && !samplesOn(json && json.meta)) {
+          list = list.filter(function (k) {
+            if (k.sample !== true) return true;
+            state.sampleSlugs[k.slug] = true;
+            return false;
+          });
+        }
+        /* Permit checked first, then samples, then pending or being
+           re-checked; newest menu first within each. */
+        var rankOf = { checked: 0, sample: 1, pending: 2, rechecking: 2 };
+        var rank = new Map();
+        list.forEach(function (k) { rank.set(k, rankOf[permitInfo(k).state]); });
         list.sort(function (a, b) {
-          var av = a.permit.status === 'verified' ? 0 : 1;
-          var bv = b.permit.status === 'verified' ? 0 : 1;
-          if (av !== bv) return av - bv;
+          var ar = rank.get(a);
+          var br = rank.get(b);
+          if (ar !== br) return ar - br;
           return new Date(b.last_posted).getTime() - new Date(a.last_posted).getTime();
         });
         state.kitchens = list;
@@ -770,17 +816,92 @@
   /* ---------------------------------------------------------------------
      Shared pieces
   --------------------------------------------------------------------- */
-  function permitBadge(permit) {
-    if (permit && permit.status === 'verified' && permit.verified_on) {
-      var b = el('span', { class: 'badge badge-verified' });
-      b.appendChild(icon('shield', 15));
-      b.appendChild(el('span', { text: 'Permit verified · ' + formatDate(permit.verified_on) }));
-      return b;
+  /* 'YYYY-MM-DD' when s is one and names a real calendar day, else ''. */
+  function isoDay(s) {
+    if (typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return '';
+    var y = parseInt(s.slice(0, 4), 10);
+    var m = parseInt(s.slice(5, 7), 10);
+    var d = parseInt(s.slice(8, 10), 10);
+    var date = new Date(y, m - 1, d);
+    if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) return '';
+    return s;
+  }
+
+  /* Today on this device as 'YYYY-MM-DD'. Worked out each time it's asked
+     for, so a page left open past midnight moves on with the date. */
+  function todayISO() {
+    var now = new Date();
+    var m = now.getMonth() + 1;
+    var d = now.getDate();
+    return now.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (d < 10 ? '0' : '') + d;
+  }
+
+  /* The one place a kitchen's permit is read. state is:
+       'sample'     made up (k.sample); never any permit wording
+       'checked'    checked on a date (checked_on, or the older verified_on
+                    with status 'verified'), and not past any expiry date
+       'rechecking' its expiry date has passed, or the date can't be read
+       'pending'    still being checked, no date, or a date in the future
+     sourceUrl is an https:// public record link, or ''. method is a short
+     note on how it was checked, or ''. permit_type isn't shown. */
+  function permitInfo(k) {
+    var p = (k && k.permit && typeof k.permit === 'object') ? k.permit : {};
+    var info = { state: 'pending', checkedOn: '', sourceUrl: '', method: '' };
+    if (k && k.sample === true) {
+      info.state = 'sample';
+      return info;
     }
-    var p = el('span', { class: 'badge badge-pending' });
-    p.appendChild(icon('clock', 15));
-    p.appendChild(el('span', { text: 'Verification pending' }));
-    return p;
+    var today = todayISO();
+    var checkedOn = isoDay(p.checked_on) || (p.status === 'verified' ? isoDay(p.verified_on) : '');
+    if (p.status === 'pending' || !checkedOn || checkedOn > today) return info;
+    info.checkedOn = checkedOn;
+    if ('expires' in p) {
+      var e = isoDay(p.expires);
+      info.state = (!e || e < today) ? 'rechecking' : 'checked';
+    } else {
+      info.state = 'checked';
+    }
+    if (typeof p.source_url === 'string' && p.source_url.indexOf('https://') === 0) {
+      try {
+        if (new URL(p.source_url).protocol === 'https:') info.sourceUrl = p.source_url;
+      } catch (err) {
+        info.sourceUrl = '';
+      }
+    }
+    if (typeof p.method === 'string' && p.method.trim()) info.method = p.method.trim().slice(0, 120);
+    return info;
+  }
+
+  /* The badge for a kitchen (not its permit): "Sample listing",
+     "Permit checked · <date>", "Permit being re-checked" or
+     "Verification pending". */
+  function permitBadge(k) {
+    var info = permitInfo(k);
+    var badge;
+    if (info.state === 'sample') {
+      badge = el('span', { class: 'badge badge-sample' });
+      badge.appendChild(icon('info', 15));
+      badge.appendChild(el('span', { text: 'Sample listing' }));
+    } else if (info.state === 'checked') {
+      badge = el('span', { class: 'badge badge-verified' });
+      badge.appendChild(icon('shield', 15));
+      badge.appendChild(el('span', { text: 'Permit checked · ' + formatDate(info.checkedOn) }));
+    } else if (info.state === 'rechecking') {
+      badge = el('span', { class: 'badge badge-pending' });
+      badge.appendChild(icon('clock', 15));
+      badge.appendChild(el('span', { text: 'Permit being re-checked' }));
+    } else {
+      badge = el('span', { class: 'badge badge-pending' });
+      badge.appendChild(icon('clock', 15));
+      badge.appendChild(el('span', { text: 'Verification pending' }));
+    }
+    return badge;
+  }
+
+  /* The message WhatsApp opens with. Every prefilled message goes through
+     here, so it always starts with WA_INTRO. */
+  function orderMessage(k) {
+    return WA_INTRO + ' I’d like to order from ' + k.name + '. Is this week’s tiffin available?';
   }
 
   function sampleTag() {
@@ -811,7 +932,7 @@
       card.appendChild(peek);
     }
 
-    card.appendChild(el('div', { class: 'card-badges' }, [serviceChip(kitchen), permitBadge(kitchen.permit)]));
+    card.appendChild(el('div', { class: 'card-badges' }, [serviceChip(kitchen), permitBadge(kitchen)]));
 
     var foot = el('div', { class: 'card-foot' });
     var price = el('div', { class: 'price' });
@@ -968,6 +1089,15 @@
 
   function renderResults() {
     if (!dom.results) return;
+    /* The launch page (render() hides the list): nothing to draw, and the
+       map is never loaded, even with ?view=map. */
+    if (isLaunch()) {
+      dom.results.replaceChildren();
+      dom.results.removeAttribute('aria-busy');
+      if (dom.mapView) dom.mapView.hidden = true;
+      closeMapCardNow();
+      return;
+    }
     var status = dom.resultsStatus;
     var isMap = applyMode();
     dom.resultsEmpty.hidden = true;
@@ -1031,7 +1161,10 @@
       /* Shown again after being hidden: the next zoom jumps, not animates. */
       if (dom.mapView.hidden && !hide) mapJustShown = true;
       dom.mapView.hidden = hide;
-      if (isMap && state.map.status === 'idle') loadMap();
+      /* The map's files wait for the kitchens: if there are none to show
+         (the launch page), the map is never downloaded at all. Until
+         then the map shows its placeholder. */
+      if (isMap && state.map.status === 'idle' && state.loaded && !state.error) loadMap();
       /* The card belongs to a map on screen with its kitchens loaded. */
       if (hide || !state.loaded) closeMapCardNow();
     }
@@ -1168,10 +1301,10 @@
     return params;
   }
 
-  /* Link back to the browse view with the current filters (no other params). */
+  /* Link back to the browse view with the current filters (no other params
+     except demo=1 in demo mode). */
   function browseHref() {
-    var qs = filterParams().toString();
-    return './' + (qs ? '?' + qs : '');
+    return withDemo(filterParams());
   }
 
   /* The "All kitchens" tab and the menu's "Browse kitchens" link keep the filters. */
@@ -1186,7 +1319,12 @@
     /* Unknown params (fbclid, utm_*) keep their place; the filter keys follow. */
     var params = new URLSearchParams(window.location.search);
     FILTER_KEYS.forEach(function (key) { params.delete(key); });
+    /* demo=1 goes last, where withDemo() puts it, so a link to the list
+       being shown matches the address exactly. */
+    var demoValues = state.demo ? params.getAll('demo') : [];
+    if (state.demo) params.delete('demo');
     filterParams().forEach(function (value, key) { params.append(key, value); });
+    demoValues.forEach(function (value) { params.append('demo', value); });
     var qs = params.toString();
     var url = new URL(window.location.href);
     url.search = qs ? '?' + qs : '';
@@ -1326,7 +1464,7 @@
         var li = el('li', { hidden: collapsible && i >= HOOD_PEEK });
         var link = el('a', {
           class: 'hood-link',
-          href: './?near=' + encodeURIComponent(c.slug),
+          href: withDemo(new URLSearchParams({ near: c.slug })),
           'data-route': '',
           'data-near': c.slug
         });
@@ -2321,7 +2459,7 @@
           serviceChip(k),
           hasPickup(k) ? el('p', { class: 'map-kitchen-where' }, [icon('bag', 14), el('span', { text: pickupLine(k) })]) : null,
           hasDelivery(k) ? el('p', { class: 'map-kitchen-where' }, [icon('truck', 14), el('span', { text: deliversLine(k) })]) : null,
-          permitBadge(k.permit),
+          permitBadge(k),
           actions
         ])
       ]));
@@ -2740,15 +2878,30 @@
     if (!k) {
       var missing = el('div', { class: 'empty' });
       missing.appendChild(dabbaMark(300, 56));
-      missing.appendChild(el('h1', { text: 'Kitchen not found', id: 'kitchen-heading', tabindex: '-1' }));
-      missing.appendChild(el('p', { text: 'That listing isn’t here. It may have been removed or the link is wrong.' }));
-      missing.appendChild(el('a', { href: browseHref(), class: 'btn btn-primary', 'data-route': '', text: 'Browse all kitchens' }));
+      if (state.sampleSlugs[slug]) {
+        /* A sample kitchen hidden by meta.show_samples: point to the demo,
+           which always shows it (a plain link, so the page reloads). */
+        missing.appendChild(el('h1', { text: 'This was a sample listing', id: 'kitchen-heading', tabindex: '-1' }));
+        missing.appendChild(el('p', { text: 'Tiffin Finder is getting ready to launch, so the made-up sample kitchens only show in the demo.' }));
+        missing.appendChild(el('div', { class: 'page-actions' }, [
+          el('a', { href: './?demo=1&k=' + encodeURIComponent(slug), class: 'btn btn-primary', text: 'See it in the demo' }),
+          el('a', { href: browseHref(), class: 'btn btn-secondary', 'data-route': '', text: 'Back to Tiffin Finder' })
+        ]));
+      } else {
+        missing.appendChild(el('h1', { text: 'Kitchen not found', id: 'kitchen-heading', tabindex: '-1' }));
+        missing.appendChild(el('p', { text: 'That listing isn’t here. It may have been removed or the link is wrong.' }));
+        missing.appendChild(el('a', { href: browseHref(), class: 'btn btn-primary', 'data-route': '', text: 'Browse all kitchens' }));
+      }
       container.appendChild(missing);
       if (hadFocus) focusQuietly(document.getElementById('kitchen-heading'));
       return;
     }
 
-    var verified = k.permit.status === 'verified' && !!k.permit.verified_on;
+    /* One reading of the permit for the whole page. Ordering is open for a
+       checked kitchen and for a sample (its made-up buttons show how
+       ordering works); closed while pending or being re-checked. */
+    var info = permitInfo(k);
+    var canOrder = info.state === 'checked' || info.state === 'sample';
 
     /* Header card: tile beside [Sample tag, name, meta line] */
     var head = el('header', { class: 'k-head' });
@@ -2764,7 +2917,7 @@
     titleBlock.appendChild(el('p', { class: 'card-meta', text: metaLine(k, true) }));
     top.appendChild(titleBlock);
     head.appendChild(top);
-    head.appendChild(permitBadge(k.permit));
+    head.appendChild(permitBadge(k));
     if (k.description) head.appendChild(el('p', { class: 'desc', text: k.description }));
     var actions = el('div', { class: 'k-actions' });
     actions.appendChild(followButton(k));
@@ -2874,7 +3027,7 @@
       if (typeof baseSlug === 'string' && NEAR_RE.test(baseSlug)) {
         pickupActions.appendChild(el('a', {
           class: 'btn btn-ghost btn-small',
-          href: './?view=map&near=' + encodeURIComponent(baseSlug),
+          href: withDemo(new URLSearchParams({ view: 'map', near: baseSlug })),
           'data-route': '',
           'data-near': ''
         }, [icon('map', 16), el('span', { text: 'See it on the map' })]));
@@ -2895,7 +3048,7 @@
         var li = el('li');
         var a = el('a', {
           class: 'chip chip-link',
-          href: './?near=' + encodeURIComponent(communitySlug(area)),
+          href: withDemo(new URLSearchParams({ near: communitySlug(area) })),
           'data-route': '',
           'data-near': '',
           'aria-label': 'Kitchens with pickup or delivery in ' + area
@@ -2910,18 +3063,40 @@
       if (k.delivery.notes) delivery.appendChild(el('p', { class: 'fine', text: k.delivery.notes }));
     }
 
-    /* Permit */
-    var permit = el('section', { class: 'k-section k-permit', 'aria-labelledby': 'permit-heading' });
-    permit.appendChild(el('h2', { id: 'permit-heading', text: 'Permit' }));
-    permit.appendChild(permitBadge(k.permit));
-    if (verified) {
-      permit.appendChild(el('p', { class: 'fine', text: (k.permit.permit_type || 'Food handling permit') + ' · verified on ' + formatDate(k.permit.verified_on) + '. Verified means the kitchen showed Tiffin Finder a valid permit for the kitchen it cooks in. It is not an inspection result or an endorsement by AHS.' }));
+    /* Permit, or "About this listing" for a sample (no permit wording at
+       all: a made-up kitchen has no permit to talk about). */
+    var noOrdersLine = 'Tiffin Finder doesn’t take orders or payments. You arrange everything with the kitchen, the way you already do.';
+    var permit;
+    if (info.state === 'sample') {
+      permit = el('section', { class: 'k-section k-permit', 'aria-labelledby': 'listing-heading' });
+      permit.appendChild(el('h2', { id: 'listing-heading', text: 'About this listing' }));
+      permit.appendChild(permitBadge(k));
+      permit.appendChild(el('p', { class: 'fine', text: 'This is a sample listing, made up to show how Tiffin Finder works. It isn’t a real kitchen and its phone numbers aren’t real.' }));
+      permit.appendChild(el('p', { class: 'fine', text: noOrdersLine }));
     } else {
-      permit.appendChild(el('p', { class: 'fine', text: 'This kitchen has applied to be listed and we are still confirming its permit. Ordering opens once verification is complete.' }));
+      permit = el('section', { class: 'k-section k-permit', 'aria-labelledby': 'permit-heading' });
+      permit.appendChild(el('h2', { id: 'permit-heading', text: 'Permit' }));
+      permit.appendChild(permitBadge(k));
+      if (info.state === 'checked') {
+        var checkedLine = el('p', { class: 'fine', text: 'Permit status checked on ' + formatDate(info.checkedOn) + '.' });
+        if (info.sourceUrl) {
+          checkedLine.appendChild(document.createTextNode(' '));
+          checkedLine.appendChild(el('a', { class: 'link', href: info.sourceUrl, target: '_blank', rel: 'noopener noreferrer' }, [
+            'See the public record',
+            el('span', { class: 'visually-hidden', text: ' (opens in a new tab)' })
+          ]));
+        }
+        permit.appendChild(checkedLine);
+        permit.appendChild(el('p', { class: 'fine', text: 'Not a food-safety inspection or endorsement.' }));
+        if (info.method) permit.appendChild(el('p', { class: 'fine', text: 'How we checked: ' + info.method }));
+      } else if (info.state === 'rechecking') {
+        permit.appendChild(el('p', { class: 'fine', text: 'The permit expiry date we had on file has passed, so we’re checking it again. Ordering reopens once that’s done.' }));
+      } else {
+        permit.appendChild(el('p', { class: 'fine', text: 'This kitchen has applied to be listed and we’re still checking its permit. Ordering opens once that’s done.' }));
+      }
+      permit.appendChild(el('p', { class: 'fine', text: noOrdersLine }));
+      permit.appendChild(el('a', { href: './permitted.html', class: 'link', text: 'How permits work' }));
     }
-    permit.appendChild(el('p', { class: 'fine', text: 'Tiffin Finder doesn’t take orders or payments. You arrange everything with the kitchen, the way you already do.' }));
-    var permitLink = el('a', { href: './permitted.html', class: 'link', text: 'How permits work' });
-    permit.appendChild(permitLink);
     container.appendChild(permit);
 
     /* Side rail: order bar, then pickup and delivery (whichever the kitchen
@@ -2929,15 +3104,15 @@
        (display: contents) so the order bar sticks to the bottom of the
        screen on its own, and pickup and delivery flow before the permit. */
     var side = el('div', { class: 'k-side' });
-    var order = el('aside', { class: 'order-bar' + (verified ? '' : ' is-pending'), 'aria-labelledby': 'order-heading' });
-    order.appendChild(el('h2', { id: 'order-heading', text: verified ? 'Order directly with the kitchen' : 'Ordering not open yet' }));
-    if (verified) {
+    var rechecking = info.state === 'rechecking';
+    var order = el('aside', { class: 'order-bar' + (canOrder ? '' : ' is-pending'), 'aria-labelledby': 'order-heading' });
+    order.appendChild(el('h2', { id: 'order-heading', text: canOrder ? 'Order directly with the kitchen' : (rechecking ? 'Ordering paused' : 'Ordering not open yet') }));
+    if (canOrder) {
       var orderActions = el('div', { class: 'order-actions' });
-      var msg = 'Hi ' + k.name + ', I saw your menu on Tiffin Finder and I’d like to order. Is this week’s tiffin available?';
       var waNumber = String(k.contact.whatsapp || '').replace(/\D/g, '');
       if (waNumber) {
         var wa = el('a', {
-          href: 'https://wa.me/' + waNumber + '?text=' + encodeURIComponent(msg),
+          href: 'https://wa.me/' + waNumber + '?text=' + encodeURIComponent(orderMessage(k)),
           class: 'btn btn-whatsapp',
           target: '_blank',
           rel: 'noopener noreferrer'
@@ -2959,7 +3134,11 @@
     } else {
       var notice = el('div', { class: 'notice' });
       notice.appendChild(icon('clock', 18));
-      notice.appendChild(el('p', { text: 'We’re still verifying this kitchen’s permit. Follow it to be told when it’s listed for ordering.' }));
+      notice.appendChild(el('p', {
+        text: rechecking
+          ? 'We’re re-checking this kitchen’s permit. Follow it to be told when ordering reopens.'
+          : 'We’re still checking this kitchen’s permit. Follow it to be told when it’s listed for ordering.'
+      }));
       order.appendChild(notice);
     }
     side.appendChild(order);
@@ -3029,15 +3208,19 @@
     var isBrowse = route.view === 'browse';
     var isFollowing = route.view === 'following';
     var isKitchen = route.view === 'kitchen';
+    /* The launch page replaces the list: no filters, tabs, results or
+       neighbourhoods. The FAQ and the alerts band stay. */
+    var launch = isBrowse && isLaunch();
 
     dom.hero.hidden = isKitchen;
-    dom.filtersSection.hidden = !isBrowse;
-    dom.viewTabs.hidden = isKitchen;
-    dom.viewBrowse.hidden = !isBrowse;
+    dom.filtersSection.hidden = !isBrowse || launch;
+    dom.viewTabs.hidden = isKitchen || launch;
+    dom.viewBrowse.hidden = !isBrowse || launch;
     dom.viewFollowing.hidden = !isFollowing;
     dom.viewKitchen.hidden = !isKitchen;
     if (dom.faq) dom.faq.hidden = isKitchen;
-    if (dom.hoods) dom.hoods.hidden = !isBrowse || !state.loaded || state.error || !(dom.hoodsGrid && dom.hoodsGrid.firstChild);
+    if (dom.hoods) dom.hoods.hidden = !isBrowse || launch || !state.loaded || state.error || !(dom.hoodsGrid && dom.hoodsGrid.firstChild);
+    applyHeroMode(launch);
 
     dom.tabAll.setAttribute('aria-current', isBrowse ? 'page' : 'false');
     dom.tabFollowing.setAttribute('aria-current', isFollowing ? 'page' : 'false');
@@ -3053,12 +3236,14 @@
       mapJustShown = true;
     }
 
-    var title = 'Tiffin Finder — permit-verified home tiffin kitchens in Calgary';
+    var title = DEFAULT_TITLE;
     if (isKitchen) {
       renderKitchen(route.slug);
       var k = findKitchen(route.slug);
       if (state.error) title = state.offline ? 'Offline — Tiffin Finder' : 'Kitchen — Tiffin Finder';
-      else title = (k ? k.name : 'Kitchen') + ' — Tiffin Finder';
+      else if (k) title = k.name + ' — Tiffin Finder';
+      else if (state.loaded && state.sampleSlugs[route.slug]) title = 'Sample listing — Tiffin Finder';
+      else title = 'Kitchen — Tiffin Finder';
     } else if (isFollowing) {
       renderFollowing();
       title = 'Following — Tiffin Finder';
@@ -3073,7 +3258,7 @@
       updateBrowseLinks();
       renderResults();
     }
-    document.title = title;
+    document.title = (state.demo ? 'Demo · ' : '') + title;
 
     if (moveFocus) {
       var focusTarget = isKitchen ? document.getElementById('kitchen-heading') : (isFollowing ? dom.followingHeading : dom.heroHeading);
@@ -3544,6 +3729,18 @@
 
     dom.hero = document.getElementById('hero');
     dom.heroHeading = document.getElementById('hero-heading');
+    dom.heroEyebrow = document.getElementById('hero-eyebrow');
+    dom.heroLede = document.getElementById('hero-lede');
+    dom.heroCount = dom.hero ? dom.hero.querySelector('.hero-count') : null;
+    dom.heroLaunch = document.getElementById('hero-launch');
+    dom.demoBar = document.getElementById('demo-bar');
+    /* The hero's own words, put back when the launch page gives way to
+       listings (see applyHeroMode). */
+    heroCopy = {
+      eyebrow: dom.heroEyebrow ? dom.heroEyebrow.textContent : '',
+      heading: dom.heroHeading ? dom.heroHeading.textContent : '',
+      lede: dom.heroLede ? dom.heroLede.textContent : ''
+    };
     dom.countVerified = document.getElementById('count-verified');
     dom.countPending = document.getElementById('count-pending');
     dom.countPendingWrap = document.getElementById('count-pending-wrap');
@@ -3614,6 +3811,35 @@
     dom.alertsStatus = document.getElementById('alerts-status');
   }
 
+  /* ---------------------------------------------------------------------
+     Launch page: the data loaded and there are no kitchens to show (the
+     samples are switched off and no real kitchen is listed yet, or the
+     file has none). The home page becomes a "coming soon" page.
+  --------------------------------------------------------------------- */
+  var heroCopy = { eyebrow: '', heading: '', lede: '' };
+  var LAUNCH_COPY = {
+    eyebrow: 'Coming soon · Northeast Calgary',
+    heading: 'Launching in NE Calgary: every permit-checked tiffin option in one place',
+    lede: 'We’re checking kitchens’ permits and adding them now.'
+  };
+
+  function isLaunch() {
+    return state.loaded && !state.error && state.kitchens.length === 0;
+  }
+
+  /* Swap the hero between its launch words (plus the two buttons) and its
+     own words (plus the count). textContent only. */
+  function applyHeroMode(launch) {
+    if (!dom.hero) return;
+    var copy = launch ? LAUNCH_COPY : heroCopy;
+    if (dom.heroEyebrow && dom.heroEyebrow.textContent !== copy.eyebrow) dom.heroEyebrow.textContent = copy.eyebrow;
+    if (dom.heroHeading && dom.heroHeading.textContent !== copy.heading) dom.heroHeading.textContent = copy.heading;
+    if (dom.heroLede && dom.heroLede.textContent !== copy.lede) dom.heroLede.textContent = copy.lede;
+    if (dom.heroCount) dom.heroCount.hidden = launch;
+    if (dom.heroLaunch) dom.heroLaunch.hidden = !launch;
+    dom.hero.classList.toggle('is-launch', launch);
+  }
+
   function updateHeroCount() {
     if (!dom.countVerified) return;
     if (!state.loaded || state.error) {
@@ -3622,21 +3848,33 @@
       if (dom.countPendingWrap) dom.countPendingWrap.hidden = true;
       return;
     }
-    var verified = 0;
-    var pending = 0;
+    /* Only kitchens checked and in date count as permit-checked; one whose
+       expiry has passed waits with the pending ones. Samples are counted
+       as samples, and only when there's nothing checked to show. */
+    var checked = 0;
+    var waiting = 0;
+    var samples = 0;
     state.kitchens.forEach(function (k) {
-      if (k.permit.status === 'verified') verified += 1;
-      else pending += 1;
+      var s = permitInfo(k).state;
+      if (s === 'checked') checked += 1;
+      else if (s === 'sample') samples += 1;
+      else waiting += 1;
     });
-    dom.countVerified.textContent = String(verified);
-    /* While the listings are samples, don't call them permit-verified. */
-    if (dom.countLabel) {
-      dom.countLabel.textContent = (state.meta && state.meta.sample_data === true)
-        ? plural(verified, 'sample kitchen', 'sample kitchens') + ' marked verified'
-        : plural(verified, 'permit-verified kitchen', 'permit-verified kitchens');
+    var num = '0';
+    var label = 'kitchens';
+    var showWaiting = false;
+    if (checked > 0) {
+      num = String(checked);
+      label = plural(checked, 'permit-checked kitchen', 'permit-checked kitchens');
+      showWaiting = waiting > 0;
+    } else if (samples > 0) {
+      num = String(samples);
+      label = plural(samples, 'sample kitchen', 'sample kitchens');
     }
-    if (dom.countPending) dom.countPending.textContent = String(pending);
-    if (dom.countPendingWrap) dom.countPendingWrap.hidden = pending === 0;
+    dom.countVerified.textContent = num;
+    if (dom.countLabel) dom.countLabel.textContent = label;
+    if (dom.countPending) dom.countPending.textContent = String(waiting);
+    if (dom.countPendingWrap) dom.countPendingWrap.hidden = !showWaiting;
   }
 
   function onDocumentClick(event) {
@@ -3764,8 +4002,39 @@
     });
   }
 
+  /* Demo mode (?demo=1 on the home page): every kitchen shows, samples
+     included, whatever meta.show_samples says. The banner says so, search
+     engines are asked not to list the page, and the in-app links carry
+     demo=1 so the samples stay on screen while browsing. */
+  function initDemo() {
+    try {
+      state.demo = isOnValue(new URLSearchParams(window.location.search).get('demo'));
+    } catch (e) {
+      state.demo = false;
+    }
+    if (!state.demo) return;
+    if (dom.demoBar) dom.demoBar.hidden = false;
+    var robots = document.createElement('meta');
+    robots.setAttribute('name', 'robots');
+    robots.setAttribute('content', 'noindex');
+    document.head.appendChild(robots);
+    /* The page's own links back into the app (brand, tabs, "Browse
+       kitchens"): add demo=1 once, keeping them relative. Links built
+       later go through withDemo(). */
+    Array.prototype.forEach.call(document.querySelectorAll('a[data-route]'), function (link) {
+      var href = link.getAttribute('href') || '';
+      if (href !== './' && href.indexOf('./?') !== 0) return;
+      var url = new URL(href, window.location.href);
+      if (url.searchParams.has('demo')) return;
+      url.searchParams.append('demo', '1');
+      link.setAttribute('href', './?' + url.searchParams.toString());
+    });
+  }
+
   function initApp() {
     if (!dom.viewBrowse) return;
+
+    initDemo();
 
     try { history.scrollRestoration = 'manual'; } catch (e) { /* ignore */ }
     window.addEventListener('popstate', onPopState);
