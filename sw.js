@@ -1,13 +1,21 @@
 /* Tiffin Finder — service worker
    Strategy:
    - Precache the app shell under a versioned cache name (bump VERSION on deploy).
-   - Navigations: cache (ignoring the query string) with a background refresh,
-     falling back to the network. If the page isn't cached and the network
-     request fails (no connection), serve the cached offline.html, which sets
-     its own <base> so it renders at any depth; then 404.html, then the index
-     shell as a last resort. A failed fetch means no connection, not a missing
-     page: real 404s arrive as responses (GitHub Pages serves 404.html) and
-     are passed through unchanged.
+   - Navigations (pages): network-first, with a 3-second timeout
+     (NAV_TIMEOUT_MS), so an online visitor always gets the latest page.
+     - A good response is saved under the query-less key (the address with
+       no ?query or #hash), replacing the older copy.
+     - A failed fetch (no connection), a timeout or a 5xx server error uses
+       the saved copy of that page instead.
+     - With nothing saved: a timeout keeps waiting for the network (slow,
+       but maybe online), and a failure goes to offline.html (which sets its
+       own <base> so it renders at any depth), then 404.html, then the index
+       shell as a last resort. A 5xx with nothing saved is passed through.
+     - Redirected responses are never saved.
+     - Other answers (2xx, 3xx, 4xx) are passed through unchanged: a failed
+       fetch means no connection, not a missing page, and real 404s arrive
+       as responses (GitHub Pages serves 404.html).
+     - A late answer after the timeout still refreshes the saved copy.
    - data/kitchens.json and data/dishes.json: network-first, falling back to
      the last saved copy. Offline with nothing saved, answer 503 with
      {meta:{offline:true}} plus an empty list (kitchens: [] or dishes: []),
@@ -16,12 +24,17 @@
      network-first, with the same offline fallback ({meta:{offline:true}}
      plus communities: []). They are not precached: the page asks for them
      only when someone first opens the map, and they are saved from then on.
-   - Everything else same-origin: cache-first, then network (and cache it).
-   - Cross-origin requests (Google Fonts) are never intercepted or cached. */
+   - Everything else same-origin (styles, the script, icons): cache-first,
+     then network (and cache it). Bump VERSION so they refresh.
+   - Cross-origin requests (Google Fonts, wa.me, etc.) are never intercepted
+     or cached. */
 
 'use strict';
 
-var VERSION = 'tf-v1.10.0';
+var VERSION = 'tf-v1.11.0';
+/* How long a page request waits for the network before the saved copy is
+   used instead (see handleNavigation). */
+var NAV_TIMEOUT_MS = 3000;
 var SHELL_CACHE = VERSION + '-shell';
 var DATA_CACHE = VERSION + '-data';
 
@@ -104,7 +117,7 @@ self.addEventListener('fetch', function (event) {
   }
 
   if (request.mode === 'navigate') {
-    event.respondWith(handleNavigation(request));
+    event.respondWith(handleNavigation(event));
     return;
   }
 
@@ -139,33 +152,54 @@ function networkFirst(request, fallbackBody) {
   });
 }
 
-function handleNavigation(request) {
+function noop() {}
+
+/* Pages: network-first (see the header). fetch() starts before any cache
+   lookup, so an online visitor never waits on, or sees, an older copy. */
+function handleNavigation(event) {
+  var request = event.request;
+  var key = stripSearch(request);
+  var network = fetch(request).then(function (response) {
+    if (isCacheable(response) && !response.redirected) {
+      /* Clone now, before the page starts reading the body. */
+      var copy = response.clone();
+      event.waitUntil(caches.open(SHELL_CACHE).then(function (c) { return c.put(key, copy); }).catch(noop));
+    }
+    return response;
+  });
+  /* A late answer (after the timeout) still refreshes the saved copy. */
+  event.waitUntil(network.then(noop, noop));
+  var timeout = new Promise(function (resolve) { setTimeout(resolve, NAV_TIMEOUT_MS, 'timeout'); });
+  return Promise.race([network.catch(function () { return 'failed'; }), timeout]).then(function (winner) {
+    /* 2xx, 3xx and 4xx are passed through unchanged (real 404s included). */
+    if (winner instanceof Response && winner.status < 500) return winner;
+    return caches.open(SHELL_CACHE).then(function (c) { return c.match(key); }).then(function (cached) {
+      /* Failed, timed out, or a 5xx: the saved page. */
+      if (cached) return cached;
+      /* A 5xx with nothing saved: pass it through. */
+      if (winner instanceof Response) return winner;
+      /* Slow but maybe online: keep waiting for the network. */
+      if (winner === 'timeout') return network.catch(offlineFallback);
+      return offlineFallback();
+    });
+  });
+}
+
+/* No saved copy and no connection: offline.html, then 404.html, then the
+   index shell, then the root shell. */
+function offlineFallback() {
   return caches.open(SHELL_CACHE).then(function (cache) {
-    var key = stripSearch(request);
-    return cache.match(key).then(function (cached) {
-      var network = fetch(request).then(function (response) {
-        if (isCacheable(response)) cache.put(key, response.clone());
-        return response;
-      });
-      if (cached) {
-        /* Serve the cached shell now; refresh it quietly for next time. */
-        network.catch(function () { /* offline — keep the cached copy */ });
-        return cached;
-      }
-      /* No cached copy and no connection: offline.html, then 404.html,
-         then the index shell. */
-      return network.catch(function () {
-        return cache.match('./offline.html').then(function (offline) {
-          return offline || cache.match('./404.html').then(function (notFound) {
-            return notFound || cache.match('./index.html').then(function (shell) {
-              return shell || cache.match('./').then(function (rootShell) {
-                return rootShell || Response.error();
-              });
-            });
+    return cache.match('./offline.html').then(function (offline) {
+      return offline || cache.match('./404.html').then(function (notFound) {
+        return notFound || cache.match('./index.html').then(function (shell) {
+          return shell || cache.match('./').then(function (rootShell) {
+            return rootShell || Response.error();
           });
         });
       });
     });
+  }).catch(function () {
+    return Response.error();
   });
 }
 

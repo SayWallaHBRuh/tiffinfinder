@@ -84,3 +84,12 @@
 - Map previews now show the "Trial week" price and whether a kitchen is taking new customers, has a waitlist or is full, like the kitchen cards.
 - Every page now tells browsers to load only Tiffin Finder's own files and Google Fonts, and to share less of your browsing with other sites. Nothing looks different.
 - The kitchens are still made-up samples for testing, each marked "Sample".
+
+## Round 9 — 2026-09-23
+
+- Pages now load fresh: when you're online you always get the latest version of a page. The saved copy is used only if the connection fails or is very slow, so a returning visitor no longer sees an out-of-date page.
+- Every kitchen's page has a Share button. On phones it opens your phone's share menu. Elsewhere it offers "Share on WhatsApp" and "Copy link", and says "Link copied" when it's done. Sample kitchens are shared as "Sample kitchen on Tiffin Finder (made up for testing)".
+- Each kitchen can have its own link that shows only its page: no other kitchens, filters or map, just a small "Listed on Tiffin Finder" line at the bottom. The For kitchens page explains it under "Copy your own link", with an example.
+- A quiet "Report a problem with this listing" link is built and ready. It will open an email in your own email app with the kitchen's name filled in. It stays hidden until a public contact address is confirmed.
+- The privacy page now explains the order panel, sharing, reporting, what's saved on your device and which outside services (GitHub Pages and Google Fonts) may handle requests outside Canada. It says a contact address for privacy questions will be added before launch. The terms cover the order panel, sharing, kitchens' own links and reports. Both are still drafts for a lawyer to review.
+- The kitchens are still made-up samples for testing, each marked "Sample".

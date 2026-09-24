@@ -39,6 +39,12 @@
   /* Every prefilled order message starts with this (see orderMessage), so
      a kitchen can tell who found it here. */
   var WA_INTRO = 'Hi, I found you on Tiffin Finder.';
+  /* Where "Report a problem with this listing" addresses its email (see
+     reportHref). EMPTY until the owner confirms a public contact address:
+     while it is empty the report link is not shown at all. When an address
+     is confirmed, set it here AND add it to privacy.html (#contact) and
+     terms.html (section 5). */
+  var REPORT_EMAIL = '';
   var DEFAULT_TITLE = 'Tiffin Finder — permit-checked home tiffin kitchens in Calgary';
   var QUADRANT_LABEL = { NE: 'Northeast', NW: 'Northwest', SE: 'Southeast', SW: 'Southwest', Airdrie: 'Airdrie' };
   var SVG_NS = 'http://www.w3.org/2000/svg';
@@ -66,6 +72,10 @@
     /* ?demo=1: every kitchen shows, samples included, whatever
        meta.show_samples says (set once in initApp). */
     demo: false,
+    /* ?k=<slug>&solo=1: a kitchen's own link, showing only that kitchen
+       (set once in initSolo, from SOLO_AT_LOAD; never changes without a
+       reload). */
+    solo: false,
     /* Slugs of sample kitchens left out because meta.show_samples is off,
        so a kitchen page for one can say so (see renderKitchen). No
        prototype, so a slug such as "constructor" is never "found". */
@@ -208,6 +218,21 @@
      first. Without JavaScript none of those rules apply. */
   root.classList.add('js');
 
+  /* A kitchen's own link (?k=<slug>&solo=1; "true", "yes" and "on" work
+     too): .is-solo goes on <html> now, before first paint, so styles.css
+     hides the directory (hero, filters, lists, FAQ, alerts, site links)
+     before it can flash. ?solo=1 without k is ignored. isOnValue is a
+     function declaration, so it can be called this early. */
+  var SOLO_AT_LOAD = (function () {
+    try {
+      var p = new URLSearchParams(window.location.search);
+      return !!p.get('k') && isOnValue(p.get('solo'));
+    } catch (e) {
+      return false;
+    }
+  })();
+  if (SOLO_AT_LOAD) root.classList.add('is-solo');
+
   if (window.matchMedia) {
     var mq = window.matchMedia('(prefers-color-scheme: dark)');
     var onSchemeChange = function () {
@@ -282,7 +307,8 @@
       map: ['M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z', 'M9 4v14', 'M15 6v14'],
       close: ['M6 6l12 12', 'M18 6L6 18'],
       bag: ['M5 8h14l-1.2 12.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z', 'M9 8V6.5a3 3 0 0 1 6 0V8'],
-      truck: ['M3 6h11v10H3z', 'M14 10h4l3 3.5V16h-7', 'M7.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z', 'M17.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z']
+      truck: ['M3 6h11v10H3z', 'M14 10h4l3 3.5V16h-7', 'M7.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z', 'M17.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z'],
+      copy: ['M8 8h11a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1z', 'M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3']
     };
     (paths[name] || []).forEach(function (d) { svg.appendChild(svgEl('path', { d: d })); });
     return svg;
@@ -1075,6 +1101,67 @@
     var note = cleanNote(choice.note);
     if (note) text += ' ' + note;
     return text;
+  }
+
+  /* ---------------------------------------------------------------------
+     Sharing and reporting
+     A share goes to a friend, not to the kitchen, so it never goes through
+     orderMessage() and never starts with WA_INTRO: wa.me/<digits> links
+     (to a kitchen) carry orderMessage(), wa.me/?text= links (no number,
+     to anyone) carry shareText(). Nothing here is fetched or sent.
+  --------------------------------------------------------------------- */
+  /* A name or slug as plain text on one line: control and text-direction
+     characters and lone surrogates gone, spaces collapsed. */
+  function plainName(s) {
+    return String(s || '')
+      .replace(NOTE_STRIP_RE, ' ')
+      .replace(SURROGATE_RE, function (m) { return m.length === 2 ? m : ''; })
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  /* The absolute address of a kitchen's page: ?k=<slug>, plus solo=1 on a
+     kitchen's own link and demo=1 in the demo. Never the filters, view or
+     near. */
+  function shareUrl(k) {
+    var p = new URLSearchParams({ k: k.slug });
+    if (state.solo) p.append('solo', '1');
+    return new URL(withDemo(p), window.location.href).href;
+  }
+
+  /* "<Kitchen name> on Tiffin Finder", or the sample wording. */
+  function shareLead(k) {
+    return k.sample ? 'Sample kitchen on Tiffin Finder (made up for testing)' : plainName(k.name) + ' on Tiffin Finder';
+  }
+
+  /* "<Kitchen name> on Tiffin Finder: <url>" (WhatsApp fallback). The
+     phone's own share menu gets shareLead() and the url separately, since
+     share targets add the url themselves. */
+  function shareText(k, url) {
+    return shareLead(k) + ': ' + url;
+  }
+
+  /* "Report a problem with this listing": a mailto: link that opens the
+     household's own email app with the subject and a short template
+     filled in. Nothing is sent until they send it. */
+  function reportHref(k) {
+    var subject = 'Problem with listing: ' + plainName(k.name) + ' (' + plainName(k.slug) + ')';
+    var body = [
+      "What's wrong? (delete the ones that don't apply)",
+      '- Closed or no longer taking orders',
+      '- Permit',
+      '- Wrong information',
+      '- Food safety concern',
+      '- Other',
+      '',
+      'Details (optional):',
+      '',
+      '',
+      'Listing: ' + shareUrl(k),
+      '',
+      'For an urgent food safety concern, please also call AHS Environmental Public Health at 1-833-476-4743.'
+    ].join('\r\n');
+    return 'mailto:' + REPORT_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
   }
 
   /* WhatsApp wants the number as digits only, 10 to 15 of them. */
@@ -3062,15 +3149,22 @@
     /* The page is rebuilt (a data load or reload), so the order sheet,
        which belongs to the old page, goes at once. */
     closeOrderSheetNow();
+    /* The share panel belongs to the old page too: it resets closed, and
+       its Escape listener goes with it. */
+    closeSharePanel(false);
     var hadFocus = container.contains(document.activeElement);
     container.replaceChildren();
+    var solo = state.solo;
 
     /* Back to the list with the filters the form still holds (it keeps its
-       state while hidden); a direct ?k= load has none, which gives './'. */
-    var back = el('a', { href: browseHref(), class: 'back-link', 'data-route': '' });
-    back.appendChild(icon('back', 18));
-    back.appendChild(el('span', { text: 'All kitchens' }));
-    container.appendChild(back);
+       state while hidden); a direct ?k= load has none, which gives './'.
+       A kitchen's own link (solo) has no way into the directory. */
+    if (!solo) {
+      var back = el('a', { href: browseHref(), class: 'back-link', 'data-route': '' });
+      back.appendChild(icon('back', 18));
+      back.appendChild(el('span', { text: 'All kitchens' }));
+      container.appendChild(back);
+    }
 
     if (!state.loaded) {
       container.appendChild(kitchenSkeleton());
@@ -3087,7 +3181,7 @@
       failed.appendChild(el('p', { text: state.offline ? 'This kitchen needs a connection to load. Reconnect and it will appear on its own, or tap Try again.' : LOAD_COPY.error.text }));
       failed.appendChild(el('div', { class: 'page-actions' }, [
         el('button', { type: 'button', class: 'btn btn-primary', 'data-retry': '', text: 'Try again' }),
-        el('a', { href: browseHref(), class: 'btn btn-secondary', 'data-route': '', text: 'All kitchens' })
+        solo ? null : el('a', { href: browseHref(), class: 'btn btn-secondary', 'data-route': '', text: 'All kitchens' })
       ]));
       container.appendChild(failed);
       if (hadFocus) focusQuietly(document.getElementById('kitchen-heading'));
@@ -3103,14 +3197,19 @@
            which always shows it (a plain link, so the page reloads). */
         missing.appendChild(el('h1', { text: 'This was a sample listing', id: 'kitchen-heading', tabindex: '-1' }));
         missing.appendChild(el('p', { text: 'Tiffin Finder is getting ready to launch, so the made-up sample kitchens only show in the demo.' }));
+        /* On a kitchen's own link, the demo stays on that kitchen's own
+           page, and there is no way into the directory. */
+        var demoHref = solo
+          ? './?k=' + encodeURIComponent(slug) + '&solo=1&demo=1'
+          : './?demo=1&k=' + encodeURIComponent(slug);
         missing.appendChild(el('div', { class: 'page-actions' }, [
-          el('a', { href: './?demo=1&k=' + encodeURIComponent(slug), class: 'btn btn-primary', text: 'See it in the demo' }),
-          el('a', { href: browseHref(), class: 'btn btn-secondary', 'data-route': '', text: 'Back to Tiffin Finder' })
+          el('a', { href: demoHref, class: 'btn btn-primary', text: 'See it in the demo' }),
+          solo ? null : el('a', { href: browseHref(), class: 'btn btn-secondary', 'data-route': '', text: 'Back to Tiffin Finder' })
         ]));
       } else {
         missing.appendChild(el('h1', { text: 'Kitchen not found', id: 'kitchen-heading', tabindex: '-1' }));
         missing.appendChild(el('p', { text: 'That listing isn’t here. It may have been removed or the link is wrong.' }));
-        missing.appendChild(el('a', { href: browseHref(), class: 'btn btn-primary', 'data-route': '', text: 'Browse all kitchens' }));
+        if (!solo) missing.appendChild(el('a', { href: browseHref(), class: 'btn btn-primary', 'data-route': '', text: 'Browse all kitchens' }));
       }
       container.appendChild(missing);
       if (hadFocus) focusQuietly(document.getElementById('kitchen-heading'));
@@ -3142,11 +3241,51 @@
     if (k.description) head.appendChild(el('p', { class: 'desc', text: k.description }));
     var actions = el('div', { class: 'k-actions' });
     actions.appendChild(followButton(k));
-    var share = el('button', { type: 'button', class: 'btn btn-secondary', id: 'share-btn' });
+    /* Share: the phone's own share menu where there is one (onShare).
+       Elsewhere the button discloses #share-panel, with "Share on
+       WhatsApp" (wa.me/?text=, no number: it goes to a friend, so it
+       carries shareText(), never orderMessage()) and "Copy link". */
+    var nativeShare = typeof navigator.share === 'function';
+    var share = el('button', {
+      type: 'button',
+      class: 'btn btn-secondary',
+      id: 'share-btn',
+      'data-slug': k.slug,
+      'aria-expanded': nativeShare ? null : 'false',
+      'aria-controls': nativeShare ? null : 'share-panel'
+    });
     share.appendChild(icon('share', 16));
     share.appendChild(el('span', { text: 'Share' }));
     actions.appendChild(share);
     head.appendChild(actions);
+    var pageLink = shareUrl(k);
+    head.appendChild(el('div', { class: 'share-panel', id: 'share-panel', role: 'group', 'aria-labelledby': 'share-panel-title', hidden: true }, [
+      el('p', { class: 'share-panel-title', id: 'share-panel-title', text: 'Share this kitchen' }),
+      el('div', { class: 'share-panel-actions' }, [
+        el('a', {
+          class: 'btn btn-whatsapp btn-small',
+          id: 'share-wa',
+          href: 'https://wa.me/?text=' + encodeURIComponent(shareText(k, pageLink)),
+          target: '_blank',
+          rel: 'noopener noreferrer'
+        }, [
+          icon('chat', 16),
+          el('span', { text: 'Share on WhatsApp' }),
+          el('span', { class: 'visually-hidden', text: ' (opens WhatsApp in a new tab)' })
+        ]),
+        el('button', { type: 'button', class: 'btn btn-secondary btn-small', id: 'share-copy', 'data-slug': k.slug }, [
+          icon('copy', 16),
+          el('span', { text: 'Copy link' })
+        ])
+      ]),
+      el('div', { class: 'field share-field', id: 'share-field', hidden: true }, [
+        el('label', { for: 'share-url', text: 'Link to this kitchen' }),
+        el('input', { id: 'share-url', type: 'text', readonly: true, value: pageLink })
+      ])
+    ]));
+    /* Outside the panel and never hidden, so it is always a live region;
+       empty until Copy link is used. */
+    head.appendChild(el('p', { class: 'share-status', id: 'share-status', role: 'status', 'aria-live': 'polite' }));
     container.appendChild(head);
 
     /* Menu */
@@ -3267,8 +3406,9 @@
           el('span', { class: 'visually-hidden', text: ' (opens Google Maps in a new tab)' })
         ]));
       }
+      /* Not on a kitchen's own link (solo): the map shows other kitchens. */
       var baseSlug = k.base_community && k.base_community.slug;
-      if (typeof baseSlug === 'string' && NEAR_RE.test(baseSlug)) {
+      if (!solo && typeof baseSlug === 'string' && NEAR_RE.test(baseSlug)) {
         pickupActions.appendChild(el('a', {
           class: 'btn btn-ghost btn-small',
           href: withDemo(new URLSearchParams({ view: 'map', near: baseSlug })),
@@ -3285,11 +3425,17 @@
       delivery = el('section', { class: 'k-section k-delivery', 'aria-labelledby': 'delivery-heading' });
       delivery.appendChild(el('h2', { id: 'delivery-heading', text: 'Delivery areas' }));
       /* Each area links to "who serves X": ?near= only, so the list's other
-         filters reset. data-near makes navigate() land on the results. */
+         filters reset. data-near makes navigate() land on the results. On
+         a kitchen's own link (solo) they are plain text: no other kitchens. */
       var areas = el('ul', { class: 'chips', 'aria-label': 'Delivery areas' });
       deliveryAreas(k).forEach(function (area) {
         if (typeof area !== 'string' || !area.trim()) return;
         var li = el('li');
+        if (solo) {
+          li.appendChild(el('span', { class: 'chip' }, [icon('pin', 14), el('span', { text: area })]));
+          areas.appendChild(li);
+          return;
+        }
         var a = el('a', {
           class: 'chip chip-link',
           href: withDemo(new URLSearchParams({ near: communitySlug(area) })),
@@ -3303,7 +3449,7 @@
         areas.appendChild(li);
       });
       delivery.appendChild(areas);
-      delivery.appendChild(el('p', { class: 'fine', text: 'Tap an area to see every kitchen that serves it.' }));
+      if (!solo) delivery.appendChild(el('p', { class: 'fine', text: 'Tap an area to see every kitchen that serves it.' }));
       if (k.delivery.notes) delivery.appendChild(el('p', { class: 'fine', text: k.delivery.notes }));
     }
 
@@ -3339,7 +3485,19 @@
         permit.appendChild(el('p', { class: 'fine', text: 'This kitchen has applied to be listed and we’re still checking its permit. Ordering opens once that’s done.' }));
       }
       permit.appendChild(el('p', { class: 'fine', text: noOrdersLine }));
-      permit.appendChild(el('a', { href: './permitted.html', class: 'link', text: 'How permits work' }));
+      if (!solo) permit.appendChild(el('a', { href: './permitted.html', class: 'link', text: 'How permits work' }));
+    }
+    /* Last in the section, on every kitchen page (samples and solo too).
+       Quiet on purpose: no .link class, which .k-permit turns saffron. */
+    if (REPORT_EMAIL) {
+      permit.appendChild(el('p', { class: 'k-report' }, [
+        el('a', { href: reportHref(k), id: 'report-link' }, [
+          'Report a problem with this listing',
+          el('span', { class: 'visually-hidden', text: ' (opens your email app)' })
+        ]),
+        ' ',
+        el('span', { class: 'k-report-note', text: 'Opens your own email app. Nothing is sent until you send it.' })
+      ]));
     }
     container.appendChild(permit);
 
@@ -3661,22 +3819,119 @@
   /* ---------------------------------------------------------------------
      Share
   --------------------------------------------------------------------- */
-  function onShare() {
-    var url = window.location.href;
-    var title = document.title;
-    if (navigator.share) {
-      navigator.share({ title: title, url: url }).catch(function () { /* user cancelled */ });
-      return;
+  /* A kitchen page's Share button (#share-btn). Where the device has its
+     own share menu, that opens with the kitchen's name (shareLead) and its
+     link (shareUrl) passed separately. Cancelling it does nothing; any
+     other failure opens the panel instead. Without a share menu, the
+     button shows and hides #share-panel (a disclosure: focus stays on the
+     button). Nothing is sent anywhere by Tiffin Finder. */
+  function onShare(k) {
+    if (!k) return;
+    var data = {
+      title: k.sample ? 'Sample kitchen — Tiffin Finder' : plainName(k.name) + ' — Tiffin Finder',
+      text: shareLead(k),
+      url: shareUrl(k)
+    };
+    var useNative = typeof navigator.share === 'function';
+    if (useNative && typeof navigator.canShare === 'function') {
+      try {
+        useNative = navigator.canShare(data);
+      } catch (e) {
+        useNative = false;
+      }
     }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(function () {
-        toast('Link copied.');
-      }, function () {
-        toast('Copy this page’s address to share it.');
+    if (useNative) {
+      var sharing;
+      try {
+        sharing = navigator.share(data);
+      } catch (e) {
+        sharing = Promise.reject(e);
+      }
+      Promise.resolve(sharing).catch(function (err) {
+        if (err && err.name === 'AbortError') return;
+        openSharePanel();
       });
       return;
     }
-    toast('Copy this page’s address to share it.');
+    var panel = document.getElementById('share-panel');
+    if (panel && panel.hidden) openSharePanel();
+    else closeSharePanel(false);
+  }
+
+  /* Shows the panel and marks #share-btn as its (expanded) disclosure
+     button, which it may not have been when the share menu failed. */
+  function openSharePanel() {
+    var panel = document.getElementById('share-panel');
+    var btn = document.getElementById('share-btn');
+    if (!panel || !btn) return;
+    panel.hidden = false;
+    btn.setAttribute('aria-controls', 'share-panel');
+    btn.setAttribute('aria-expanded', 'true');
+    document.addEventListener('keydown', onShareKeydown);
+  }
+
+  /* Hides the panel, the link field and the status line. Safe to call
+     when there is no panel (renderKitchen calls it before each rebuild). */
+  function closeSharePanel(restoreFocus) {
+    document.removeEventListener('keydown', onShareKeydown);
+    var panel = document.getElementById('share-panel');
+    var btn = document.getElementById('share-btn');
+    var field = document.getElementById('share-field');
+    var status = document.getElementById('share-status');
+    if (panel) panel.hidden = true;
+    if (btn && btn.hasAttribute('aria-controls')) btn.setAttribute('aria-expanded', 'false');
+    if (field) field.hidden = true;
+    if (status) status.textContent = '';
+    if (restoreFocus && btn) focusQuietly(btn);
+  }
+
+  /* Escape closes the panel and returns focus to Share, unless a sheet
+     (the order sheet, above all) is open and handles Escape itself. */
+  function onShareKeydown(event) {
+    if (event.isComposing || orderOpen || anySheetOpen()) return;
+    if (event.key === 'Escape' || event.key === 'Esc') closeSharePanel(true);
+  }
+
+  function setShareStatus(text) {
+    var status = document.getElementById('share-status');
+    if (status) status.textContent = text;
+  }
+
+  /* Copy link: the clipboard where the page may use it (a secure context);
+     otherwise, or if that fails, the link shows selected in #share-url,
+     ready to copy by hand. */
+  function copyShareLink(k) {
+    if (!k) return;
+    var url = shareUrl(k);
+    var fallback = function () {
+      var field = document.getElementById('share-field');
+      var input = document.getElementById('share-url');
+      if (field && input) {
+        field.hidden = false;
+        input.value = url;
+        input.focus();
+        input.select();
+        try {
+          input.setSelectionRange(0, url.length);
+        } catch (e) {
+          /* select() above already did it */
+        }
+      }
+      setShareStatus('Couldn’t copy automatically. The link is selected below, ready to copy.');
+    };
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function' && window.isSecureContext) {
+      var writing;
+      try {
+        writing = navigator.clipboard.writeText(url);
+      } catch (e) {
+        writing = Promise.reject(e);
+      }
+      Promise.resolve(writing).then(function () {
+        setShareStatus('Link copied');
+      }, fallback);
+      return;
+    }
+    fallback();
   }
 
   /* ---------------------------------------------------------------------
@@ -4497,6 +4752,14 @@
     var target = event.target;
     if (!(target instanceof Element)) return;
 
+    /* A click anywhere outside an open share panel (and its Share button)
+       closes it, then carries on (no return), so the click still does
+       what it was for. Focus stays where the click put it. */
+    var sharePanel = document.getElementById('share-panel');
+    if (sharePanel && !sharePanel.hidden && !target.closest('#share-panel, #share-btn')) {
+      closeSharePanel(false);
+    }
+
     /* A plain click on a menu link closes the sheet and carries on (no return),
        so index's data-route link still reaches navigate(), which moves focus.
        If that link is the page already shown, navigate() only scrolls, so
@@ -4543,8 +4806,16 @@
       return;
     }
 
-    if (target.closest('#share-btn')) {
-      onShare();
+    /* Share, and the panel's Copy link. The panel's "Share on WhatsApp"
+       link opens as normal, and the panel stays open. */
+    var shareBtn = target.closest('#share-btn');
+    if (shareBtn) {
+      onShare(findKitchen(shareBtn.getAttribute('data-slug') || ''));
+      return;
+    }
+    var copyBtn = target.closest('#share-copy');
+    if (copyBtn) {
+      copyShareLink(findKitchen(copyBtn.getAttribute('data-slug') || ''));
       return;
     }
 
@@ -4670,6 +4941,35 @@
     });
   }
 
+  /* A kitchen's own link (?k=<slug>&solo=1, read at load as SOLO_AT_LOAD):
+     only that kitchen shows. styles.css already hides the directory before
+     first paint (:root.is-solo); here the header logo stops being a link,
+     "Leave demo" and the site footer go, and the one-line solo footer
+     ("Listed on Tiffin Finder · Terms · Privacy") shows. Its first link is
+     a plain link (no data-route), so leaving solo is a full page load.
+     renderKitchen leaves out every link into the directory. Runs after
+     initDemo, so withDemo() knows about demo=1. */
+  function initSolo() {
+    state.solo = SOLO_AT_LOAD;
+    if (!state.solo) return;
+    var alerts = document.getElementById('alerts');
+    if (alerts) alerts.hidden = true;
+    var brand = document.querySelector('.site-header .brand');
+    if (brand) {
+      brand.removeAttribute('href');
+      brand.removeAttribute('data-route');
+      brand.removeAttribute('aria-label');
+    }
+    var leave = document.querySelector('.demo-leave');
+    if (leave) leave.hidden = true;
+    var footerInner = document.querySelector('.site-footer .footer-inner');
+    if (footerInner) footerInner.hidden = true;
+    var soloFooter = document.getElementById('solo-footer');
+    if (soloFooter) soloFooter.hidden = false;
+    var soloHome = document.getElementById('solo-home');
+    if (soloHome) soloHome.setAttribute('href', withDemo(new URLSearchParams()));
+  }
+
   /* The hero and the filters start as a quiet placeholder (index.html
      .is-pending, styled only under .js) so the normal hero never flashes
      before the launch page. They are revealed once: the first time the
@@ -4696,6 +4996,7 @@
     setTimeout(revealHero, 8000);
 
     initDemo();
+    initSolo();
 
     try { history.scrollRestoration = 'manual'; } catch (e) { /* ignore */ }
     window.addEventListener('popstate', onPopState);

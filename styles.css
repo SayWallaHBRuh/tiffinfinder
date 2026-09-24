@@ -592,6 +592,16 @@ main[tabindex="-1"]:focus {
   transform: rotate(-6deg) scale(1.04);
 }
 
+/* On a kitchen's own link (solo) the header logo is plain text, not a
+   link: no pointer, no playful tilt. */
+.brand:not([href]) {
+  cursor: default;
+}
+
+.brand:not([href]):hover .logo {
+  transform: none;
+}
+
 .wordmark {
   font-family: var(--font-display);
   font-weight: 700;
@@ -2505,6 +2515,99 @@ main[tabindex="-1"]:focus {
   opacity: 1;
 }
 
+/* Share panel (app.js onShare): where the device has no share menu of its
+   own, Share discloses "Share on WhatsApp" and "Copy link" under the
+   header's buttons. --ink / --ink-2 on --surface-2 and --surface: AA in
+   both themes. */
+.share-panel {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  animation: rise var(--dur-2) var(--ease-out) backwards;
+}
+
+.share-panel-title {
+  margin: 0;
+  font-weight: 700;
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.share-panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.share-field {
+  display: grid;
+  gap: 6px;
+}
+
+/* Shown (and selected) only when the clipboard can't be used. */
+.share-field input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--field-line);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.9rem;
+  transition: border-color var(--dur-1) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
+}
+
+.share-field input:focus {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+/* "Link copied": a live region that is always rendered. While empty it
+   is taken out of the header's grid, so it adds no gap under the buttons. */
+.share-status {
+  margin: 0;
+  font-weight: 700;
+  color: var(--ink-2);
+  font-size: 0.92rem;
+}
+
+.share-status:empty {
+  position: absolute;
+}
+
+/* "Report a problem with this listing": last in the permit section, quiet
+   on purpose. --muted on the section: about 5.6:1 light, 5.9:1 dark. */
+.k-report {
+  margin: 6px 0 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.k-report a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--muted);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.k-report a:hover {
+  color: var(--ink);
+}
+
+.k-report-note {
+  display: block;
+}
+
 .menu-list {
   margin: 0;
   padding: 0;
@@ -4335,6 +4438,52 @@ main[tabindex="-1"]:focus {
   }
 }
 
+/* ---------- 12b. A kitchen's own link (?k=<slug>&solo=1) ----------------- */
+/* app.js puts .is-solo on <html> before first paint, so the directory
+   never flashes: no site links, menu or install button, no hero, filters,
+   tabs, lists, neighbourhoods, FAQ or alerts, no back link, no "Leave
+   demo" and no site footer. !important also beats app.js un-hiding the
+   Install button later. Only on the app page. */
+:root.is-solo body[data-page="app"] :is(.site-nav, #menu-btn, #install-btn, #nav-sheet, #ios-sheet, #hero, #filters-section, #view-tabs-wrap, #view-browse, #view-following, #hoods, #faq, #alerts, .demo-leave, .site-footer .footer-inner, #kitchen-detail .back-link) {
+  display: none !important;
+}
+
+/* No back link, so no empty first row above the header card on desktop. */
+@media (min-width: 900px) {
+  :root.is-solo body[data-page="app"] .kitchen {
+    grid-template-areas:
+      "head side"
+      "menu side"
+      "prices side"
+      "permit side";
+  }
+}
+
+/* The solo footer: one quiet line, "Listed on Tiffin Finder · Terms ·
+   Privacy". --muted and --ink-2 on --bg-2: AA in both themes. */
+.solo-footer p {
+  margin: 0;
+  padding-block: 20px 28px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.solo-footer a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--ink-2);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.solo-footer a:hover {
+  color: var(--ink);
+}
+
 /* ---------- 13. Bottom sheet (iOS install walkthrough) ------------------- */
 .sheet {
   position: fixed;
@@ -4739,6 +4888,18 @@ main[tabindex="-1"]:focus {
 
 .prose strong {
   color: var(--ink);
+}
+
+/* An address written out, such as a kitchen's own link on kitchens.html.
+   It may break anywhere, so a long one never widens the page. */
+.prose code {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 0.88em;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  overflow-wrap: anywhere;
 }
 
 .callout {
@@ -5248,7 +5409,8 @@ main[tabindex="-1"]:focus {
   .filter-pill:active,
   .chip-link:active,
   .hood-link:active,
-  .brand:hover .logo {
+  .brand:hover .logo,
+  .brand:not([href]):hover .logo {
     transform: none;
   }
 

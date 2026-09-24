@@ -101,15 +101,23 @@
         </div>
 
         <h2 id="short">The short version</h2>
-        <p>In this version of Tiffin Finder <strong>nothing you do is stored on a server</strong>. There are no accounts, no analytics, no advertising trackers and no cookies set by us. The kitchens you follow and the alert sign-up you save live only in your browser, on your device, and you can clear them any time.</p>
+        <p>In this version of Tiffin Finder <strong>nothing you do is stored on a server</strong>. There are no accounts, no analytics, no advertising trackers and no cookies set by us. The kitchens you follow and the alert sign-up you save live only in your browser, on your device, and you can clear them any time. Ordering, sharing and reporting all happen in your own apps: Tiffin Finder never receives your orders or what you share, and gets a report only if you send it yourself.</p>
 
-        <h2 id="browser">What stays in your browser</h2>
+        <h2 id="browser">What this site saves on your device</h2>
+        <p>The first four are kept in your browser’s local storage, under names that start with “tf.”, and never leave your device.</p>
         <ul>
-          <li><strong>Follows.</strong> The list of kitchens you follow is saved in your browser’s local storage so it’s there when you come back. It never leaves your device.</li>
-          <li><strong>Alert sign-up.</strong> If you enter an email and tick the consent box, we save the email, the time you ticked the box, the wording you agreed to and the kitchens you follow — in your browser only. Alerts aren’t running yet, so nothing is sent anywhere. When alerts launch we will ask before moving this off your device.</li>
           <li><strong>Theme.</strong> Your light/dark choice, if you change it.</li>
-          <li><strong>Preview notice.</strong> Whether you dismissed the amber preview bar, so it stays hidden on this device.</li>
-          <li><strong>Offline copy.</strong> The site uses a service worker to keep a copy of its own pages and the kitchen list so it opens quickly and works offline. That copy contains no personal data.</li>
+          <li><strong>Follows.</strong> The kitchens you follow.</li>
+          <li><strong>Alert sign-up.</strong> If you enter an email and tick the consent box, we save the email, the time you ticked the box, the wording you agreed to and the kitchens you follow — in your browser only. Alerts aren’t running yet, so nothing is sent anywhere. When alerts launch we will ask before moving this off your device.</li>
+          <li><strong>Dismissed notice.</strong> Whether you closed the preview notice.</li>
+          <li><strong>Offline copy.</strong> The site uses a service worker to save copies of its own files on your device (pages, styles, the script, icons, the kitchen list and dish glossary, and the map files once you’ve opened the map) so it opens quickly and works offline. When you’re online, pages are fetched fresh and the saved copy is updated. These copies contain no personal data. The button below doesn’t remove them; clearing this site’s data in your browser settings does.</li>
+        </ul>
+
+        <h2 id="in-the-moment">What happens only in the moment</h2>
+        <ul>
+          <li><strong>Order panel.</strong> The plan, start day and note you pick in the “You’re about to send” panel are kept in the page’s memory only. They are never saved to your device’s storage or sent to us, and they’re gone when you reload or close the page. The only thing that leaves your device is the message you choose to send yourself, from your own WhatsApp or phone app.</li>
+          <li><strong>Share and Copy link.</strong> Share uses your device’s own share menu, or opens WhatsApp with the link filled in; Copy link puts the link on your clipboard. This all stays on your device. Tiffin Finder isn’t told what you share or who you share it with.</li>
+          <li><strong>Report a problem.</strong> The link opens a new email in your own email app, addressed to us, with the kitchen’s name and a short template filled in. Nothing is sent until you send it yourself. If you do, we receive your email address and what you wrote, and use them only to review the listing and reply to you. We never tell the kitchen who reported it.</li>
         </ul>
 
         <div class="callout">
@@ -120,10 +128,12 @@
 
         <h2 id="third">What third parties may see</h2>
         <ul>
-          <li><strong>Hosting.</strong> The site is served as static files by our hosting provider (GitHub Pages in the preview). Like any web host, it may keep standard server logs with IP addresses for security and operations. We do not receive or analyse them.</li>
-          <li><strong>Fonts.</strong> The typefaces load from Google Fonts. Your browser requests them from Google’s servers, which see the request the way any web request is seen. We’d like to self-host fonts in a later version to remove this.</li>
-          <li><strong>WhatsApp and phone.</strong> When you tap “Order on WhatsApp” or “Call”, a short panel shows the message first; when you tap “Send on WhatsApp” or the call button in it, your device opens WhatsApp or your phone app. The plan, start day and note you choose are put into the message on your device. Tiffin Finder doesn’t save or see them. The message we fill in starts with “Hi, I found you on Tiffin Finder.” You can change it before you send it. From that point you’re dealing with the kitchen directly, under WhatsApp’s and your carrier’s own privacy terms. Tiffin Finder does not see your messages or calls.</li>
+          <li><strong>Hosting.</strong> The site is served as static files by GitHub Pages (GitHub, Inc.). Like any web host, it may keep standard server logs with IP addresses for security and operations. We do not receive or analyse them.</li>
+          <li><strong>Fonts.</strong> The typefaces load from Google Fonts (Google LLC). Your browser requests them from Google’s servers, which see the request the way any web request is seen. We’d like to self-host fonts in a later version to remove this.</li>
+          <li><strong>Services outside Canada.</strong> GitHub Pages and Google Fonts may process your requests outside Canada, for example in the United States, under their own privacy terms.</li>
+          <li><strong>WhatsApp and phone.</strong> When you tap “Order on WhatsApp” or “Call”, a short panel shows the message first; when you tap “Send on WhatsApp” or the call button in it, your device opens WhatsApp or your phone app. The plan, start day and note you choose are put into the message on your device. Tiffin Finder doesn’t save or see them. The message we fill in starts with “Hi, I found you on Tiffin Finder.” You can change it before you send it. From that point you’re dealing with the kitchen directly, under WhatsApp’s and your carrier’s own privacy terms. Tiffin Finder does not see your messages or calls. Sharing on WhatsApp works the same way.</li>
           <li><strong>Directions.</strong> When a kitchen shares an exact pickup spot or nearest intersection, its listing has a Get directions link. Tapping it opens Google Maps in a new tab with that spot as the destination, under Google’s own privacy terms. Nothing is sent to Google unless you tap it. Sample listings have no directions link.</li>
+          <li><strong>Email.</strong> If you send a report or a question by email, your own email provider handles it under its own terms.</li>
         </ul>
 
         <h2 id="kitchens">Kitchens’ information</h2>
@@ -143,7 +153,7 @@
         <p>Because nothing is stored on our side in this version, there’s nothing for us to correct or delete for you yet — the “Clear my saved data” button above does it all. Once alerts launch and we hold your email, you’ll be able to ask us to show, correct or delete what we have, and we’ll answer within 30 days. Alberta’s Personal Information Protection Act (PIPA) and Canada’s PIPEDA apply to us as a small Alberta service.</p>
 
         <h2 id="contact">Questions</h2>
-        <p>Use the <a href="./about.html#contact">contact form</a> on the About page. Our target for privacy questions is a reply within 48 hours.</p>
+        <p>For privacy questions, or a request under Alberta’s Personal Information Protection Act (PIPA), a contact address will be listed here before Tiffin Finder launches. Our target will be a reply within 48 hours.</p>
 
         <p class="fine">Draft — to be reviewed by a lawyer before the service charges anyone. This page is not legal advice.</p>
       </article>
