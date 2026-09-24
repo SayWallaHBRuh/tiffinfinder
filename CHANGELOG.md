@@ -102,3 +102,9 @@
 - The About page no longer has a form that couldn't send anything. It says contact details will be added at launch, and the links that pointed to the form now say so too.
 - If you closed the preview notice, it no longer flashes for a moment when a page opens. After you save the alerts sign-up with the keyboard, you stay on its "Remove" button instead of losing your place.
 - The kitchens are still made-up samples for testing, each marked "Sample".
+
+## Update — 2026-09-23: contact email
+
+- The "Report a problem with this listing" link is now switched on for every kitchen. It opens an email to sitesbyadeel@gmail.com in your own email app, with the kitchen's name filled in. Nothing is sent until you send it.
+- The privacy page, the terms and the About page now give sitesbyadeel@gmail.com as the contact address.
+- Service worker tf-v1.12.1.
