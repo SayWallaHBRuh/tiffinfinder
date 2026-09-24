@@ -467,6 +467,8 @@ main[tabindex="-1"]:focus {
 }
 
 .preview-bar .icon-btn {
+  /* Never shrinks below its 44px tap target, even at 320px. */
+  flex: none;
   background: transparent;
   border-color: transparent;
   color: var(--ink-2);
@@ -475,6 +477,13 @@ main[tabindex="-1"]:focus {
 .preview-bar .icon-btn:hover {
   background: rgb(0 0 0 / 0.06);
   color: var(--ink);
+}
+
+/* .tf-preview-off goes on <html> before first paint when the notice was
+   dismissed (early.js on the pages where app.js is deferred, app.js itself
+   on index.html), so the bar never flashes and then collapses. */
+:root.tf-preview-off .preview-bar {
+  display: none;
 }
 
 /* Demo notice (?demo=1): deep green with a saffron pill, so it reads as
@@ -5142,54 +5151,6 @@ main[tabindex="-1"]:focus {
   display: grid;
   gap: 14px;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
-}
-
-.contact-form {
-  display: grid;
-  gap: 14px;
-  padding: 20px;
-  border-radius: var(--radius);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-1);
-  margin: 18px 0;
-}
-
-.contact-form input,
-.contact-form textarea {
-  width: 100%;
-  min-height: 48px;
-  padding: 12px 14px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--field-line);
-  background: var(--surface-2);
-  color: var(--ink);
-  transition: border-color var(--dur-1) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
-}
-
-.contact-form textarea {
-  min-height: 140px;
-  resize: vertical;
-}
-
-.contact-form input:focus,
-.contact-form textarea:focus {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
-  border-color: var(--accent-strong);
-  box-shadow: 0 0 0 4px var(--accent-soft);
-}
-
-.contact-form .form-status {
-  color: var(--ink);
-}
-
-.contact-form .form-status.is-ok {
-  color: var(--verified);
-}
-
-.contact-form .form-status.is-error {
-  color: var(--danger);
 }
 
 .page-actions {

@@ -38,8 +38,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&display=swap">
-  <link rel="stylesheet" href="./styles.css">
-  <script src="./app.js"></script>
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.12.0">
+  <!-- app.js stays blocking here on purpose: it decides the route, a
+       kitchen's own link (?k=&solo=1), demo mode and the pending hero
+       before first paint, so a shared kitchen link never flashes the home
+       page first. The other pages load it with defer (early.js covers
+       the theme and a dismissed preview notice there). -->
+  <script src="./app.js?v=tf-v1.12.0"></script>
 </head>
 <body data-page="app">
   <a class="skip-link" href="#main">Skip to content</a>
@@ -89,7 +94,7 @@
   </header>
 
   <main id="main">
-    <section class="hero is-pending" id="hero" aria-labelledby="hero-heading" aria-busy="true">
+    <section class="hero is-pending" id="hero" aria-labelledby="hero-heading">
       <div class="wrap hero-inner">
         <p class="eyebrow" id="hero-eyebrow">Calgary · home tiffin kitchens</p>
         <h1 id="hero-heading" tabindex="-1">Home-cooked tiffins. Every kitchen’s permit checked first.</h1>
@@ -349,7 +354,7 @@
           </div>
           <div class="faq-item is-open">
             <h3 class="faq-q"><button type="button" id="faq-q-suggest" aria-expanded="true" aria-controls="faq-a-suggest"><span>Can I suggest a kitchen?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
-            <div class="faq-a" id="faq-a-suggest" role="region" aria-labelledby="faq-q-suggest"><div class="faq-a-inner"><p>Please do. Point the cook to <a href="./kitchens.html">our page for kitchens</a>, where listing is free. When our contact form is connected at launch, you’ll be able to suggest one directly. We only list a kitchen once its permit checks out, and only with the cook’s permission.</p></div></div>
+            <div class="faq-a" id="faq-a-suggest" role="region" aria-labelledby="faq-q-suggest"><div class="faq-a-inner"><p>Please do. Point the cook to <a href="./kitchens.html">our page for kitchens</a>, where listing is free. <a href="./about.html#contact">Contact details</a> will be added at launch, so you’ll be able to suggest one directly then. We only list a kitchen once its permit checks out, and only with the cook’s permission.</p></div></div>
           </div>
           <div class="faq-item is-open">
             <h3 class="faq-q"><button type="button" id="faq-q-real" aria-expanded="true" aria-controls="faq-a-real"><span>Are these real kitchens?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
@@ -425,7 +430,7 @@
   </footer>
 
   <div class="sheet" id="ios-sheet" hidden>
-    <button type="button" class="sheet-backdrop" aria-label="Close"></button>
+    <button type="button" class="sheet-backdrop" tabindex="-1" aria-label="Close"></button>
     <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-title" aria-describedby="sheet-desc">
       <div class="sheet-handle" aria-hidden="true"></div>
       <h2 id="sheet-title">Add Tiffin Finder to your Home Screen</h2>

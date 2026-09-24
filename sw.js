@@ -24,14 +24,21 @@
      network-first, with the same offline fallback ({meta:{offline:true}}
      plus communities: []). They are not precached: the page asks for them
      only when someone first opens the map, and they are saved from then on.
-   - Everything else same-origin (styles, the script, icons): cache-first,
-     then network (and cache it). Bump VERSION so they refresh.
+   - Everything else same-origin (styles, the scripts, icons): cache-first,
+     then network (and cache it). Every page asks for styles.css, app.js and
+     early.js as <file>?v=<VERSION> (ASSET_Q below), so a new deploy uses new
+     URLs and never gets an older saved copy. Bump VERSION, and the ?v= in
+     every page, so they refresh.
    - Cross-origin requests (Google Fonts, wa.me, etc.) are never intercepted
      or cached. */
 
 'use strict';
 
-var VERSION = 'tf-v1.11.0';
+var VERSION = 'tf-v1.12.0';
+/* The query every page puts on styles.css, app.js and early.js (the pages
+   carry the same literal ?v=<VERSION>). cacheFirst matches the exact URL,
+   query included. */
+var ASSET_Q = '?v=' + VERSION;
 /* How long a page request waits for the network before the saved copy is
    used instead (see handleNavigation). */
 var NAV_TIMEOUT_MS = 3000;
@@ -41,8 +48,9 @@ var DATA_CACHE = VERSION + '-data';
 var SHELL = [
   './',
   './index.html',
-  './styles.css',
-  './app.js',
+  './styles.css' + ASSET_Q,
+  './app.js' + ASSET_Q,
+  './early.js' + ASSET_Q,
   './manifest.webmanifest',
   './permitted.html',
   './kitchens.html',

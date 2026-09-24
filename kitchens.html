@@ -37,8 +37,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&display=swap">
-  <link rel="stylesheet" href="./styles.css">
-  <script src="./app.js"></script>
+  <script src="./early.js?v=tf-v1.12.0"></script>
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.12.0">
+  <script src="./app.js?v=tf-v1.12.0" defer></script>
 </head>
 <body data-page="kitchens">
   <a class="skip-link" href="#main">Skip to content</a>
@@ -149,7 +150,7 @@
             <span class="num" aria-hidden="true">2</span>
             <div>
               <h3>Send us your details</h3>
-              <p>Your kitchen’s name, quadrant and cuisine, your pickup spot (and how you want it shown) or the areas you deliver to, your WhatsApp number, and a photo or copy of your permit. Use the <a href="./about.html#contact">contact form</a>; we’ll reply within a few days.</p>
+              <p>Your kitchen’s name, quadrant and cuisine, your pickup spot (and how you want it shown) or the areas you deliver to, your WhatsApp number, and a photo or copy of your permit. Contact details will be added <a href="./about.html#contact">on the About page</a> at launch; we’ll reply within a few days.</p>
             </div>
           </li>
           <li>
@@ -173,7 +174,7 @@
         </div>
 
         <div class="page-actions">
-          <a class="btn btn-primary" href="./about.html#contact">Ask to be listed</a>
+          <a class="btn btn-primary" href="./about.html#contact">How to get in touch</a>
           <a class="btn btn-secondary" href="./permitted.html">How permits work</a>
         </div>
       </article>
@@ -211,7 +212,7 @@
   </footer>
 
   <div class="sheet" id="ios-sheet" hidden>
-    <button type="button" class="sheet-backdrop" aria-label="Close"></button>
+    <button type="button" class="sheet-backdrop" tabindex="-1" aria-label="Close"></button>
     <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-title" aria-describedby="sheet-desc">
       <div class="sheet-handle" aria-hidden="true"></div>
       <h2 id="sheet-title">Add Tiffin Finder to your Home Screen</h2>

@@ -4,6 +4,19 @@ Tiffin Finder is a Calgary directory of permit-checked home tiffin kitchens: hou
 
 The live site is **<https://tiffinfinder.ca>** (the `CNAME` file points GitHub Pages at it; leave that file as it is).
 
+## What it does
+
+- **Browse, search and filter.** Search dishes, kitchens or areas, and filter by quadrant (NE, NW, SE, SW, Airdrie), pickup or delivery, cuisine, price, veg, halal, Jain, "Trial week", "Taking new customers" and near a neighbourhood (`?near=`). The filters live in the address, so a filtered list can be reloaded or shared.
+- **A pickup-first map** (Rounds 4 and 5). Each kitchen that offers pickup gets a pin at the spot it chose to share; pins that sit too close join into one numbered pin, and tapping a pin opens a small preview card. The map's files download only when someone opens the map.
+- **Kitchen pages.** This week's menu with the dish glossary (a dotted dish name opens a one-line description), plans and prices, the permit line ("Permit checked" kitchens show "Permit status checked on <date>."; samples show "Sample listing" instead), and the pickup spot or delivery areas.
+- **Follow and alerts, on this device only.** Follow a kitchen to find it again under "Following", and leave an email for alerts at launch. Both are saved in this browser only; nothing is sent.
+- **The order hand-off sheet** (Rounds 6 and 7). "Order on WhatsApp" and "Call" open a sheet with a message view and a call view. The message is built by `orderMessage()` in `app.js` and always starts "Hi, I found you on Tiffin Finder." Nothing is sent until the household sends it from their own WhatsApp or phone.
+- **Sample switch, demo and launch page** (Round 6). `show_samples` in `data/kitchens.json` hides the sample kitchens and shows the "Launching in NE Calgary" page; `?demo=1` shows the samples anyway. Every sample shows "Sample" / "Sample listing".
+- **The permit guide** (`permitted.html`, Round 8): what a home tiffin kitchen needs in Calgary, framed as "confirm with AHS" and "not legal advice".
+- **Fresh pages, Share, a kitchen's own link and the report link** (Round 9). Pages are network-first; every kitchen page has Share; `?k=<slug>&solo=1` shows only that kitchen; and a "Report a problem with this listing" link stays hidden until a public contact address is set.
+- **Installable and offline.** Add it to the home screen; saved pages and the last kitchen list work without a connection.
+- **Round 10:** an accessibility pass (keyboard and screen-reader fixes), and versioned CSS/JS (`?v=<VERSION>`), so an update never serves old styles or scripts. The About page has no contact form: contact details will be added there at launch.
+
 ## Run locally
 
 ```
@@ -18,7 +31,7 @@ Open <http://localhost:8000/>. (The service worker registers on `localhost` and 
 1. Push this folder to a repository (for example `tiffinfinder`) on the `main` branch.
 2. In the repo, open **Settings → Pages**, choose **Deploy from a branch**, pick `main` and `/ (root)`, and save.
 3. The site is served at the custom domain in `CNAME` (<https://tiffinfinder.ca>), and also works at `https://<your-user>.github.io/tiffinfinder/`.
-4. When you change any file, bump `VERSION` in `sw.js` so installed copies pick up the new shell.
+4. When you change any file, bump `VERSION` in `sw.js`, and set the same value in the `?v=` on `styles.css`, `app.js` and `early.js` in every page (index, about, kitchens, permitted, privacy, terms, 404, offline), so visitors never get old styles or scripts.
 
 ## Showing or hiding the sample kitchens
 
@@ -78,7 +91,7 @@ The home page (`./`) reads these from the address:
   - `point` is `[x, y]` (one decimal) in the coordinate frame of the city's own map file: `data/map/calgary.json` for Calgary, the raw `data/map/airdrie.json` frame for Airdrie (the app adds the Airdrie offset itself). It must fall inside the kitchen's base community.
   - `lat` and `lon` are used only for the "Get directions" link (Google Maps), which shows only when `precision` is `exact` or `intersection`, both are numbers, `lat` is between 50.6 and 51.5 and `lon` is between -114.5 and -113.6. A neighbourhood-only kitchen never gets a directions link. Otherwise `lat` and `lon` are `null`.
   - `notes` is optional text such as pickup times.
-- The sample kitchens all use `"precision": "community"`, the label `Sample location · <area>`, `lat`/`lon` `null`, and made-up points inside their neighbourhood placed by `python tools/sample_pickup.py` (standard library only; it rewrites `data/kitchens.json` the same way every time, and stops with an error if a point can't be placed well inside its community). `meta.pickup_note` says so. There are no street locations in the sample data.
+- The sample kitchens all use `"precision": "community"`, the label `Sample location · <area>`, `lat`/`lon` `null`, and made-up points inside their neighbourhood placed by `python tools/sample_pickup.py` (standard library only; it rewrites `data/kitchens.json` the same way every time, keeps the file's newline style, and stops with an error if a point can't be placed well inside its community). `meta.pickup_note` says so. There are no street locations in the sample data.
 - On the map, a kitchen that offers pickup gets its own pin at its `pickup.point`; the app leaves it off the map (with a note under it) if its `area` isn't its base community or the point is outside that community. A delivery-only kitchen has no spot to show: its outlined pin sits on the middle of its base community, which must be one of its own delivery areas. Pins closer than 44px on screen join into one numbered pin. Pickup pins show the spot each kitchen chose to share, at the precision it chose, and never more.
 
 ### Sharing and reporting
@@ -94,6 +107,8 @@ The home page (`./`) reads these from the address:
 ## Paths
 
 All paths are relative (no leading `/`), so the same files work at the custom domain, at a GitHub Pages project URL, or in a subfolder. The only absolute URLs are the `canonical`, `og:url`, `og:image` and `twitter:image` tags, which point at `https://tiffinfinder.ca/`. `404.html` and `offline.html` each set their own `<base>` from the address at load, so they render correctly at any depth (a mistyped address, or any address opened offline).
+
+On the static pages (about, kitchens, permitted, privacy, terms, 404, offline), the small `early.js` runs in `<head>` before first paint (the saved theme and a dismissed preview notice) and `app.js` is loaded with `defer`, so the text shows without waiting for the script. `index.html` keeps `app.js` blocking on purpose: it decides the route, a kitchen's own link, demo mode and the loading hero before first paint (and applies the saved theme and a dismissed preview notice itself), so a shared kitchen link never flashes the home page first.
 
 ## Security headers
 
@@ -118,7 +133,7 @@ The sources behind the Round 8 permit guide (`permitted.html`) are listed in `do
 
 ## Offline
 
-Pages are network-first: the service worker asks the network for the latest page and saves it, and uses the saved copy (or `offline.html` if there is none) only when the network fails or takes longer than about 3 seconds. Styles, the script and icons come from the saved copy first (bump `VERSION` in `sw.js` so they refresh), while `data/kitchens.json`, `data/dishes.json` and the map files are network-first with the last saved copy as the fallback. Both data files (`data/kitchens.json` and `data/dishes.json`) are network-first: the latest copy when online, the last saved copy when not. If there is no saved kitchen list, the page shows a "You're offline" state that retries by itself when the connection comes back; if there is no saved glossary, menus show as plain text. The map files (`data/map/*.json`) are network-first too, but they are not part of the saved app shell: they are downloaded only when someone first opens the map, and saved from then on. Opening the map for the first time with no connection shows a "You're offline" message on the map, with Try again and a button back to the list. The very first visit needs a connection: until the service worker is installed, the browser shows its own offline page.
+Pages are network-first: the service worker asks the network for the latest page and saves it, and uses the saved copy (or `offline.html` if there is none) only when the network fails or takes longer than about 3 seconds. Styles, `early.js`, the script and icons come from the saved copy first; the pages ask for `styles.css`, `app.js` and `early.js` as `<file>?v=<VERSION>` (the same value as `VERSION` in `sw.js`), so a new deploy uses new addresses and never gets an older saved copy. Meanwhile `data/kitchens.json`, `data/dishes.json` and the map files are network-first with the last saved copy as the fallback. Both data files (`data/kitchens.json` and `data/dishes.json`) are network-first: the latest copy when online, the last saved copy when not. If there is no saved kitchen list, the page shows a "You're offline" state that retries by itself when the connection comes back; if there is no saved glossary, menus show as plain text. The map files (`data/map/*.json`) are network-first too, but they are not part of the saved app shell: they are downloaded only when someone first opens the map, and saved from then on. Opening the map for the first time with no connection shows a "You're offline" message on the map, with Try again and a button back to the list. The very first visit needs a connection: until the service worker is installed, the browser shows its own offline page.
 
 ## Link previews
 

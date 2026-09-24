@@ -14,7 +14,8 @@ The points are in the coordinate frame of the city's own map file
 (data/map/calgary.json for Calgary, the raw data/map/airdrie.json frame for
 Airdrie; the app adds the Airdrie offset itself). They are placed with a
 fixed recipe (hashes of the slugs, no randomness), so running this twice
-gives a byte-identical data/kitchens.json. Standard library only.
+gives a byte-identical data/kitchens.json. The file keeps its own newline
+style (LF or CRLF) and its trailing-newline state. Standard library only.
 
 It stops with an error, naming the kitchen, when a point can't be placed
 well inside its community, or when any of the checks below fail.
@@ -111,7 +112,11 @@ def main():
         for c in load_json(path).get('communities', []):
             areas[(city, c['slug'])] = c
 
-    data = load_json(KITCHENS)
+    with open(KITCHENS, 'rb') as fh:
+        raw = fh.read()
+    newline = '\r\n' if b'\r\n' in raw else '\n'
+    trailing = raw.endswith(newline.encode('ascii'))
+    data = json.loads(raw.decode('utf-8'))
     kitchens = data.get('kitchens', [])
 
     # Checks every kitchen must pass, and the sample pickup kitchens grouped
@@ -207,7 +212,11 @@ def main():
     meta['generated'] = GENERATED
     meta['pickup_note'] = PICKUP_NOTE
 
-    text = json.dumps(data, indent=2, ensure_ascii=False).replace('\n', '\r\n')
+    text = json.dumps(data, indent=2, ensure_ascii=False)
+    if newline != '\n':
+        text = text.replace('\n', newline)
+    if trailing:
+        text += newline
     with open(KITCHENS, 'wb') as fh:
         fh.write(text.encode('utf-8'))
     print('sample_pickup: placed ' + str(len(points)) + ' sample pickup points')

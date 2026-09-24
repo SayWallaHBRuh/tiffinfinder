@@ -2,8 +2,12 @@
    Renders everything from ./data/kitchens.json (and the dish glossary in
    ./data/dishes.json) with DOM APIs.
    Never builds markup from strings, no inline handlers, no eval.
-   Loaded in <head> (blocking) so the theme is applied before first paint;
-   everything that touches the DOM waits for DOMContentLoaded. */
+   Loaded in <head>: blocking on index.html (so the theme, the route, a
+   kitchen's own link, demo mode and the pending hero are all set before
+   first paint), and with defer on the static pages, where early.js applies
+   the saved theme and the preview-notice dismissal before first paint.
+   Everything that touches the DOM runs from boot(): on DOMContentLoaded, or
+   at once if the document is already parsed (as it is under defer). */
 (function () {
   'use strict';
 
@@ -211,6 +215,13 @@
   }
 
   applyTheme(store.get(KEYS.theme, null));
+
+  /* A dismissed preview notice: .tf-preview-off on <html> now, before
+     first paint on index.html (where this file loads blocking), so
+     styles.css never shows the bar and then pulls the page up when
+     initPreviewBar hides it. On the static pages early.js has already
+     done this. */
+  if (store.get(KEYS.preview, null) === 1) root.classList.add('tf-preview-off');
 
   /* The page can run JavaScript: styles.css holds the home page's hero and
      filters as a quiet placeholder (.js .hero.is-pending) until the
@@ -1701,9 +1712,9 @@
       dom.followingGrid.replaceChildren();
       dom.followingEmpty.hidden = true;
       if (dom.followingStatus) {
-        dom.followingStatus.textContent = state.offline
+        setStatus(dom.followingStatus, state.offline
           ? 'You’re offline. Your follows are saved on this device and will show when you reconnect.'
-          : 'Couldn’t load kitchens. Please try again in a moment.';
+          : 'Couldn’t load kitchens. Please try again in a moment.', false);
       }
       return;
     }
@@ -1711,9 +1722,10 @@
     fillGrid(dom.followingGrid, list, 'following');
     dom.followingEmpty.hidden = list.length > 0 || !state.loaded;
     if (dom.followingStatus) {
-      dom.followingStatus.textContent = state.loaded
+      /* setStatus skips identical text, so a re-render doesn't re-announce. */
+      setStatus(dom.followingStatus, state.loaded
         ? (list.length === 0 ? 'Not following any kitchens yet.' : 'Following ' + list.length + ' ' + plural(list.length, 'kitchen', 'kitchens') + '. Saved on this device.')
-        : 'Loading…';
+        : 'Loading…', false);
     }
   }
 
@@ -1748,6 +1760,8 @@
       var group = el('div', { class: 'hood-group' });
       group.appendChild(el('h3', { class: 'hood-title' }, [
         QUADRANT_LABEL[q] || q,
+        /* Heard, not seen: "Northeast, 14 communities". */
+        el('span', { class: 'visually-hidden', text: ', ' }),
         el('span', { class: 'hood-meta', text: total + ' ' + plural(total, 'community', 'communities') })
       ]));
 
@@ -3771,6 +3785,10 @@
     status.classList.add('is-ok');
     dom.alertsForm.reset();
     renderAlertsState();
+    /* The focused "Save on this device" button is now hidden: keep keyboard
+       focus in the box, on the one control left (Remove), instead of
+       losing it to the page. */
+    if (dom.alertsRemove) dom.alertsRemove.focus();
   }
 
   function onAlertsRemove() {
@@ -4528,44 +4546,8 @@
   }
 
   /* ---------------------------------------------------------------------
-     Static pages: contact form (front-end only) and privacy "clear data"
+     Static pages: privacy "clear data"
   --------------------------------------------------------------------- */
-  function initContactForm() {
-    var form = document.getElementById('contact-form');
-    if (!form) return;
-    var status = document.getElementById('contact-status');
-    var copyBtn = document.getElementById('contact-copy');
-    form.addEventListener('submit', function (event) {
-      event.preventDefault();
-      status.classList.remove('is-ok', 'is-error');
-      var name = form.elements.name.value.trim();
-      var email = form.elements.email.value.trim();
-      var message = form.elements.message.value.trim();
-      if (!name || !email || !message) {
-        status.textContent = 'Please fill in your name, email and message.';
-        status.classList.add('is-error');
-        return;
-      }
-      status.textContent = 'Preview build: this form isn’t connected yet, so your message was not sent. Use “Copy message” to keep it for launch.';
-      status.classList.add('is-ok');
-      if (copyBtn) copyBtn.hidden = false;
-    });
-    if (copyBtn) {
-      copyBtn.addEventListener('click', function () {
-        var text = 'Name: ' + form.elements.name.value.trim() + '\nEmail: ' + form.elements.email.value.trim() + '\n\n' + form.elements.message.value.trim();
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(function () {
-            status.textContent = 'Copied to your clipboard.';
-          }, function () {
-            status.textContent = 'Couldn’t copy automatically. Select the text and copy it yourself.';
-          });
-        } else {
-          status.textContent = 'Couldn’t copy automatically. Select the text and copy it yourself.';
-        }
-      });
-    }
-  }
-
   function initClearData() {
     var btn = document.getElementById('clear-data');
     if (!btn) return;
@@ -4876,7 +4858,6 @@
     }
 
     document.addEventListener('click', onDocumentClick);
-    initContactForm();
     initClearData();
     initOfflinePage();
   }
@@ -4994,6 +4975,10 @@
     if (!dom.viewBrowse) return;
     /* Before anything else, so the placeholder can never stay up. */
     setTimeout(revealHero, 8000);
+    /* Busy only while the placeholder is up (index.html ships no aria-busy,
+       so without JavaScript nothing claims to be loading). revealHero
+       removes it. */
+    if (dom.hero && !heroRevealed && dom.hero.classList.contains('is-pending')) dom.hero.setAttribute('aria-busy', 'true');
 
     initDemo();
     initSolo();

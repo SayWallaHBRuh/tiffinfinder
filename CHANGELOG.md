@@ -93,3 +93,12 @@
 - A quiet "Report a problem with this listing" link is built and ready. It will open an email in your own email app with the kitchen's name filled in. It stays hidden until a public contact address is confirmed.
 - The privacy page now explains the order panel, sharing, reporting, what's saved on your device and which outside services (GitHub Pages and Google Fonts) may handle requests outside Canada. It says a contact address for privacy questions will be added before launch. The terms cover the order panel, sharing, kitchens' own links and reports. Both are still drafts for a lawyer to review.
 - The kitchens are still made-up samples for testing, each marked "Sample".
+
+## Round 10 — 2026-09-23
+
+- Keyboard and screen-reader fixes: the close button on the preview notice stays full size on small phones, the neighbourhood headings read properly ("Northeast, 14 communities"), the Following page no longer repeats its status aloud, the install panel no longer has an invisible stop when you press Tab, and the home page no longer says it's loading when JavaScript is off.
+- The information pages (About, For kitchens, How permits work, Terms, Privacy) now show their text before the app's script finishes loading, so they appear faster, especially on a slow connection.
+- After each update, your browser always fetches the new styles and script instead of an older saved copy.
+- The About page no longer has a form that couldn't send anything. It says contact details will be added at launch, and the links that pointed to the form now say so too.
+- If you closed the preview notice, it no longer flashes for a moment when a page opens. After you save the alerts sign-up with the keyboard, you stay on its "Remove" button instead of losing your place.
+- The kitchens are still made-up samples for testing, each marked "Sample".

@@ -37,8 +37,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&display=swap">
-  <link rel="stylesheet" href="./styles.css">
-  <script src="./app.js"></script>
+  <script src="./early.js?v=tf-v1.12.0"></script>
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.12.0">
+  <script src="./app.js?v=tf-v1.12.0" defer></script>
 </head>
 <body data-page="about">
   <a class="skip-link" href="#main">Skip to content</a>
@@ -112,33 +113,8 @@
         </ul>
 
         <h2 id="contact">Contact</h2>
-        <p>Kitchens who want to be listed, households with a question, or anyone with a correction or complaint: use this form. Our target is a reply within 48 hours; urgent food-safety concerns should go to AHS Environmental Public Health at <a href="tel:+18334764743">1-833-476-4743</a>.</p>
-
-        <div class="callout">
-          <p><strong>Preview build:</strong> this form isn’t connected to anything yet. Submitting it will not send a message. A “Copy message” button appears so you can keep your text for launch.</p>
-        </div>
-
-        <form class="contact-form" id="contact-form" novalidate>
-          <div class="field">
-            <label for="contact-name">Your name</label>
-            <input id="contact-name" name="name" type="text" autocomplete="name" required>
-          </div>
-          <div class="field">
-            <label for="contact-email">Email</label>
-            <input id="contact-email" name="email" type="email" autocomplete="email" inputmode="email" required>
-          </div>
-          <div class="field">
-            <label for="contact-message">Message</label>
-            <textarea id="contact-message" name="message" required placeholder="Kitchens: tell us your kitchen’s name, quadrant, cuisine, pickup spot or delivery areas and WhatsApp number, and that you hold an AHS Food Handling Permit."></textarea>
-          </div>
-          <div class="page-actions">
-            <button type="submit" class="btn btn-primary">Send message</button>
-            <button type="button" class="btn btn-secondary" id="contact-copy" hidden>Copy message</button>
-          </div>
-          <p class="form-status" id="contact-status" role="status" aria-live="polite"></p>
-        </form>
-
-        <p class="fine">Contact details for the studio will be added at launch. Nothing you type in this preview form is stored or sent.</p>
+        <p id="contact-launch">Contact details will be added here at launch. Until then, kitchens can read <a href="./kitchens.html">what a listing includes</a>.</p>
+        <p>Urgent food-safety concerns should go to AHS Environmental Public Health at <a href="tel:+18334764743">1-833-476-4743</a>.</p>
       </article>
     </div>
   </main>
@@ -174,7 +150,7 @@
   </footer>
 
   <div class="sheet" id="ios-sheet" hidden>
-    <button type="button" class="sheet-backdrop" aria-label="Close"></button>
+    <button type="button" class="sheet-backdrop" tabindex="-1" aria-label="Close"></button>
     <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-title" aria-describedby="sheet-desc">
       <div class="sheet-handle" aria-hidden="true"></div>
       <h2 id="sheet-title">Add Tiffin Finder to your Home Screen</h2>
