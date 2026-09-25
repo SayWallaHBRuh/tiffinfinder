@@ -434,7 +434,7 @@
   function dabbaTile(hue, cuisine, large) {
     var tile = el('div', { class: 'dabba-tile' + (large ? ' large' : '') });
     tile.style.setProperty('--hue', String(foodHue(hue)));
-    tile.appendChild(cuisineMark(cuisine, large ? 64 : 32));
+    tile.appendChild(cuisineMark(cuisine, large ? 86 : 46));
     return tile;
   }
 
