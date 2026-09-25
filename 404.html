@@ -2,7 +2,7 @@
 <html lang="en-CA">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-5Vf/tNRmzl445A7764IlArtZIN77yyUK7P7U2nAEkm4=' 'sha256-J+xASHBHcj7Z6purppfpjdA1vHzePKJOoH6E7b+cYeE='; style-src 'self' 'sha256-hylQCSWyCT1qAdAKWuDrmj2ceediT2ivk76jYnrRwo4=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-5Vf/tNRmzl445A7764IlArtZIN77yyUK7P7U2nAEkm4=' 'sha256-J+xASHBHcj7Z6purppfpjdA1vHzePKJOoH6E7b+cYeE='; style-src 'self' 'sha256-HhXgVaR1yjrlo0PJfPabDZsa3ghKYyjJ1trGrlj5Q1s=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <script>
   /* GitHub Pages serves this page for any missing path, at any depth. Set
@@ -44,11 +44,11 @@
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#1f5c3a">
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101a14">
   <meta name="color-scheme" content="light dark">
-  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="./icons/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&family=Baloo+2:wght@800&display=swap">
   <!-- Critical fallback. The base script above normally makes styles.css load
        even at deep paths; this block keeps the page composed if JavaScript is
        off at a deep path or the stylesheet fails. styles.css comes later, so it
@@ -63,8 +63,15 @@
     .wrap { width: 100%; max-width: 1120px; margin-inline: auto; padding-inline: 16px; }
     .header-inner { display: flex; align-items: center; gap: 18px; min-height: 64px; }
     .brand { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; text-decoration: none; color: inherit; }
-    .logo { width: 34px; height: 34px; }
-    .wordmark { font-family: "Fraunces", Georgia, serif; font-weight: 700; font-size: 1.25rem; white-space: nowrap; }
+    .logo { width: 40px; height: 40px; }
+    .footer-brand .logo { width: 32px; height: 32px; }
+    .wordmark { font-family: "Baloo 2", "Fraunces", Georgia, serif; font-weight: 800; font-size: 1.25rem; line-height: 1; white-space: nowrap; }
+    .wordmark .wm-a { color: #2b1f1a; }
+    .wordmark .wm-b { color: #e8871e; }
+    .wordmark .wm-i { position: relative; display: inline-block; }
+    .wordmark .wm-i::after { content: ""; position: absolute; left: 50%; top: .13em; width: .2em; height: .2em; margin-left: -.1em; border-radius: 50%; background: #e8871e; }
+    .wordmark .wm-a .wm-i::after { background: #2b1f1a; }
+    @media (prefers-color-scheme: dark) { .wordmark .wm-a { color: #fbf2e4; } .wordmark .wm-a .wm-i::after { background: #fbf2e4; } }
     .site-nav { display: flex; gap: 18px; margin-left: auto; }
     .site-nav a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; font-size: 0.95rem; text-decoration: none; color: inherit; }
     .notfound { text-align: center; padding: 64px 16px 80px; }
@@ -84,9 +91,9 @@
     .footer-nav a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; text-decoration: none; color: inherit; }
     .menu-btn, .theme-toggle { display:none; }
   </style>
-  <script src="./early.js?v=tf-v1.24.0"></script>
-  <link rel="stylesheet" href="./styles.css?v=tf-v1.24.0">
-  <script src="./app.js?v=tf-v1.24.0" defer></script>
+  <script src="./early.js?v=tf-v1.25.0"></script>
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.25.0">
+  <script src="./app.js?v=tf-v1.25.0" defer></script>
   <script type="speculationrules">
   {
     "prefetch": [
@@ -113,15 +120,30 @@
   <header class="site-header">
     <div class="wrap header-inner">
       <a class="brand" href="./" aria-label="Tiffin Finder home">
-        <svg class="logo" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-          <rect width="64" height="64" rx="14" fill="#1f5c3a"/>
-          <path d="M24 17c0-7 16-7 16 0" fill="none" stroke="#fbf7ef" stroke-width="3" stroke-linecap="round"/>
-          <rect x="17" y="17" width="30" height="11" rx="4" fill="#f4b35e"/>
-          <rect x="15" y="30" width="34" height="11" rx="4" fill="#e8912d"/>
-          <rect x="13" y="43" width="38" height="12" rx="5" fill="#c9731a"/>
-          <rect x="30" y="13" width="4" height="44" rx="2" fill="#fbf7ef" opacity=".92"/>
-        </svg>
-        <span class="wordmark">Tiffin Finder</span>
+        <svg class="logo" viewBox="0 0 400 400" aria-hidden="true" focusable="false"><circle cx="200" cy="210" r="134" fill="#f39a2b"/>
+<g transform="translate(0 118.7)"><path d="M200 98.0C174.8 67.2 144 34.7 144 0a56 56 0 0 1 112 0c0 34.7-30.8 67.2-56 98.0Z" fill="#ff7a45" stroke="#2b1f1a" stroke-width="6" stroke-linejoin="round"/><circle cx="200" cy="0" r="20.2" fill="#fff" stroke="#2b1f1a" stroke-width="6"/><path d="M159.7 -14.0a44.8 44.8 0 0 1 23.5-25.8" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/></g>
+<path d="M139.0 258V248C139.0 210.1 261.0 210.1 261.0 248V258" fill="none" stroke="#2b1f1a" stroke-width="15" stroke-linecap="round"/>
+<path d="M139.0 258V248C139.0 210.1 261.0 210.1 261.0 248V258" fill="none" stroke="#b9c1c7" stroke-width="9" stroke-linecap="round"/>
+<rect x="185" y="212.7" width="30" height="14" rx="7" fill="#f39a2b" stroke="#2b1f1a" stroke-width="6"/>
+<rect x="142.0" y="250.0" width="116" height="38" rx="17.5" fill="#e9eef1" stroke="#2b1f1a" stroke-width="6"/>
+<path d="M147.0 273.6H253.0V272.3a14.0 14.0 0 0 1-14.0 14.0H161.0a14.0 14.0 0 0 1-14.0-14.0Z" fill="#d3dade"/>
+<rect x="154.6" y="255.5" width="90.8" height="6.5" rx="3.2" fill="#f39a2b"/>
+<path d="M155.0 269.0h12" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+<rect x="142.0" y="292.0" width="116" height="38" rx="17.5" fill="#e9eef1" stroke="#2b1f1a" stroke-width="6"/>
+<path d="M147.0 315.6H253.0V314.3a14.0 14.0 0 0 1-14.0 14.0H161.0a14.0 14.0 0 0 1-14.0-14.0Z" fill="#d3dade"/>
+<rect x="154.6" y="297.5" width="90.8" height="6.5" rx="3.2" fill="#f39a2b"/>
+<path d="M155.0 311.0h12" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+<rect x="142.0" y="334.0" width="116" height="38" rx="17.5" fill="#e9eef1" stroke="#2b1f1a" stroke-width="6"/>
+<path d="M147.0 357.6H253.0V356.3a14.0 14.0 0 0 1-14.0 14.0H161.0a14.0 14.0 0 0 1-14.0-14.0Z" fill="#d3dade"/>
+<rect x="154.6" y="339.5" width="90.8" height="6.5" rx="3.2" fill="#f39a2b"/>
+<path d="M155.0 353.0h12" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+<rect x="135.0" y="247" width="9" height="123" rx="4.5" fill="#b9c1c7" stroke="#2b1f1a" stroke-width="5"/>
+<rect x="256.0" y="247" width="9" height="123" rx="4.5" fill="#b9c1c7" stroke="#2b1f1a" stroke-width="5"/>
+<ellipse cx="184" cy="311.0" rx="4.4" ry="5.8" fill="#2b1f1a"/><ellipse cx="216" cy="311.0" rx="4.4" ry="5.8" fill="#2b1f1a"/>
+<circle cx="185.4" cy="309.0" r="1.6" fill="#fff"/><circle cx="217.4" cy="309.0" r="1.6" fill="#fff"/>
+<path d="M192.5 318.0q7.5 6.5 15 0" fill="none" stroke="#2b1f1a" stroke-width="3.8" stroke-linecap="round"/>
+<ellipse cx="172" cy="318.0" rx="5" ry="3" fill="#f7a9a0"/><ellipse cx="228" cy="318.0" rx="5" ry="3" fill="#f7a9a0"/></svg>
+        <span class="wordmark" aria-hidden="true"><span class="wm-a">T<span class="wm-i">ı</span>ff<span class="wm-i">ı</span>n</span><span class="wm-b">F<span class="wm-i wm-pin">ı</span>nder</span></span><span class="visually-hidden">Tiffin Finder</span>
       </a>
       <nav class="site-nav" aria-label="Primary">
         <a href="./kitchens.html">For kitchens</a>
@@ -164,15 +186,30 @@
     <div class="wrap footer-inner">
       <div class="footer-brand">
         <a class="brand" href="./" aria-label="Tiffin Finder home">
-          <svg class="logo" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-            <rect width="64" height="64" rx="14" fill="#1f5c3a"/>
-            <path d="M24 17c0-7 16-7 16 0" fill="none" stroke="#fbf7ef" stroke-width="3" stroke-linecap="round"/>
-            <rect x="17" y="17" width="30" height="11" rx="4" fill="#f4b35e"/>
-            <rect x="15" y="30" width="34" height="11" rx="4" fill="#e8912d"/>
-            <rect x="13" y="43" width="38" height="12" rx="5" fill="#c9731a"/>
-            <rect x="30" y="13" width="4" height="44" rx="2" fill="#fbf7ef" opacity=".92"/>
-          </svg>
-          <span class="wordmark">Tiffin Finder</span>
+          <svg class="logo" viewBox="0 0 400 400" aria-hidden="true" focusable="false"><circle cx="200" cy="210" r="134" fill="#f39a2b"/>
+<g transform="translate(0 118.7)"><path d="M200 98.0C174.8 67.2 144 34.7 144 0a56 56 0 0 1 112 0c0 34.7-30.8 67.2-56 98.0Z" fill="#ff7a45" stroke="#2b1f1a" stroke-width="6" stroke-linejoin="round"/><circle cx="200" cy="0" r="20.2" fill="#fff" stroke="#2b1f1a" stroke-width="6"/><path d="M159.7 -14.0a44.8 44.8 0 0 1 23.5-25.8" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/></g>
+<path d="M139.0 258V248C139.0 210.1 261.0 210.1 261.0 248V258" fill="none" stroke="#2b1f1a" stroke-width="15" stroke-linecap="round"/>
+<path d="M139.0 258V248C139.0 210.1 261.0 210.1 261.0 248V258" fill="none" stroke="#b9c1c7" stroke-width="9" stroke-linecap="round"/>
+<rect x="185" y="212.7" width="30" height="14" rx="7" fill="#f39a2b" stroke="#2b1f1a" stroke-width="6"/>
+<rect x="142.0" y="250.0" width="116" height="38" rx="17.5" fill="#e9eef1" stroke="#2b1f1a" stroke-width="6"/>
+<path d="M147.0 273.6H253.0V272.3a14.0 14.0 0 0 1-14.0 14.0H161.0a14.0 14.0 0 0 1-14.0-14.0Z" fill="#d3dade"/>
+<rect x="154.6" y="255.5" width="90.8" height="6.5" rx="3.2" fill="#f39a2b"/>
+<path d="M155.0 269.0h12" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+<rect x="142.0" y="292.0" width="116" height="38" rx="17.5" fill="#e9eef1" stroke="#2b1f1a" stroke-width="6"/>
+<path d="M147.0 315.6H253.0V314.3a14.0 14.0 0 0 1-14.0 14.0H161.0a14.0 14.0 0 0 1-14.0-14.0Z" fill="#d3dade"/>
+<rect x="154.6" y="297.5" width="90.8" height="6.5" rx="3.2" fill="#f39a2b"/>
+<path d="M155.0 311.0h12" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+<rect x="142.0" y="334.0" width="116" height="38" rx="17.5" fill="#e9eef1" stroke="#2b1f1a" stroke-width="6"/>
+<path d="M147.0 357.6H253.0V356.3a14.0 14.0 0 0 1-14.0 14.0H161.0a14.0 14.0 0 0 1-14.0-14.0Z" fill="#d3dade"/>
+<rect x="154.6" y="339.5" width="90.8" height="6.5" rx="3.2" fill="#f39a2b"/>
+<path d="M155.0 353.0h12" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+<rect x="135.0" y="247" width="9" height="123" rx="4.5" fill="#b9c1c7" stroke="#2b1f1a" stroke-width="5"/>
+<rect x="256.0" y="247" width="9" height="123" rx="4.5" fill="#b9c1c7" stroke="#2b1f1a" stroke-width="5"/>
+<ellipse cx="184" cy="311.0" rx="4.4" ry="5.8" fill="#2b1f1a"/><ellipse cx="216" cy="311.0" rx="4.4" ry="5.8" fill="#2b1f1a"/>
+<circle cx="185.4" cy="309.0" r="1.6" fill="#fff"/><circle cx="217.4" cy="309.0" r="1.6" fill="#fff"/>
+<path d="M192.5 318.0q7.5 6.5 15 0" fill="none" stroke="#2b1f1a" stroke-width="3.8" stroke-linecap="round"/>
+<ellipse cx="172" cy="318.0" rx="5" ry="3" fill="#f7a9a0"/><ellipse cx="228" cy="318.0" rx="5" ry="3" fill="#f7a9a0"/></svg>
+          <span class="wordmark" aria-hidden="true"><span class="wm-a">T<span class="wm-i">ı</span>ff<span class="wm-i">ı</span>n</span><span class="wm-b">F<span class="wm-i wm-pin">ı</span>nder</span></span><span class="visually-hidden">Tiffin Finder</span>
         </a>
         <p>Permit-checked tiffin kitchens in Calgary. We list; you order directly with the kitchen.</p>
       </div>

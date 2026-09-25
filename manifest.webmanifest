@@ -6,7 +6,7 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#fbf7ef",
+  "background_color": "#fff6e8",
   "theme_color": "#1f5c3a",
   "lang": "en-CA",
   "dir": "ltr",

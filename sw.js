@@ -34,7 +34,7 @@
 
 'use strict';
 
-var VERSION = 'tf-v1.24.0';
+var VERSION = 'tf-v1.25.0';
 /* The query every page puts on styles.css, app.js and early.js (the pages
    carry the same literal ?v=<VERSION>). cacheFirst matches the exact URL,
    query included. */
@@ -64,7 +64,9 @@ var SHELL = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/maskable-512.png',
-  './icons/apple-touch-icon.png'
+  './icons/apple-touch-icon.png',
+  './icons/favicon.svg',
+  './icons/logo.svg'
 ];
 
 /* Network-first data files and the body each answers with when offline

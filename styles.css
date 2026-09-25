@@ -23,6 +23,10 @@
   /* Borders that identify a form control: 3:1 against the surfaces they sit on. */
   --field-line: #8c8676;
 
+  /* Wordmark lettering (Baloo 2): "Tiffin" ink, "Finder" orange, both themes. */
+  --wm-ink: #2b1f1a;
+  --wm-orange: #e8871e;
+
   --brand: #1f5c3a;
   --brand-2: #22603c;
   --brand-3: #154129;
@@ -133,6 +137,9 @@
     --line-strong: #3a4f42;
     --field-line: #667a6c;
 
+    --wm-ink: #fbf2e4;
+    --wm-orange: #e8871e;
+
     --brand: #133524;
     --brand-2: #1a4430;
     --brand-3: #0c2518;
@@ -214,6 +221,9 @@
   --line: #2a3b31;
   --line-strong: #3a4f42;
   --field-line: #667a6c;
+
+  --wm-ink: #fbf2e4;
+  --wm-orange: #e8871e;
 
   --brand: #133524;
   --brand-2: #1a4430;
@@ -590,11 +600,15 @@ main[tabindex="-1"]:focus {
 }
 
 .logo {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
+  width: 40px;
+  height: 40px;
   flex: none;
   transition: transform var(--dur-2) var(--ease-spring);
+}
+
+.footer-brand .logo {
+  width: 32px;
+  height: 32px;
 }
 
 .brand:hover .logo {
@@ -612,11 +626,49 @@ main[tabindex="-1"]:focus {
 }
 
 .wordmark {
-  font-family: var(--font-display);
-  font-weight: 700;
+  font-family: "Baloo 2", var(--font-display);
+  font-weight: 800;
   font-size: 1.25rem;
   letter-spacing: -0.01em;
+  line-height: 1;
   white-space: nowrap;
+}
+
+/* "Tiffin" ink, "Finder" orange; both i's use a dotless ı with a drawn dot
+   so the dot can be a small circle (and, in "Finder", the map-pin icon)
+   instead of the font's own tittle. The whole mark is aria-hidden and
+   paired with a .visually-hidden text node that says "Tiffin Finder". */
+.wordmark .wm-a { color: var(--wm-ink); }
+.wordmark .wm-b { color: var(--wm-orange); }
+
+.wordmark .wm-i {
+  position: relative;
+  display: inline-block;
+}
+
+.wordmark .wm-i::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0.13em;
+  width: 0.2em;
+  height: 0.2em;
+  margin-left: -0.1em;
+  border-radius: 50%;
+  background: var(--wm-orange);
+}
+
+.wordmark .wm-a .wm-i::after {
+  background: var(--wm-ink);
+}
+
+.wordmark .wm-pin::after {
+  top: 0.06em;
+  width: 0.22em;
+  height: 0.3em;
+  margin-left: -0.11em;
+  border-radius: 0;
+  background: url("./icons/favicon.svg") no-repeat center / contain;
 }
 
 .site-nav {

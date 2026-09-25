@@ -100,7 +100,7 @@ The home page (`./`) reads these from the address:
 
 - **`tools/check_diet.py`** (standard library only; `python tools/check_diet.py` from the `tiffinfinder` folder) cross-checks each kitchen's sample menu against its own `veg_only`, `jain` and `halal` flags, using the same dish-glossary term matching as the kitchen page (`data/dishes.json`). It flags a `veg_only` kitchen whose menu names a dish tagged `meat`, `fish` or `egg`; a `jain` kitchen whose menu names a dish tagged `onion_garlic` or `root_veg`, unless the kitchen's own description already says its food is prepared the Jain way (no onion, no garlic, no root vegetables); and prints a plain reminder — never a pass/fail claim — that `halal` can't be checked from dish names alone. It exits non-zero if it finds a contradiction, or if `contains` holds anything other than the categories above.
 - **`tools/check_listings.py`** (Round 15; standard library only) checks every real kitchen (`"sample"` not `true`) in `data/kitchens.json` against the data model in `docs/listing-data.md`: the permit-and-consent safety gate, required fields, ISO dates, delivery/pickup community names against the real map data, no street-address text in a neighbourhood-only pickup label, a contact present, and no banned wording. Run automatically by `tools/check_ship.py`.
-- **`tools/make_og.py`** (Round 17; needs Pillow, run `python tools/make_og.py` from the `tiffinfinder` folder) regenerates `og-image.png`, described under "Link previews" above.
+- **`tools/og.html`** + **`tools/og.css`** (Round 17, redesigned Round 18) is the design and render source for `og-image.png`, described under "Link previews" above; regenerate with headless Edge (`design/render.sh` in this repo's `design/` folder, or the raw command in "Link previews").
 - `tools/sample_pickup.py`, `tools/sample_decisions.py` and `tools/sample_business_type.py` (all standard library only, described above) fill in the sample kitchens' pickup points, trial weeks, capacity and business type deterministically.
 - `docs/research-notes.md` lists the sources for community names, quadrants and dish descriptions, and the official pages behind the permit guide (`permitted.html`). Delivery communities must come from the lists named there, with each community in one quadrant only.
 - `data/map/calgary.json` and `data/map/airdrie.json` are the map shapes (Calgary communities and Airdrie neighbourhoods as ready-made SVG paths), from the City of Calgary's and City of Airdrie's open data. `docs/map-data.md` explains where they come from, their licences and how to refresh them. The map must always show the two credit lines under it ("Contains information licensed under the Open Government Licence – City of Calgary." and "Contains information licensed under the Open Data Licence – City of Airdrie."), and must not use either City's logo.
@@ -171,13 +171,17 @@ Pages are network-first: the service worker asks the network for the latest page
 
 ## Link previews
 
-Pages carry Open Graph and Twitter tags, so links shared on WhatsApp, Facebook, iMessage and similar show a card with `og-image.png` (1200×630, keep it under 300 KB for WhatsApp). `tools/og.html` (styled by `tools/og.css`) is the design source for that image's wording, colours and layout, but the image itself is generated with Pillow instead of a headless browser (no headless Edge/Chrome needed, and neither `og.html` nor `og.css` is part of the offline app shell). Regenerate it with:
+Pages carry Open Graph and Twitter tags, so links shared on WhatsApp, Facebook, iMessage and similar show a card with `og-image.png` (1200×630, keep it under 300 KB for WhatsApp). `tools/og.html` (styled by `tools/og.css`) is both the design source and the render source for that image: the new brand mark and wordmark, on a warm cream background, next to the headline. Neither `og.html` nor `og.css` is part of the offline app shell.
+
+Regenerate it (Round 18) with headless Edge, from the `tiffinfinder` folder:
 
 ```
-python tools/make_og.py
+"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --headless=new --disable-gpu --hide-scrollbars --no-first-run --user-data-dir=%LOCALAPPDATA%\Temp\edgeprof\tfog --window-size=1200,630 --screenshot=<abs path>\site\og-image.png file:///<abs path>\site\tools\og.html
 ```
 
-`tools/make_og.py` draws the 1200×630 PNG straight from `styles.css`'s colour tokens (the brand-green gradient, accent orange, cream text) and Windows system fonts only (Georgia Bold for the wordmark/headline, Segoe UI Bold for the smaller text) — no font files are embedded in the repo, so it only works on a machine with those fonts (any normal Windows install). The tiffin-carrier glyph is drawn with plain shapes (rounded bars, an arc handle, a straight clasp), matching the SVG in `tools/og.html`. It writes straight to `og-image.png` and prints the resulting file size; it saves with PNG optimisation and comes in well under the 300 KB limit (no separate lossless re-save step needed). Kitchen links (`?k=`) share the home page's preview, because link-preview crawlers don't run JavaScript.
+(`design/render.sh <html> <out.png> <w> <h>` in this repo's `design/` folder wraps that same command, if bash is available.) It writes a PNG straight from `og.html` and `og.css`, so the same edits that change the visual design change the image; it comes in well under the 300 KB limit (about 88 KB) with no separate optimisation step. Delete the temporary `edgeprof\tfog` profile folder afterwards. Kitchen links (`?k=`) share the home page's preview, because link-preview crawlers don't run JavaScript.
+
+`tools/make_og.py` (a Pillow-only generator that drew the previous, green-gradient design straight from `styles.css`'s colour tokens, no headless browser needed) was removed in Round 18: it drew the old brand and would need a full rewrite to match the new mark and wordmark, and `og.html` + headless Edge is now the one source of truth for this image.
 
 ## Icons
 
