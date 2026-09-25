@@ -16,8 +16,12 @@
     }
   }
 
+  // Printed posters must always point at the live site, even when the page
+  // is opened from a local copy or a preview, so the base is fixed here.
+  var SITE_ORIGIN = 'https://tiffinfinder.ca/';
+
   function absoluteLink(slug) {
-    var url = new URL('./', window.location.href);
+    var url = new URL(SITE_ORIGIN);
     url.searchParams.set('k', slug);
     url.searchParams.set('solo', '1');
     return url.href;
