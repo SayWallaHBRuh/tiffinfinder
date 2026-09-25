@@ -1187,6 +1187,19 @@
     return badge;
   }
 
+  /* Round 37: a small, quiet trust link near the permit badge and in the
+     order panel -- "who's behind this site" is a natural question right
+     where someone is deciding whether to trust a permit badge or send an
+     order. Points at about.html's "Who runs this" section (honest,
+     already-published copy -- no new claim). Hidden on a kitchen's own
+     solo link, matching the existing "How permits work" link a few lines
+     below, since solo pages deliberately drop every other site link. */
+  function whoRunsFine() {
+    return el('p', { class: 'k-who' }, [
+      el('a', { href: './about.html#who', text: 'Who runs Tiffin Finder?' })
+    ]);
+  }
+
   /* ---------------------------------------------------------------------
      Plans, trial week and capacity
   --------------------------------------------------------------------- */
@@ -4060,12 +4073,14 @@
       permit = el('section', { class: 'k-section k-permit', id: 'section-permit', 'aria-labelledby': 'listing-heading' });
       permit.appendChild(el('h2', { id: 'listing-heading', text: 'About this listing' }));
       permit.appendChild(permitBadge(k));
+      if (!solo) permit.appendChild(whoRunsFine());
       permit.appendChild(el('p', { class: 'fine', text: 'This is a sample listing, made up to show how Tiffin Finder works. It isn’t a real kitchen and its phone numbers aren’t real.' }));
       permit.appendChild(el('p', { class: 'fine', text: noOrdersLine }));
     } else {
       permit = el('section', { class: 'k-section k-permit', id: 'section-permit', 'aria-labelledby': 'permit-heading' });
       permit.appendChild(el('h2', { id: 'permit-heading', text: 'Permit' }));
       permit.appendChild(permitBadge(k));
+      if (!solo) permit.appendChild(whoRunsFine());
       if (info.state === 'checked') {
         var checkedLine = el('p', { class: 'fine', text: 'Permit status checked on ' + formatDate(info.checkedOn) + '.' });
         if (info.sourceUrl) {
@@ -4114,6 +4129,7 @@
     var capacityPill = canOrder ? statusPill(k) : null;
     if (capacityPill) orderHead.appendChild(capacityPill);
     order.appendChild(orderHead);
+    if (!solo) order.appendChild(whoRunsFine());
     if (canOrder && !capacityPill) {
       order.appendChild(el('p', { class: 'fine', text: 'Ask the kitchen if they’re taking new customers right now.' }));
     }
@@ -5650,11 +5666,17 @@
     });
     var num = '0';
     var label = 'kitchens';
-    var showWaiting = false;
+    /* Round 37: this used to live inside the `checked > 0` branch, so a
+       kitchen whose permit is being re-checked (waiting > 0) with no other
+       checked kitchen and samples off showed a bare "0 kitchens" and
+       silently dropped the "waiting for a permit check" note -- the hero
+       and the list right below it (which does show that kitchen) would
+       disagree. The count of kitchens waiting is real whenever it's
+       non-zero, in every branch. */
+    var showWaiting = waiting > 0;
     if (checked > 0) {
       num = String(checked);
       label = plural(checked, 'permit-checked kitchen', 'permit-checked kitchens');
-      showWaiting = waiting > 0;
     } else if (samples > 0) {
       num = String(samples);
       label = plural(samples, 'sample kitchen', 'sample kitchens');

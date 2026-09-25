@@ -1185,6 +1185,22 @@ main[tabindex="-1"]:focus {
   padding-block: clamp(32px, 6vw, 84px) clamp(36px, 5vw, 72px);
 }
 
+/* Round 37: on phones the hero, filters card and view tabs stacked at
+   their desktop-derived spacing left the first kitchen card below the
+   844px fold at 390 width (measured: 826px from the top). Nothing here
+   changes wording, font size or what's shown -- only the vertical gaps
+   -- so the hero still reads the same, just closer together. */
+@media (max-width: 599px) {
+  .hero-inner {
+    gap: 12px;
+    padding-block: 20px 22px;
+  }
+
+  .hero-count {
+    margin-top: 2px;
+  }
+}
+
 .hero .eyebrow {
   color: var(--on-brand-accent);
 }
@@ -1372,6 +1388,13 @@ main[tabindex="-1"]:focus {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: inset 0 1px 0 var(--inset-hi), var(--shadow-2);
+}
+
+@media (max-width: 599px) {
+  .filters {
+    gap: 10px;
+    padding: 12px;
+  }
 }
 
 .search-field {
@@ -1849,6 +1872,12 @@ main[tabindex="-1"]:focus {
   border: 1px solid var(--line);
 }
 
+@media (max-width: 599px) {
+  .view-tabs {
+    margin-top: 18px;
+  }
+}
+
 .tab {
   display: inline-flex;
   align-items: center;
@@ -1916,6 +1945,12 @@ main[tabindex="-1"]:focus {
   justify-content: space-between;
   gap: 10px 16px;
   margin: 18px 0 14px;
+}
+
+@media (max-width: 599px) {
+  .results-bar {
+    margin: 12px 0 10px;
+  }
 }
 
 .results-bar .results-status {
@@ -3412,6 +3447,38 @@ main[tabindex="-1"]:focus {
 
 .k-report-note {
   display: block;
+}
+
+/* Round 37: a quiet trust link near the permit badge and in the order
+   panel -- same treatment as .k-report (muted, underlined, 44px target),
+   so it reads as a small aside, not a call to action. */
+.k-who {
+  margin: 6px 0 0;
+  font-size: 0.88rem;
+}
+
+.k-who a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--muted);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.k-who a:hover {
+  color: var(--ink);
+}
+
+.order-bar .k-who {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+}
+
+.order-bar .k-who a {
+  min-height: 32px;
 }
 
 .menu-list {

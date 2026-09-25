@@ -22,6 +22,7 @@ The live site is **<https://tiffinfinder.ca>** (the `CNAME` file points GitHub P
 - **Fresh pages, Share, a kitchen's own link and the report link** (Round 9). Pages are network-first; every kitchen page has Share; `?k=<slug>&solo=1` shows only that kitchen; and a "Report a problem with this listing" link stays hidden until a public contact address is set.
 - **Installable and offline.** Add it to the home screen; saved pages and the last kitchen list work without a connection.
 - **Round 10:** an accessibility pass (keyboard and screen-reader fixes), and versioned CSS/JS (`?v=<VERSION>`), so an update never serves old styles or scripts. The About page has no contact form (the contact email was added later, see the Update entry in CHANGELOG.md).
+- **A quiet "Who runs Tiffin Finder?" link** (Round 37), next to the permit badge on every kitchen page and in the order panel, pointing at `about.html`'s "Who runs this" section — no new claim, just an easier way to find the honest answer already on the site at the moment someone's deciding whether to trust a badge or send an order.
 
 ## Run locally
 
@@ -48,10 +49,12 @@ re-run that check after changing `qr.js`.
 Run this before every commit. It runs every pre-commit check in one command
 (CNAME unchanged, no banned phrases, no `unsafe-inline`, `sw.js` VERSION
 matches every page's `?v=`, the precache list and every local link resolve
-to real files, the 404/offline CSP hashes match their inline scripts, one
+to real files, every inline `<script>` block's CSP hash matches, one
 `<h1>` per page, no `innerHTML`/`eval`/inline handlers or styles, no
-secret-looking strings, `tools/check_diet.py`, and `tools/check_listings.py`
-— see "Adding a real kitchen" below), and exits non-zero if anything fails.
+secret-looking strings, `tools/check_diet.py`, `tools/check_listings.py`
+— see "Adding a real kitchen" below — and that index.html's `FAQPage`
+JSON-LD says exactly what the visible FAQ says (see "Structured data"
+above), and exits non-zero if anything fails.
 
 `tools/check_links.py` is the standalone link checker `check_ship.py`'s
 local-link check calls into. Run it by hand with `--online` (never inside
@@ -222,6 +225,35 @@ is not covered by anything in this `README.md`.
 All paths are relative (no leading `/`), so the same files work at the custom domain, at a GitHub Pages project URL, or in a subfolder. The only absolute URLs are the `canonical`, `og:url`, `og:image` and `twitter:image` tags, which point at `https://tiffinfinder.ca/`. `404.html` and `offline.html` each set their own `<base>` from the address at load, so they render correctly at any depth (a mistyped address, or any address opened offline).
 
 On the static pages (about, kitchens, permitted, privacy, terms, 404, offline), the small `early.js` runs in `<head>` before first paint (the saved theme and a dismissed preview notice) and `app.js` is loaded with `defer`, so the text shows without waiting for the script. `index.html` keeps `app.js` blocking on purpose: it decides the route, a kitchen's own link, demo mode and the loading hero before first paint (and applies the saved theme and a dismissed preview notice itself), so a shared kitchen link never flashes the home page first.
+
+## Structured data
+
+`index.html` carries one `application/ld+json` block (a `WebSite` and
+`Organization` entry, plus a `FAQPage` entry added in Round 37) inside the
+same `@graph`, so it's still a single inline `<script>` for the CSP hash to
+cover. The `FAQPage` entry's questions and answers are generated straight
+from the visible "Questions households ask" section — same wording, tags
+stripped — and `tools/check_ship.py`'s `check_faq_jsonld()` fails the build
+if the two ever drift apart (edit the FAQ HTML and the JSON-LD block
+together, then re-run `python tools/check_ship.py` to confirm they still
+match, and recompute the CSP hash the same way as any other inline script
+change — see "Security headers" below).
+
+Google's own documentation limits which sites actually get the FAQ rich
+result (the expandable Q&A shown directly in search results) mainly to
+"well known, authoritative" government and health sites; most other sites'
+`FAQPage` markup is used for understanding the page rather than for a
+visible snippet. The markup here is added for **clarity to search engines
+and any tool that reads structured data**, not as a guaranteed rich
+result — it costs nothing and can't be wrong, since it's generated from
+the same copy a household already reads.
+
+There's no `LocalBusiness`/`FoodEstablishment` markup on any kitchen page:
+that would assert a business exists, and while the site holds only sample
+data that assertion would be false even though every sample card says
+"Sample". A drafted (not wired in) template for real kitchens lives at
+`docs/localbusiness-schema-template.md`, for once real, consented,
+permit-checked kitchens are listed.
 
 ## Security headers
 

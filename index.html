@@ -2,7 +2,7 @@
 <html lang="en-CA">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-UAEwdNV6gcX0sQnCDIZEuir/5Crn7mFu2tUUmnIWJls='; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-MW55cBckCQ71oOT6GsQ5LZXJcVPUR7ksrtd80uX7PGY='; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Tiffin Finder — permit-checked tiffin kitchens in Calgary</title>
@@ -38,13 +38,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&family=Baloo+2:wght@800&display=swap">
-  <link rel="stylesheet" href="./styles.css?v=tf-v1.42.0">
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.43.0">
   <!-- app.js stays blocking here on purpose: it decides the route, a
        kitchen's own link (?k=&solo=1), demo mode and the pending hero
        before first paint, so a shared kitchen link never flashes the home
        page first. The other pages load it with defer (early.js covers
        the theme and a dismissed preview notice there). -->
-  <script src="./app.js?v=tf-v1.42.0"></script>
+  <script src="./app.js?v=tf-v1.43.0"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -60,6 +60,59 @@
         "url": "https://tiffinfinder.ca/",
         "email": "sitesbyadeel@gmail.com",
         "logo": "https://tiffinfinder.ca/icons/icon-512.png"
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I order a tiffin?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Straight from the kitchen. Open a kitchen and tap Order on WhatsApp or Call. Pick a plan and a start day, check the message, then send it or call. Then sort out delivery or pickup and payment with the cook, the way you already do. Tiffin Finder doesn’t take orders or payments and isn’t the seller of any meal."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "New to tiffins?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Our Tiffin 101 guide explains what a tiffin service is, what a typical meal includes, how plans and pricing usually work, and basic food-safety tips for storing and reheating your meals."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What does “Permit checked” mean?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "It means we matched the kitchen to its public Alberta Health Services inspection record and, where it’s visible, its City of Calgary business licence. The date on the badge is when we checked. If the permit’s expiry date passes, we take the badge off until we’ve checked again. It isn’t an inspection or an endorsement, so please still use your own judgement. Verification pending means we’re still checking, and ordering stays closed until we’re done. How permits work"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is it free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Browsing and following kitchens cost households nothing. There’s no markup: you pay the kitchen its own price. Listing is free for kitchens as well, with no commission."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I suggest a kitchen?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Please do. Point the cook to our page for kitchens, where listing is free. You can also suggest one directly: our email address is on the About page. We only list a kitchen once its permit checks out, and only with the cook’s permission."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Are the kitchens on Tiffin Finder real?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Not yet. Tiffin Finder is in preview. Any kitchen marked Sample is made up, with a 555 phone number. Real kitchens are added only after their permit is checked, and with their permission."
+            }
+          }
+        ]
       }
     ]
   }

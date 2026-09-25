@@ -43,6 +43,11 @@ Checks (each prints its own PASS/FAIL lines):
     in the handoff repo's plans/overnight-loop.md. The Follow feature
     itself is unaffected; this only guards against the site promising
     notifications it doesn't have.
+16. index.html's FAQPage JSON-LD (Round 37) says exactly what the visible
+    "Questions households ask" FAQ says: every question and every answer,
+    HTML tags stripped, matched in order against the on-page .faq-item
+    markup. If a FAQ answer is edited without also editing the JSON-LD (or
+    vice versa), this fails.
 
 Exits 0 if everything passes, 1 otherwise. Standard library only, no
 network access, deterministic.
@@ -480,6 +485,85 @@ def check_no_alerts_promise():
         ok('no "alerts launch"/"menu alerts" phrase and no #alerts/.alerts section')
 
 
+# ---------------------------------------------------------------------------
+# 16. index.html's FAQPage JSON-LD must say exactly what the visible FAQ
+#     says (Round 37): every question's name and every answer's text, tags
+#     stripped, must match the corresponding .faq-item on the page, in the
+#     same order. Otherwise the structured data could drift from the page
+#     a household actually reads, which is worse than no structured data.
+# ---------------------------------------------------------------------------
+TAG_RE = re.compile(r'<[^>]+>')
+
+
+def _faq_visible_items(text):
+    item_re = re.compile(
+        r'<h3 class="faq-q"><button[^>]*id="faq-q-[a-z]+"[^>]*><span>(.*?)</span>.*?'
+        r'<div class="faq-a-inner">(.*?)</div></div>',
+        re.S)
+    items = []
+    for q_html, a_html in item_re.findall(text):
+        q = TAG_RE.sub('', q_html).strip()
+        # Answers are one or more <p> blocks; join stripped text the same
+        # way a screen reader / a reader's eye would, one paragraph after
+        # another with no separator inserted (all FAQ answers are a single
+        # <p> today, but this doesn't assume that stays true).
+        paras = re.findall(r'<p>(.*?)</p>', a_html, re.S)
+        a = ''.join(TAG_RE.sub('', p) for p in paras).strip()
+        items.append((q, a))
+    return items
+
+
+def _faq_jsonld_items(text):
+    m = re.search(r'<script type="application/ld\+json">\n(.*?)\n  </script>', text, re.S)
+    if not m:
+        return None
+    try:
+        data = json.loads(m.group(1))
+    except ValueError as e:
+        fail('index.html: FAQPage JSON-LD does not parse - %s' % e)
+        return None
+    faqpage = next((n for n in data.get('@graph', []) if n.get('@type') == 'FAQPage'), None)
+    if not faqpage:
+        return None
+    items = []
+    for q in faqpage.get('mainEntity', []):
+        name = (q.get('name') or '').strip()
+        answer = ((q.get('acceptedAnswer') or {}).get('text') or '').strip()
+        items.append((name, answer))
+    return items
+
+
+def check_faq_jsonld():
+    path = os.path.join(ROOT, 'index.html')
+    text = read_text(path)
+    visible = _faq_visible_items(text)
+    jsonld = _faq_jsonld_items(text)
+
+    if jsonld is None:
+        fail('index.html: no FAQPage JSON-LD found in the @graph (Round 37 added one - '
+             'see docs/ for the check, or check_faq_jsonld() in this file)')
+        return
+    if not visible:
+        fail('index.html: FAQPage JSON-LD exists but no .faq-item Q&A found on the page '
+             '(did the FAQ markup change shape?)')
+        return
+    if len(visible) != len(jsonld):
+        fail('index.html: FAQPage JSON-LD has %d question(s) but the visible FAQ has %d'
+             % (len(jsonld), len(visible)))
+        return
+
+    mismatches = 0
+    for i, ((vq, va), (jq, ja)) in enumerate(zip(visible, jsonld)):
+        if vq != jq:
+            fail('index.html: FAQ #%d question text differs - visible %r vs JSON-LD %r' % (i + 1, vq, jq))
+            mismatches += 1
+        if va != ja:
+            fail('index.html: FAQ #%d answer text differs - visible %r vs JSON-LD %r' % (i + 1, va, ja))
+            mismatches += 1
+    if mismatches == 0:
+        ok('index.html: FAQPage JSON-LD matches the visible FAQ word for word (%d questions)' % len(visible))
+
+
 def main():
     print('== Tiffin Finder ship check ==\n')
     check_cname()
@@ -498,6 +582,7 @@ def main():
     check_target_blank()
     check_banned_phone()
     check_no_alerts_promise()
+    check_faq_jsonld()
 
     print('')
     if FAILURES:

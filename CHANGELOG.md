@@ -1,5 +1,50 @@
 # Changelog
 
+## Round 37 — 2026-09-25
+
+Round 37: tighter hero, trust links, FAQ structured data, consistency.
+
+- **Tighter phone hero.** On phones (≤599px) the hero, filters card, view
+  tabs and results row now sit closer together — the wording, font sizes
+  and desktop/tablet layout are unchanged, only the vertical gaps and
+  padding. Measured at 390×844: the first kitchen card used to sit at
+  y=826 (a sliver above the very bottom edge); it now sits at y=750, with
+  the card's name, badges and type label clearly visible above the fold.
+- **"Who runs Tiffin Finder?"** — a small, quiet link to `about.html`'s
+  "Who runs this" section, next to the permit badge on every kitchen page
+  (both "Permit" and a sample's "About this listing") and in the order
+  panel, right where someone is deciding whether to trust the badge or
+  send an order. No new claims — it points at copy that was already
+  published. Hidden on a kitchen's own solo link, matching the existing
+  "How permits work" link there.
+- **FAQPage structured data.** `index.html`'s existing `application/
+  ld+json` block gained a `FAQPage` entry generated straight from the
+  visible "Questions households ask" section — same six questions, same
+  wording, HTML tags stripped. `tools/check_ship.py` now has a 16th check
+  (`check_faq_jsonld`) that fails the build if the JSON-LD and the visible
+  FAQ ever say different things. See `README.md` "Structured data" for
+  why this is for clarity to search engines, not a guaranteed rich
+  result — Google limits the actual FAQ rich-result snippet mainly to
+  authoritative sites.
+- **Drafted, not shipped:** `docs/localbusiness-schema-template.md` maps
+  out a `LocalBusiness`/`FoodEstablishment` JSON-LD shape for real
+  kitchens, field by field, for whenever real kitchens go live. It is
+  never generated for a sample kitchen and never includes a home address;
+  nothing references this file from any page yet.
+- **Consistency fix:** `updateHeroCount()` in `app.js` could show a bare
+  "0 kitchens" and silently hide the "waiting for a permit check" note
+  when the only real kitchens on the list were mid-re-check (permit
+  expired) and no samples were showing — the hero would disagree with the
+  kitchen list right below it. The waiting count is now always shown when
+  it's non-zero, in every branch. Everything else checked (hero count vs.
+  `document.title` vs. the static meta/OG description vs. shared-link
+  text, across the 24-sample, 0-kitchen-launch and real-kitchen states)
+  was already consistent — the static `<title>`/meta description staying
+  neutral in every state is a deliberate, documented choice (see the
+  comment above `DEFAULT_TITLE` in `app.js`), not a bug.
+- `sw.js` `tf-v1.42.0` → `tf-v1.43.0` (`app.js` and `styles.css` changed);
+  every page's `?v=` bumped to match, as rule 9 requires.
+
 ## Round 36 — 2026-09-25
 
 Round 36: new guide sections, state-aware hero, iOS install help, update
