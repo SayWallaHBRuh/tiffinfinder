@@ -1,5 +1,37 @@
 # Changelog
 
+## Round 33 — 2026-09-25
+
+Round 33: a real, scannable QR code on each kitchen's poster.
+
+- New `qr.js`: a small, dependency-free QR Code encoder written for this
+  site (byte mode, error correction level M, symbol versions 1-10 chosen
+  automatically, all 8 mask patterns scored and the best one kept). No
+  library, no CDN. It draws the code as an inline `<svg>` built entirely
+  with `createElementNS` (CSP-safe, no `innerHTML`).
+- Checked correct the hard way before shipping: `tools/test_qr.py`
+  compares `qr.js`'s module matrix, bit for bit, against a well-known
+  independent QR encoder (Project Nayuki's, MIT-licensed) across 100+
+  inputs -- every sample kitchen's own link, byte lengths at each
+  version's capacity boundary, and random ASCII/UTF-8 strings -- both
+  with automatic mask selection and with every one of the 8 masks
+  forced. All match exactly. The reference encoder is a test-only
+  download, never part of the site; see `tools/README-qr-test.md` for
+  how to re-run the check.
+- `poster.html` now shows that QR code (about 5.5cm on a printed page)
+  under the kitchen's name, with "Scan to see our plans and order on
+  WhatsApp" and the plain-text link underneath it -- so the poster works
+  whether someone scans it or types the address by hand. The QR always
+  sits on its own white card, in print and in dark mode alike, so it
+  stays scannable.
+- A new "Download QR (SVG)" button on the poster saves that same code as
+  a standalone `.svg` file (built as a `Blob` and downloaded straight
+  from the browser -- no server involved), for a kitchen that wants the
+  code on a flyer, sign or menu card of their own.
+- `tools/check_ship.py` now scans `qr.js` the same way it already scans
+  `app.js`, `early.js` and `poster.js` (banned phrases, `unsafe-inline`,
+  DOM safety, secret-looking strings).
+
 ## Round 32 — 2026-09-25
 
 Round 32: a kitchen-owner toolkit, all static, no backend, no libraries.

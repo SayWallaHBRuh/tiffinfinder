@@ -3220,6 +3220,31 @@ main[tabindex="-1"]:focus {
   margin: 0 0 24px;
 }
 
+/* The QR code always renders on its own white card (not the theme's
+   surface colour) with a thin border, so it stays high-contrast and
+   scannable in dark mode and in print alike. */
+.poster-qr {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto 16px;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-sizing: border-box;
+}
+
+.poster-qr svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.poster-scan-text {
+  font-weight: 600;
+  margin: 0 0 18px;
+}
+
 .poster-link-box {
   padding: 18px 20px;
   border-radius: var(--radius-sm);
@@ -3294,6 +3319,13 @@ main[tabindex="-1"]:focus {
     margin: 0;
     max-width: 100%;
     padding: 0;
+  }
+
+  .poster-qr {
+    width: 5.5cm;
+    height: 5.5cm;
+    padding: 0.25cm;
+    border-color: #111;
   }
 
   @page {

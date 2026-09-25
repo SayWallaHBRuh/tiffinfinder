@@ -16,9 +16,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&family=Baloo+2:wght@800&display=swap">
-  <script src="./early.js?v=tf-v1.39.0"></script>
-  <link rel="stylesheet" href="./styles.css?v=tf-v1.39.0">
-  <script src="./poster.js?v=tf-v1.39.0" defer></script>
+  <script src="./early.js?v=tf-v1.40.0"></script>
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.40.0">
+  <script src="./qr.js?v=tf-v1.40.0" defer></script>
+  <script src="./poster.js?v=tf-v1.40.0" defer></script>
 </head>
 <body data-page="poster">
   <a class="skip-link" href="#main">Skip to content</a>
@@ -91,12 +92,15 @@
         </div>
         <p class="poster-name" id="poster-name">Loading your kitchen…</p>
         <p class="poster-tagline" id="poster-tagline">Order on WhatsApp — find our plans at the link below</p>
+        <div class="poster-qr" id="poster-qr" aria-hidden="true"></div>
+        <p class="poster-scan-text">Scan to see our plans and order on WhatsApp</p>
         <p class="poster-link-box" id="poster-link" aria-hidden="true"></p>
         <p class="poster-actions no-print"><a class="btn btn-primary" id="poster-wa-link" href="./">Open our Tiffin Finder page</a></p>
         <p class="poster-note" id="poster-sample-note" hidden>Sample poster, made up for testing — not a real kitchen.</p>
         <p class="poster-note">Free and permit-checked on Tiffin Finder. Tiffin Finder does not take orders or payments.</p>
         <p class="page-actions no-print">
           <button type="button" class="btn btn-secondary" id="poster-print">Print this poster</button>
+          <button type="button" class="btn btn-secondary" id="poster-download-qr" hidden>Download QR (SVG)</button>
         </p>
       </div>
 

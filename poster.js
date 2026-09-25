@@ -63,12 +63,54 @@
       waLink.textContent = 'Open our Tiffin Finder page';
     }
 
+    renderQr(link, kitchen.name || 'this kitchen', kitchen.slug);
+
     if (kitchen.sample) {
       var sampleNote = document.getElementById('poster-sample-note');
       if (sampleNote) sampleNote.hidden = false;
     }
 
     document.title = (kitchen.name || 'Poster') + ' — poster — Tiffin Finder';
+  }
+
+  /* Renders the QR code for `link` into #poster-qr (an inline <svg>,
+     built by qr.js with createElementNS — no innerHTML), and wires up
+     the "Download QR (SVG)" button to save that same SVG as a file.
+     qr.js isn't loaded on any other page, so this quietly does nothing
+     if it somehow failed to load. */
+  function renderQr(link, kitchenName, slug) {
+    var mount = document.getElementById('poster-qr');
+    if (!mount || typeof QR === 'undefined') return;
+
+    var qr;
+    try {
+      qr = QR.encode(link);
+    } catch (e) {
+      return; // link too long for this encoder's range; poster still works without a QR code
+    }
+    var svg = QR.toSvg(qr, {
+      title: 'QR code for ' + kitchenName + '’s Tiffin Finder page',
+      quietZone: 4
+    });
+    mount.textContent = ''; // clear "Loading…" state safely (no innerHTML)
+    mount.appendChild(svg);
+
+    var downloadBtn = document.getElementById('poster-download-qr');
+    if (downloadBtn) {
+      downloadBtn.hidden = false;
+      downloadBtn.addEventListener('click', function () {
+        var svgText = new XMLSerializer().serializeToString(svg);
+        var blob = new Blob([svgText], { type: 'image/svg+xml' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = (slug || 'kitchen') + '-tiffin-finder-qr.svg';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      });
+    }
   }
 
   function boot() {

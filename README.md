@@ -32,6 +32,17 @@ python -m http.server 8000
 
 Open <http://localhost:8000/>. (The service worker registers on `localhost` and `https:` only.)
 
+## The poster's QR code (`qr.js`)
+
+`poster.html` draws each kitchen's QR code with `qr.js`, a small,
+dependency-free QR Code encoder written for this site (byte mode, error
+correction level M, versions 1-10, all 8 mask patterns scored and the
+best one kept) — no library, no CDN, CSP-safe (builds the `<svg>` with
+`createElementNS`, no `innerHTML`). It's checked module-for-module
+against a well-known reference QR encoder; see
+[`tools/README-qr-test.md`](./tools/README-qr-test.md) for how to
+re-run that check after changing `qr.js`.
+
 ## Before you ship: `python tools/check_ship.py`
 
 Run this before every commit. It runs every pre-commit check in one command
