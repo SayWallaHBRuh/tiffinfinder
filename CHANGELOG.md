@@ -1,5 +1,34 @@
 # Changelog
 
+## Round 25 — 2026-09-25
+
+Round 25: kitchen cards, the kitchen page header and the map preview all
+showed the same generic stacked-tiffin glyph on every card, and a card's
+name and price didn't clearly out-rank the chip row around them.
+
+- New `icons/cuisines.svg` sprite: 11 small illustrations (`<symbol>`, 120x120
+  viewBox), one per cuisine in `data/kitchens.json` (Afghan, Bengali,
+  Filipino, Gujarati, Hyderabadi, Nepali, Pakistani, Punjabi, South Indian,
+  Sri Lankan) plus a thali plate for Jain and anything unrecognised, each
+  showing that cuisine's signature dish (qabuli palaw, fish curry, rice +
+  adobo, dhokla, biryani handi, momos, nihari/kebab, paratha + lassi, dosa
+  + chutney, hoppers) in the mascot's ink-outlined, saffron/coral/cream
+  style. `dabbaTile()` now draws `<use href="icons/cuisines.svg#...">`
+  instead of the generic dabba mark, on the card, the kitchen page header
+  and the map preview list, keeping the same soft hue-tinted tile
+  background. Decorative, `aria-hidden`, same-origin (`img-src 'self'`),
+  no new external resource.
+- Card hierarchy: the kitchen name and the "From $X/day" price are now the
+  two boldest, largest things on a card (`.card-title` and `.card-price
+  strong` both bumped to ~800 weight); the badge row (permit/sample badge,
+  diet chip, capacity pill) is a size step smaller and tucked closer
+  together, so it reads as a quieter group scanned second -- nothing in it
+  was removed.
+- Checked card density afterwards: at 390x844 the list still shows about
+  1.7 cards per screen, same as before the tile swap.
+- Version bumped to `tf-v1.32.0` (styles, scripts and the service worker's
+  saved-files list, including the new `icons/cuisines.svg`, all match).
+
 ## Round 24 — 2026-09-25
 
 Round 24: on phones, the filter panel used to fill most of the first

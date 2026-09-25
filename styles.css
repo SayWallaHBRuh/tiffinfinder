@@ -2059,7 +2059,8 @@ main[tabindex="-1"]:focus {
 
 .card-title {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.28rem;
+  font-weight: 800;
   font-variation-settings: "opsz" 36;
   transition: color var(--dur-1) var(--ease-out);
 }
@@ -2255,12 +2256,30 @@ main[tabindex="-1"]:focus {
 }
 
 /* A card's badge row: the badge (Sample listing or the permit), the diet
-   chip, then the capacity pill. Never more than three. */
+   chip, then the capacity pill. Never more than three. Name and price (see
+   .card-title, .card-price strong) are the read-first elements on a card;
+   this row is scanned second, so it stays a size and weight step below
+   them while keeping every colour and label the same as elsewhere. */
 .card-badges {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px 8px;
+  gap: 5px 7px;
+  margin-top: 1px;
+}
+
+.card-badges .badge,
+.card-badges .diet-chip,
+.card-badges .status-pill {
+  min-height: 25px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  font-size: 0.74rem;
+}
+
+.card-badges .badge svg {
+  width: 13px;
+  height: 13px;
 }
 
 /* The kind of permitted operator ("Home kitchen · permitted",
@@ -2359,8 +2378,8 @@ main[tabindex="-1"]:focus {
 .card-price strong {
   color: var(--ink);
   font-family: var(--font-display);
-  font-size: 1.08rem;
-  font-weight: 700;
+  font-size: 1.28rem;
+  font-weight: 800;
 }
 
 /* "Trial week $64". --accent-ink on --accent-soft: 5.8:1 light, 7.5:1 dark. */

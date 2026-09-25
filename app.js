@@ -393,10 +393,48 @@
     return svg;
   }
 
-  function dabbaTile(hue, large) {
+  /* Cuisine name (as it appears in data/kitchens.json) -> the symbol id in
+     icons/cuisines.svg. Anything not listed here (including "Jain", which
+     shares the thali) falls back to the thali plate. */
+  var CUISINE_ICON = {
+    afghan: 'c-afghan',
+    bengali: 'c-bengali',
+    filipino: 'c-filipino',
+    gujarati: 'c-gujarati',
+    hyderabadi: 'c-hyderabadi',
+    nepali: 'c-nepali',
+    pakistani: 'c-pakistani',
+    punjabi: 'c-punjabi',
+    'south indian': 'c-south-indian',
+    'sri lankan': 'c-sri-lankan'
+  };
+
+  function cuisineIconId(cuisine) {
+    var key = String(cuisine || '').trim().toLowerCase();
+    return CUISINE_ICON[key] || 'c-thali';
+  }
+
+  /* A small illustration of the cuisine's signature dish, from the
+     icons/cuisines.svg sprite. Decorative only -- the cuisine name itself
+     is already text elsewhere on the card/page. */
+  function cuisineMark(cuisine, size) {
+    var s = size || 44;
+    var svg = svgEl('svg', {
+      viewBox: '0 0 120 120',
+      width: s,
+      height: s,
+      'aria-hidden': 'true',
+      focusable: 'false',
+      class: 'dabba'
+    });
+    svg.appendChild(svgEl('use', { href: 'icons/cuisines.svg#' + cuisineIconId(cuisine) }));
+    return svg;
+  }
+
+  function dabbaTile(hue, cuisine, large) {
     var tile = el('div', { class: 'dabba-tile' + (large ? ' large' : '') });
     tile.style.setProperty('--hue', String(foodHue(hue)));
-    tile.appendChild(dabbaMark(hue, large ? 64 : 32));
+    tile.appendChild(cuisineMark(cuisine, large ? 64 : 32));
     return tile;
   }
 
@@ -1401,7 +1439,7 @@
 
     /* Tile, title and the Sample tag share one row; the card reads as one object. */
     var head = el('div', { class: 'card-head' });
-    head.appendChild(dabbaTile(kitchen.hue, false));
+    head.appendChild(dabbaTile(kitchen.hue, kitchen.cuisine, false));
     var title = el('h3', { class: 'card-title', id: titleId });
     title.appendChild(el('a', { href: kitchenHref(kitchen.slug), class: 'card-link', 'data-route': '', text: kitchen.name }));
     head.appendChild(title);
@@ -3033,7 +3071,7 @@
         ]));
       }
       list.appendChild(el('li', { class: 'map-kitchen', 'data-slug': k.slug }, [
-        dabbaTile(k.hue, false),
+        dabbaTile(k.hue, k.cuisine, false),
         el('div', { class: 'map-kitchen-body' }, [
           el('p', { class: 'map-kitchen-name' }, [el('span', { text: k.name }), k.sample ? sampleTag() : null]),
           /* The service chip rides in the meta line, just before the trial
@@ -3515,7 +3553,7 @@
     var head = el('header', { class: 'k-head' });
     head.style.setProperty('--hue', String(foodHue(k.hue)));
     var top = el('div', { class: 'k-head-top' });
-    top.appendChild(dabbaTile(k.hue, true));
+    top.appendChild(dabbaTile(k.hue, k.cuisine, true));
     var titleBlock = el('div', { class: 'k-head-title' });
     var tags = el('div', { class: 'card-tags' });
     if (k.sample) tags.appendChild(sampleTag());
