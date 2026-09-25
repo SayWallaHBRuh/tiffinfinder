@@ -232,7 +232,7 @@
         "khichdi"
       ],
       "description": "Rice and lentils cooked together into a soft, comforting one-pot meal.",
-      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Khichdi"
     },
     {
       "id": "pav-bhaji",
@@ -675,8 +675,11 @@
       "terms": [
         "double ka meetha"
       ],
-      "description": "A Hyderabadi bread pudding topped with dried fruit.",
-      "source": "https://en.wikipedia.org/wiki/Double_ka_meetha"
+      "description": "A Hyderabadi bread pudding fried in ghee, topped with dried fruit.",
+      "source": "https://en.wikipedia.org/wiki/Double_ka_meetha",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "sambar",

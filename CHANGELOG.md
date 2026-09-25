@@ -1,5 +1,12 @@
 # Changelog
 
+## Overnight round 11 — 2026-09-25
+
+- Finished the dish glossary audit: the 56 `data/dishes.json` entries not already checked in rounds 2 and 4 were each compared against a reputable source, prioritising dietary claims. Every one of the 126 glossary dishes has now been checked once. Two small fixes: "khichdi" was sourced to a page describing a different, millet-based regional dish under the same name, so it's now sourced to khichdi's own article instead (the wording was already accurate); "double ka meetha" now says it's fried in ghee, a dairy ingredient the old wording left out.
+- Filled in a couple of missing "contains" tags so the dietary cross-check catches more: "aloo methi" (potato) now tagged with the same root-vegetable tag every other potato dish already has, and "double ka meetha" is now tagged dairy for the ghee-frying step.
+- `python tools/check_diet.py` still finds no contradictions in the sample kitchen menus.
+- `data/dishes.json` is loaded fresh over the network rather than cached by version number, so no version bump was needed this round.
+
 ## Overnight round 9 — 2026-09-24
 
 - A full fresh-eyes review of everything built since the last published version (rounds 1-8): the JavaScript, the wording on the new "For kitchens" sample card and FAQ, the Tiffin 101 guide's prices and sources, the navigation on all nine pages, and accessibility. Almost everything held up; one confirmed bug is fixed below.
