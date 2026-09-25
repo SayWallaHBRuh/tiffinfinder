@@ -1,5 +1,37 @@
 # Changelog
 
+## Round 20 — 2026-09-25
+
+Round 20: site matches the new logo. Design review across the home page,
+a kitchen page, the map, the Tiffin 101 guide and the For Kitchens page, at
+desktop and 360px, light and dark. Verdict: round 18's logo work (header
+and footer mark, Baloo 2 wordmark, warm cream surfaces, saffron/orange
+accent on buttons and badges) already reads as one brand with the new
+mascot, so this round is a small, targeted follow-up rather than a rebuild.
+
+- The map's pickup pin now uses the logo's own coral (`#ff7a45` light,
+  `#ff8c5a` dark) with an ink ring (`#2b1f1a` light) instead of the same
+  amber used for buttons, so the map pin visually echoes the mascot's
+  coral map-pin mark. Contrast checked numerically: pin text on the pin
+  is 6.0:1 (light) and 8.1:1 (dark); the ink ring on the coral fill is
+  6.2:1 — all comfortably above the 3:1 needed for a non-text UI shape.
+  The two dark-theme token blocks in `styles.css` were kept identical.
+- Verified no page-level horizontal scroll at 360–390px (a scrollable row
+  of filter chips was mistaken for overflow in a screenshot; measured
+  `document.documentElement.scrollWidth` against the viewport to confirm
+  it isn't).
+- Looked hard at whether to swap Fraunces for Baloo 2 on the big display
+  headings to match the playful mascot more closely. Decided against it:
+  side-by-side screenshots show the serif headings reading calmer and
+  more premium against the illustrated, colourful mascot, and Baloo 2
+  at display size looks better reserved for the wordmark, where it
+  already is. Left for later: extending the coral accent to focus rings
+  and chip selection states — skipped this round because both are
+  sitewide, high-blast-radius tokens that need their own contrast pass
+  rather than a quick change.
+- Version bumped to `tf-v1.27.0` (styles, scripts and the service
+  worker's saved-files list all match).
+
 ## Round 19 — 2026-09-25
 
 - Security review: checked the CSP, DOM/URL safety, link handling and the

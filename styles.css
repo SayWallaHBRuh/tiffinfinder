@@ -78,11 +78,12 @@
   --map-inset: #fffdf8;
   --map-inset-line: #e4dccb;
   --pin-ring: #ffffff;
-  /* Pins (section 9d): saffron pickup pins with a dark ring, outlined
-     delivery-only pins, dark count badges. */
-  --pin-pickup-bg: #e8912d;
+  /* Pins (section 9d): coral pickup pins with an ink ring, echoing the
+     logo's coral map-pin mark, outlined delivery-only pins, dark count
+     badges. */
+  --pin-pickup-bg: #ff7a45;
   --pin-pickup-ink: #17271d;
-  --pin-pickup-ring: #8a4a0b;
+  --pin-pickup-ring: #2b1f1a;
   --pin-area-bg: #ffffff;
   --pin-area-line: #1f5c3a;
   --pin-area-ink: #1f5c3a;
@@ -187,7 +188,7 @@
     --map-inset: #131f18;
     --map-inset-line: #2a3b31;
     --pin-ring: #101a14;
-    --pin-pickup-bg: #f0a04a;
+    --pin-pickup-bg: #ff8c5a;
     --pin-pickup-ink: #17120a;
     --pin-pickup-ring: #101a14;
     --pin-area-bg: #18261e;
@@ -272,7 +273,7 @@
   --map-inset: #131f18;
   --map-inset-line: #2a3b31;
   --pin-ring: #101a14;
-  --pin-pickup-bg: #f0a04a;
+  --pin-pickup-bg: #ff8c5a;
   --pin-pickup-ink: #17120a;
   --pin-pickup-ring: #101a14;
   --pin-area-bg: #18261e;
