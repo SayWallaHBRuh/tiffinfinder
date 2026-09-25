@@ -905,9 +905,11 @@
       }
       /* Same helpers, and the same order, as kitchenCard: tile, name, the
          business-type label, then "From $X/day · $X/week · $X/month" with
-         the trial week and nutrition chips (card-price-row, reused as-is)
-         -- so the map preview reads exactly like the list card. */
-      var priceRow = TF.el('div', { class: 'card-price-row map-kitchen-price-row' }, [TF.priceLine(k), TF.trialChip(k), TF.nutritionChip(k)]);
+         the status pill (card-price-row, reused as-is) -- so the map
+         preview reads exactly like the list card (Round 42: the trial
+         week and nutrition facts moved into the quiet cardFacts() line
+         below, same as the list card). */
+      var priceRow = TF.el('div', { class: 'card-price-row map-kitchen-price-row' }, [TF.priceLine(k), TF.statusPill(k)]);
       list.appendChild(TF.el('li', { class: 'map-kitchen', 'data-slug': k.slug }, [
         TF.dabbaTile(k.hue, k.cuisine, false),
         TF.el('div', { class: 'map-kitchen-body' }, [
@@ -921,9 +923,9 @@
           priceRow.firstChild ? priceRow : null,
           TF.hasPickup(k) ? TF.el('p', { class: 'map-kitchen-where' }, [TF.icon('bag', 14), TF.el('span', { text: TF.pickupLine(k) })]) : null,
           TF.hasDelivery(k) ? TF.el('p', { class: 'map-kitchen-where' }, [TF.icon('truck', 14), TF.el('span', { text: deliversLine(k) })]) : null,
-          /* Same helpers and order as kitchenCard: the badge (Sample listing
-             or the permit), the diet chip, then the capacity. At most three. */
-          TF.el('div', { class: 'map-kitchen-badges' }, [TF.permitBadge(k), TF.dietChip(k), TF.statusPill(k)]),
+          /* Same helper as kitchenCard: one quiet text line for the
+             permit/sample state, diet word, trial week and nutrition info. */
+          TF.cardFacts(k),
           actions
         ])
       ]));

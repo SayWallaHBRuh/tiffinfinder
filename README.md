@@ -63,6 +63,27 @@ local-link check calls into. Run it by hand with `--online` (never inside
 once there are real kitchens — and report anything that doesn't answer:
 `python tools/check_links.py --online`.
 
+`tools/check_data_live.py --online` (Round 42) fetches the live
+`https://tiffinfinder.ca/data/kitchens.json` and `data/dishes.json` after a
+deploy and checks each one is valid JSON with the shape `app.js` expects
+(`kitchens` is a list of objects with a `slug`; `dishes` is a list) --
+exits non-zero and prints which file failed and why. This is the one
+integrity risk nothing else catches automatically: every other bad-data
+case (a malformed real-kitchen entry, a banned phrase, a broken link) is
+caught by `check_listings.py`/`check_ship.py` *before* a commit ships, but
+a hand-edit on GitHub that leaves `data/kitchens.json` invalid JSON, or
+`kitchens` not a list, ships straight to the live site with nothing to
+notice besides a household emailing in "the site shows nothing" (there's
+no analytics on this tracker-free site). The app itself already handles
+this calmly on its own -- a malformed file fails to parse, `loadData()`
+catches it, and the list shows its "Kitchens didn't load" state with a
+Retry button, never a blank page or a crash -- this script exists to catch
+the bad deploy itself, right after it ships. Never run it from
+`check_ship.py`: it needs the live network (not available in most build
+sessions, per the handoff notes), and a commit should never be blocked by
+a fetch of the site it just built. Run it by hand after every push:
+`python tools/check_data_live.py --online`.
+
 `tools/check_layout.py` drives headless Edge across every page, four
 widths (360/390/768/1280) and both colour schemes, in both the normal and
 "samples hidden" (launch) states, checking for horizontal overflow, an
@@ -136,7 +157,7 @@ The home page (`./`) reads these from the address:
 - Ordering. A kitchen's page has "Order on WhatsApp" ("Join the waitlist" when `capacity` is `"waitlist"`, "Ask to join the waitlist" when it is `"full"`) and "Call" buttons. Neither is a link: both open the order sheet ("You’re about to send"), where the household picks a plan (only the plans the kitchen has prices for) and a start day (the next five weekdays; hidden when joining a waitlist), can add a note of up to 140 characters (with a reminder not to add their address), and sees the exact message before tapping "Send on WhatsApp". "Call instead" switches to "Before you call": the phone number, the same words as a short script, and a "Call <number>" link. A kitchen with no WhatsApp number opens straight on the call script. The choices stay in memory for that kitchen until the page reloads; nothing is saved or sent anywhere except the household's own WhatsApp or phone. The sheet closes with Escape, the X or a tap outside it, and after Send or Call.
 - Every prefilled message is built in one place in `app.js` (`orderMessage`) and always starts "Hi, I found you on Tiffin Finder.", so a kitchen can tell who found it here, for example "Hi, I found you on Tiffin Finder. I’d like the weekly plan starting Mon 28 Sep. Less spicy please." It never adds a phone number, address or name. The note is cleaned first (control and text-direction characters removed, spaces collapsed, cut to 140 characters).
 - `trial` (optional, right after `price`) is `{"offered": true | false, "price": <number> | null, "note": <text> | null}`. When `offered` is `true`, the card and the map preview show a "Trial week $N" chip (just "Trial week" without a price), the kitchen's "Plans and prices" table gets a "Trial week" row (its price, or "Ask the kitchen") with the note (1 to 120 characters) under it, and the trial week is a plan in the order sheet when it has a price. The price must be above 0 and under 1000; anything else counts as no price.
-- `capacity` (optional, right after `trial`) is `"open"`, `"waitlist"` or `"full"`. It shows as "Taking new customers", "Waitlist" or "Full right now" on the card, in the map preview and beside the order heading, and changes the order button's label (see Ordering). It shows only while ordering is open (permit checked, or a sample); a pending or re-checking kitchen never shows it. Missing or any other value means unknown and shows nothing.
+- `capacity` (optional, right after `trial`) is `"open"`, `"waitlist"` or `"full"`. It shows as "Taking new customers", "Waitlist open" or "Full for now" on the card, in the map preview and beside the order heading — one grammatical shape for all three (Round 42) — and changes the order button's label (see Ordering). It shows only while ordering is open (permit checked, or a sample); a pending or re-checking kitchen never shows it. Missing or any other value means unknown and shows nothing.
 - Cards show the day, week and month prices on one line ("From $13/day · $75/week · $260/month", from `price.day`, `price.weekly` and `price.monthly`), and a badge row of at most three: "Sample listing" or the permit badge, one diet word (Jain, else Veg, else Halal), then the capacity. Pickup or delivery is in the line under the name. A map preview (tap a pin) shows the same badge row, and its line under the name holds the cuisine, quadrant, day price, the "Pickup" / "Delivery" / "Pickup & delivery" chip and, last, the trial week; a kitchen with no day price shows no "/day" at all.
 - The sample kitchens' `trial` and `capacity` are made up by `python tools/sample_decisions.py` (standard library only; run it from the `tiffinfinder` folder). It changes only kitchens with `"sample": true`: about 60% "open", 25% "waitlist" and the rest "full" (14 / 6 / 4 for 24 samples), and half of the samples (never a full one) offer a trial week at 85% of the weekly price, some with the note "Five weekday tiffins, one trial week per household.". It picks with hashes of the slugs, so running it again gives a byte-identical file, and it keeps the file's newline style. It stops with an error, naming the kitchen, if a check fails.
 - `data/dishes.json` is the dish glossary shown on kitchen pages: a dish name on a menu that matches one of an entry's `terms` gets a dotted underline and opens that entry's one-line description. If the file can't load, menus show as plain text.

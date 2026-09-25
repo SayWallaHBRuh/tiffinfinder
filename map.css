@@ -120,14 +120,25 @@
   pointer-events: none;
 }
 
+/* Round 42: styled as a caption attached to the Airdrie inset rather than
+   plain text floating over the dark canvas -- the same fill and line
+   colour as .map-inset (the rounded panel drawn behind the Airdrie
+   shapes), and a corner-radius in the same family as .map-frame's own
+   (var(--radius)), scaled down to fit a caption this size, so the two
+   read as one design language instead of a separate floating card. */
 .map-label {
   position: absolute;
   left: var(--x);
   top: var(--y);
-  transform: translateX(-100%);
+  transform: translate(-100%, -100%);
   text-align: right;
   line-height: 1.2;
   white-space: nowrap;
+  padding: 5px 12px;
+  background: var(--map-inset);
+  border: 1px solid var(--map-inset-line);
+  border-radius: calc(var(--radius) / 2);
+  box-shadow: var(--shadow-1);
   transition: left 620ms var(--ease-in-out), top 620ms var(--ease-in-out);
 }
 
@@ -137,10 +148,17 @@
   color: var(--ink);
 }
 
-.map-label-sub {
-  display: block;
+/* The label now reads "Airdrie (not to scale)" on one line -- the extra
+   words are added here rather than in the sub line, so the caption stays
+   a single compact tag instead of a two-line block. */
+.map-label-name::after {
+  content: " (not to scale)";
   font: 600 0.75rem var(--font-body);
   color: var(--muted);
+}
+
+.map-label-sub {
+  display: none;
 }
 
 /* A pin is a 44px button centred on its point; the visible dot is 32px. */
@@ -490,57 +508,36 @@
   margin-top: 3px;
 }
 
-/* The preview's badge row: the same three chips as a card (badge, diet,
-   capacity), sized down so a cluster card stays compact. Colours and
-   contrast are the card chips' own (section 7). */
-.map-kitchen-badges {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 6px;
+/* Round 42: the preview's quiet facts line, the same .card-facts text as
+   a list card (permit/sample state, diet word, trial week, nutrition
+   info), just given a touch more top margin to clear the price row above
+   it in this tighter layout. */
+.map-kitchen-body .card-facts {
   margin-top: 6px;
 }
 
-.map-kitchen-badges .badge,
-.map-kitchen-badges .diet-chip,
-.map-kitchen-badges .status-pill {
-  /* Same size as .card-badges, so the permit badge reads identically on
-     the map preview and the list card. */
+/* The status pill now lives in .map-kitchen-price-row, alongside the
+   price -- sized down here to match .card-price-row's own map-preview
+   scale so it doesn't dominate a compact cluster card. */
+.map-kitchen-price-row .status-pill {
   min-height: 25px;
+  padding-inline: 8px 9px;
   padding-block: 2px;
+  gap: 6px;
   font-size: 0.74rem;
 }
 
-.map-kitchen-badges .badge {
-  padding-inline: 7px 9px;
-  gap: 5px;
-}
-
-.map-kitchen-badges .badge svg {
-  width: 13px;
-  height: 13px;
-}
-
-.map-kitchen-badges .diet-chip {
-  padding-inline: 9px;
-}
-
-.map-kitchen-badges .status-pill {
-  padding-inline: 8px 9px;
-  gap: 6px;
-}
-
-.map-kitchen-badges .status-pill::before {
+.map-kitchen-price-row .status-pill::before {
   width: 7px;
   height: 7px;
   box-shadow: 0 0 0 2px var(--verified-soft);
 }
 
-.map-kitchen-badges .status-pill[data-capacity="waitlist"]::before {
+.map-kitchen-price-row .status-pill[data-capacity="waitlist"]::before {
   box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
-.map-kitchen-badges .status-pill[data-capacity="full"]::before {
+.map-kitchen-price-row .status-pill[data-capacity="full"]::before {
   box-shadow: 0 0 0 2px var(--danger-soft);
 }
 

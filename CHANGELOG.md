@@ -1,5 +1,72 @@
 # Changelog
 
+## Round 42 — 2026-09-25
+
+Round 42: live data check, menu freshness, owner flow order, calmer cards,
+capacity wording, Airdrie inset.
+
+- **A new `tools/check_data_live.py --online`** fetches the live
+  `data/kitchens.json` and `data/dishes.json` after a deploy and checks
+  each one is valid JSON with the shape `app.js` expects. Every other bad-
+  data risk is already caught before a commit ships; a hand-edit on GitHub
+  that leaves the live file broken was the one thing nothing checked
+  afterwards. `app.js` already handled this calmly on its own (a parse
+  failure shows the list's "Kitchens didn't load" state with a Retry
+  button, never a blank page), confirmed by reading `loadData()` and
+  tested against a deliberately corrupted scratch copy; this script closes
+  the detection gap, not a user-facing bug. Documented in README.md,
+  "Before you ship" -- run it by hand after every push.
+- **A menu's age is never silently unreadable past five weeks.** `timeAgo()`
+  used to jump from "posted 4 weeks ago" straight to a bare date ("posted
+  12 Jun") with no relative framing at all. It now keeps counting in
+  months, then years ("posted 3 months ago", "posted 1 year ago"), the
+  same "posted N ago" shape all the way through. A kitchen's own page also
+  gets a new, quiet, factual note once a menu is more than 21 days old --
+  "This menu was posted over 2 weeks ago -- ask the kitchen for this
+  week's." -- never a red "stale" badge, and never on the compact card.
+  Every sample kitchen's menu is well under 21 days old today, so nothing
+  changes on the live samples.
+- **`kitchens.html`'s "Request a listing" section now follows the numbered
+  "How to get listed" steps directly**, instead of sitting after two
+  unrelated guide sections ("Presenting your weekly plan clearly",
+  "Photographing your tiffin with a phone") a reader had to scroll past
+  first. Those two guides moved to the end of the page, as reference
+  material for once someone's already in and preparing their first menu.
+  The page's hero also gained a short "Ready now? Request a listing" link
+  next to the existing "See how to get permitted" one.
+- **The static hero text no longer waits behind a loading skeleton it
+  never needed.** The eyebrow, heading and lede are genuine static copy --
+  they don't depend on `kitchens.json` at all except in the rare case the
+  page turns out to be the launch page -- but they were included in the
+  same shimmer-and-hide treatment as the live kitchen count, so a slow
+  connection could show blank grey bars where the page's actual first
+  impression should be. Only the live count and the launch panel (which
+  really don't know their content yet) still wait for data; the heading,
+  subhead and eyebrow now paint and animate in immediately, CSS-only, in
+  both the normal and reduced-motion styling.
+- **The card badge row is calmer.** A card could show up to six same-size
+  pills (the permit/sample badge, a diet chip, capacity, a trial-week
+  chip, a nutrition chip) all competing for attention. The capacity pill
+  ("Taking new customers" / "Waitlist open" / "Full for now") is now the
+  one primary, coloured pill, sitting with the price; everything else
+  (the permit or "Sample listing" state, the diet word, the trial week
+  price, "Nutrition info") is one quiet text line underneath, the same
+  muted style already used for the meta line above it. No information was
+  dropped, only re-weighted -- the corner "Sample" tag is untouched, so
+  sample signalling reads at least as clearly as before. The map preview
+  card matches, so both read the same way.
+- **Capacity wording is one grammatical shape everywhere**: "Taking new
+  customers" / "Waitlist open" / "Full for now" (previously "Waitlist" and
+  "Full right now" didn't match the other two's phrasing). Updated on
+  cards, the kitchen page, the map preview and in README.md; the filter
+  checkbox label keeps its own "Taking new customers" text on purpose,
+  since it's the same fact asked as a question.
+- **The map's Airdrie inset now reads as part of the map**, not a floating
+  disconnected label. Its caption is styled with the same fill and line
+  colour as the inset panel behind it and a corner radius in the same
+  family as the map's own frame, and now reads "Airdrie (not to scale)"
+  on one line. CSS-only change in `map.css`.
+
 ## Round 41 — 2026-09-25
 
 Round 41: focused delivery-area map, dividers only on the home list.

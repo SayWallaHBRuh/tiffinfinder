@@ -484,7 +484,34 @@
     if (days < 7) return 'posted ' + days + ' days ago';
     var weeks = Math.round(days / 7);
     if (weeks < 5) return 'posted ' + (weeks === 1 ? '1 week ago' : weeks + ' weeks ago');
-    return 'posted ' + then.getDate() + ' ' + MONTHS[then.getMonth()];
+    /* Round 42: past 5 weeks this used to jump straight to a bare date
+       ("posted 12 Jun") with no relative framing at all -- a menu posted
+       three months ago read exactly like one posted five weeks ago at a
+       glance. Months, then years, keep the same "posted N ago" shape as
+       every shorter bucket above; see menuFreshnessNote() for the
+       separate, kitchen-page-only cue past 21 days that a household may
+       want to confirm the menu is still current. */
+    var months = Math.round(days / 30);
+    if (months < 12) return 'posted ' + (months <= 1 ? '1 month ago' : months + ' months ago');
+    var years = Math.round(days / 365);
+    return 'posted ' + (years <= 1 ? '1 year ago' : years + ' years ago');
+  }
+
+  /* Round 42: a quiet, factual note on a kitchen's own page (never on the
+     compact card -- see backlog-5 item 2) when its menu is more than 21
+     days old (three missed weekly posts, comfortably past a normal
+     absence like a holiday). Not a red "STALE" badge -- this site never
+     scolds a kitchen -- just the same muted tone already used for
+     secondary meta text, saying plainly that a household may want to
+     confirm the menu before ordering. Returns '' when the date is
+     missing, invalid, or 21 days old or newer. */
+  var MENU_STALE_DAYS = 21;
+  function menuFreshnessNote(iso) {
+    var then = new Date(iso);
+    if (isNaN(then.getTime())) return '';
+    var days = Math.floor((Date.now() - then.getTime()) / 86400000);
+    if (days <= MENU_STALE_DAYS) return '';
+    return 'This menu was posted over 2 weeks ago — ask the kitchen for this week’s.';
   }
 
   function money(n) {
@@ -649,7 +676,13 @@
        k.trial     {offered: true, price: number|null, note: string|null}
                    when the kitchen offers a trial week, else null */
   var CAPACITIES = ['open', 'waitlist', 'full'];
-  var CAPACITY_LABEL = { open: 'Taking new customers', waitlist: 'Waitlist', full: 'Full right now' };
+  /* Round 42: one grammatical shape for all three, so a household scanning
+     several cards reads the same sentence pattern each time instead of a
+     noun ("Waitlist") next to a full phrase ("Full right now") next to
+     another phrase. The filter checkbox label (index.html, "Taking new
+     customers") stays the same text as the open state on purpose -- it's
+     the same fact asked as a question. */
+  var CAPACITY_LABEL = { open: 'Taking new customers', waitlist: 'Waitlist open', full: 'Full for now' };
 
   /* business_type: what kind of permitted operator this is. Every permitted
      tiffin option is listed, not home kitchens only (Adeel's decision,
@@ -1300,7 +1333,7 @@
     return c === 'waitlist' || c === 'full';
   }
 
-  /* "Taking new customers", "Waitlist" or "Full right now"; the dot is
+  /* "Taking new customers", "Waitlist open" or "Full for now"; the dot is
      drawn by CSS (.status-pill::before). */
   function statusPill(k) {
     var c = capacityShown(k);
@@ -1327,6 +1360,36 @@
     chip.appendChild(icon('info', 13));
     chip.appendChild(el('span', { text: 'Nutrition info' }));
     return chip;
+  }
+
+  /* Round 42: the card's secondary facts, as one quiet text line instead
+     of a row of same-size pills. The capacity/status pill (statusPill) is
+     the one thing that stays a coloured pill — it's the primary,
+     time-sensitive fact ("Taking new customers" vs "Full for now") and
+     sits with the price, not here. Everything else that used to be its
+     own chip (the permit/sample state, the diet word, the trial week
+     price, "Nutrition info") becomes plain text in a single paragraph,
+     joined with " · " -- the same join-as-text pattern cardMetaLine()
+     already uses a few lines up, so this isn't a new UI language, just
+     reusing the quiet one. The corner "Sample" tag (sampleTag(), in the
+     card head) stays exactly as it is: it's the strong, unambiguous
+     signal rule 1 requires, and this line's "Sample listing" text is the
+     deliberate second, quieter confirmation next to the rest of the
+     facts (see backlog-5 item 8 — both signals are kept on purpose).
+     Every word that used to be on a chip is still here, so nothing is
+     dropped, only re-weighted. */
+  function cardFacts(kitchen) {
+    var info = permitInfo(kitchen);
+    var parts = [];
+    if (info.state === 'sample') parts.push('Sample listing');
+    else if (info.state === 'checked') parts.push('Permit checked · ' + formatDate(info.checkedOn));
+    else if (info.state === 'rechecking') parts.push('Permit being re-checked');
+    else parts.push('Verification pending');
+    var dietWord = kitchen.jain ? 'Jain' : (kitchen.veg_only ? 'Veg' : (kitchen.halal ? 'Halal' : ''));
+    if (dietWord) parts.push(dietWord);
+    if (kitchen.trial) parts.push(kitchen.trial.price !== null ? 'Trial week ' + money(kitchen.trial.price) : 'Trial week');
+    if (kitchen.nutrition) parts.push('Nutrition info');
+    return el('p', { class: 'card-facts', text: parts.join(' · ') });
   }
 
   /* A small neutral label for the kind of permitted operator this is
@@ -1551,13 +1614,13 @@
       card.appendChild(peek);
     }
 
-    /* "From $13/day · $75/week · $260/month" and the trial week. */
-    var priceRow = el('div', { class: 'card-price-row' }, [priceLine(kitchen), trialChip(kitchen), nutritionChip(kitchen)]);
+    /* "From $13/day · $75/week · $260/month" plus the one primary status
+       pill (Round 42: taking new customers / waitlist / full — the only
+       chip-shaped fact left on the card; see cardFacts() for everything
+       else, now one quiet text line below). */
+    var priceRow = el('div', { class: 'card-price-row' }, [priceLine(kitchen), statusPill(kitchen)]);
     if (priceRow.firstChild) card.appendChild(priceRow);
-
-    /* Always in this order: the badge (Sample listing or the permit), the
-       diet chip, then whether the kitchen is taking new customers. */
-    card.appendChild(el('div', { class: 'card-badges' }, [permitBadge(kitchen), dietChip(kitchen), statusPill(kitchen)]));
+    card.appendChild(cardFacts(kitchen));
 
     var foot = el('div', { class: 'card-foot' });
     var price = el('div', { class: 'price' });
@@ -2825,6 +2888,10 @@
     var ago = timeAgo(k.last_posted);
     if (ago) sub.push(ago);
     if (sub.length) menu.appendChild(el('p', { class: 'sub', text: sub.join(' · ') }));
+    /* Round 42: a quiet, factual freshness note past 21 days -- see
+       menuFreshnessNote(). Kitchen page only, never on the compact card. */
+    var freshness = menuFreshnessNote(k.last_posted);
+    if (freshness) menu.appendChild(el('p', { class: 'fine', text: freshness }));
     /* Dish names found in the glossary become buttons; each opens its own
        one-line note under the row (several can be open). Without the
        glossary the line is plain text. The toggle is in onDocumentClick. */
@@ -5256,6 +5323,7 @@
     dietChip: dietChip,
     nutritionChip: nutritionChip,
     permitBadge: permitBadge,
+    cardFacts: cardFacts,
     pickupLine: pickupLine,
     priceLine: priceLine,
     serviceChip: serviceChip,

@@ -2383,31 +2383,18 @@ main[tabindex="-1"]:focus {
   color: var(--ink-2);
 }
 
-/* A card's badge row: the badge (Sample listing or the permit), the diet
-   chip, then the capacity pill. Never more than three. Name and price (see
-   .card-title, .card-price strong) are the read-first elements on a card;
-   this row is scanned second, so it stays a size and weight step below
-   them while keeping every colour and label the same as elsewhere. */
-.card-badges {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 5px 7px;
-  margin-top: 1px;
-}
-
-.card-badges .badge,
-.card-badges .diet-chip,
-.card-badges .status-pill {
-  min-height: 25px;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  font-size: 0.74rem;
-}
-
-.card-badges .badge svg {
-  width: 13px;
-  height: 13px;
+/* Round 42: the card's secondary facts (the permit/sample state, the diet
+   word, the trial week price, "Nutrition info") as one quiet text line
+   instead of a row of same-size pills -- see cardFacts() in app.js. Name,
+   price and the capacity pill (.card-price-row) are the read-first
+   elements on a card; this line is scanned third, a size step below them,
+   using the same muted colour as .card-meta and .card-price so it reads
+   as one quiet family rather than competing chips. */
+.card-facts {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 
 /* The kind of permitted operator ("Home kitchen · permitted",
@@ -2457,7 +2444,7 @@ main[tabindex="-1"]:focus {
   white-space: nowrap;
 }
 
-/* "Taking new customers", "Waitlist" or "Full right now": --ink-2 text on
+/* "Taking new customers", "Waitlist open" or "Full for now": --ink-2 text on
    --surface (9:1+ both themes); the dot repeats it in colour. */
 .status-pill {
   display: inline-flex;
@@ -5947,10 +5934,16 @@ main[tabindex="-1"]:focus {
 
 /* Loading hero (index.html .is-pending, removed by app.js revealHero once
    the kitchens arrive). Only under .js, so without JavaScript the hero
-   reads normally. The words stay in the page (the h1 keeps its name for
-   screen readers) but show as soft cream bars, and the filters hold their
-   space unseen, so nothing jumps when the real hero appears. */
-.js .hero.is-pending :is(#hero-eyebrow, #hero-heading, #hero-lede, .hero-count) {
+   reads normally. Round 42: the eyebrow, heading and lede are genuinely
+   static copy -- they don't depend on kitchens.json at all, except in the
+   rare case the page turns out to be the launch page (see applyHeroMode),
+   so they now paint and animate in immediately like the rest of the page
+   instead of waiting behind a skeleton. Only the live kitchen count
+   (.hero-count, which really doesn't have a number yet) and the launch
+   panel (#hero-launch, which really doesn't know yet whether it applies)
+   stay held back as soft cream bars until the reveal, so nothing jumps
+   when the real hero appears. */
+.js .hero.is-pending .hero-count {
   justify-self: start;
   color: transparent;
   background: linear-gradient(90deg, rgb(251 247 239 / 0.10), rgb(251 247 239 / 0.18), rgb(251 247 239 / 0.10));
@@ -5958,9 +5951,6 @@ main[tabindex="-1"]:focus {
   animation: shimmer 1.6s linear infinite;
   border-radius: 12px;
   user-select: none;
-}
-
-.js .hero.is-pending .hero-count {
   border-color: transparent;
 }
 
@@ -5968,8 +5958,12 @@ main[tabindex="-1"]:focus {
   visibility: hidden;
 }
 
-/* The entrance rise waits for the reveal, then plays once (.is-revealed). */
-.js .hero.is-pending .hero-inner > * {
+/* The entrance rise waits for the reveal, then plays once (.is-revealed),
+   but only for the two elements that are still genuinely pending -- the
+   eyebrow, heading and lede play their normal entrance immediately (the
+   base .hero-inner > * rule a few lines down), the same as every other
+   static element on first paint. */
+.js .hero.is-pending .hero-inner > :is(.hero-count, #hero-launch) {
   animation: none;
 }
 
@@ -6070,8 +6064,10 @@ main[tabindex="-1"]:focus {
     background: var(--surface-2);
   }
 
-  /* The loading hero: still cream bars, no shimmer, and no rise on reveal. */
-  .js .hero.is-pending :is(#hero-eyebrow, #hero-heading, #hero-lede, .hero-count) {
+  /* The loading hero: still a cream bar for the live count, no shimmer,
+     and no rise on reveal -- see the Round 42 comment above for why the
+     eyebrow, heading and lede are no longer included here. */
+  .js .hero.is-pending .hero-count {
     animation: none;
     background: rgb(251 247 239 / 0.12);
   }
