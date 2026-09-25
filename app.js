@@ -49,9 +49,13 @@
   var KEYS = {
     theme: 'tf.theme',
     follows: 'tf.follows',
-    alerts: 'tf.alerts',
     preview: 'tf.previewDismissed'
   };
+  /* Alerts were never shipped (see decisions in the repo's handoff notes),
+     but an earlier build saved a sign-up email under this key on some
+     devices. Delete it once, on every page load, as ordinary cleanup of
+     personal data we no longer use — see cleanupLegacyAlerts() below. */
+  var LEGACY_ALERTS_KEY = 'tf.alerts';
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   var DAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   /* Every prefilled order message starts with this (see orderMessage), so
@@ -249,7 +253,7 @@
 
   /* A kitchen's own link (?k=<slug>&solo=1; "true", "yes" and "on" work
      too): .is-solo goes on <html> now, before first paint, so styles.css
-     hides the directory (hero, filters, lists, FAQ, alerts, site links)
+     hides the directory (hero, filters, lists, FAQ, site links)
      before it can flash. ?solo=1 without k is ignored. isOnValue is a
      function declaration, so it can be called this early. */
   var SOLO_AT_LOAD = (function () {
@@ -4144,7 +4148,7 @@
        it at once (renderKitchen closes it too when the page is rebuilt). */
     if (!(isKitchen && orderDraft && orderDraft.slug === route.slug)) closeOrderSheetNow();
     /* The launch page replaces the list: no filters, tabs, results or
-       neighbourhoods. The FAQ and the alerts band stay. ?view=map shows it
+       neighbourhoods. The FAQ stays. ?view=map shows it
        too: renderResults() returns early on the launch page, so #map-view
        stays hidden and the map's files (data/map/*.json) are never
        requested. ?view=following keeps its own section under the launch
@@ -4160,6 +4164,7 @@
     if (dom.faq) dom.faq.hidden = isKitchen;
     if (dom.hoods) dom.hoods.hidden = !isBrowse || launch || !state.loaded || state.error || !(dom.hoodsGrid && dom.hoodsGrid.firstChild);
     applyHeroMode(launch);
+    updatePreviewBarVisibility();
 
     dom.tabAll.setAttribute('aria-current', isBrowse ? 'page' : 'false');
     dom.tabFollowing.setAttribute('aria-current', isFollowing ? 'page' : 'false');
@@ -4208,8 +4213,8 @@
   }
 
   function onPopState(event) {
-    /* An in-page link (the skip link, or the FAQ's link to the alerts box)
-       also fires popstate, with no state and a #fragment. It can't change
+    /* An in-page link (the skip link, or a FAQ anchor) also fires popstate,
+       with no state and a #fragment. It can't change
        the view, so leave the page and the browser's scroll alone. Entries
        written here either carry a state (navigate) or drop the fragment
        (syncFiltersToURL), so they never match this test. */
@@ -4220,88 +4225,18 @@
   }
 
   /* ---------------------------------------------------------------------
-     Alerts sign-up (browser-only; nothing is sent)
-  --------------------------------------------------------------------- */
-  function maskEmail(email) {
-    var at = email.indexOf('@');
-    if (at <= 0) return email;
-    var local = email.slice(0, at);
-    var domain = email.slice(at);
-    return local.charAt(0) + '•••' + domain;
-  }
-
-  function renderAlertsState() {
-    if (!dom.alertsForm) return;
-    var saved = store.get(KEYS.alerts, null);
-    var fields = dom.alertsFields;
-    var savedBox = dom.alertsSaved;
-    var isSaved = !!(saved && typeof saved.email === 'string');
-    fields.hidden = isSaved;
-    savedBox.hidden = !isSaved;
-    dom.alertsSubmit.hidden = isSaved;
-    if (dom.alertConsentFine) dom.alertConsentFine.hidden = isSaved;
-    if (isSaved) {
-      dom.alertsSavedText.textContent = 'Saved on this device for ' + maskEmail(saved.email) + '. Alerts turn on at launch — nothing has been sent, and nothing left your browser.';
-    }
-  }
-
-  /* The full consent wording as stored: the label plus the optional-ness
-     note under the button, so the record matches what was on screen. */
-  function consentText() {
-    var parts = [];
-    if (dom.alertConsentText) parts.push(dom.alertConsentText.textContent.trim());
-    if (dom.alertConsentFine) parts.push(dom.alertConsentFine.textContent.trim());
-    return parts.join(' ');
-  }
-
-  function onAlertsSubmit(event) {
-    event.preventDefault();
-    var email = dom.alertEmail.value.trim();
-    var consent = dom.alertConsent.checked;
-    var status = dom.alertsStatus;
-    status.classList.remove('is-error', 'is-ok');
-    var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) && dom.alertEmail.validity.valid;
-    if (!emailOk) {
-      status.textContent = 'Please enter a valid email address.';
-      status.classList.add('is-error');
-      dom.alertEmail.focus();
-      return;
-    }
-    if (!consent) {
-      status.textContent = 'Tick the box to confirm you want email alerts. It stays optional.';
-      status.classList.add('is-error');
-      dom.alertConsent.focus();
-      return;
-    }
-    store.set(KEYS.alerts, {
-      email: email,
-      consented_at: new Date().toISOString(),
-      consent_text: consentText(),
-      follows: Array.from(state.follows)
-    });
-    status.textContent = 'Saved on this device only. Alerts turn on at launch — nothing is sent yet.';
-    status.classList.add('is-ok');
-    dom.alertsForm.reset();
-    renderAlertsState();
-    /* The focused "Save on this device" button is now hidden: keep keyboard
-       focus in the box, on the one control left (Remove), instead of
-       losing it to the page. */
-    if (dom.alertsRemove) dom.alertsRemove.focus();
-  }
-
-  function onAlertsRemove() {
-    store.remove(KEYS.alerts);
-    dom.alertsStatus.textContent = 'Removed from this device.';
-    dom.alertsStatus.classList.remove('is-error', 'is-ok');
-    renderAlertsState();
-    if (dom.alertEmail) dom.alertEmail.focus();
-  }
-
-  /* ---------------------------------------------------------------------
      Preview bar
   --------------------------------------------------------------------- */
   /* Dismissal persists on the device (localStorage) so the notice does not
-     return on every visit; "Clear my saved data" on the privacy page resets it. */
+     return on every visit; "Clear my saved data" on the privacy page resets it.
+     On the home page, once the real kitchen list has loaded, updatePreviewBarVisibility
+     (called from render()) also hides this bar while the site has zero
+     kitchens live (isLaunch()): its "Any kitchen marked Sample is made up
+     for testing" line would be untrue with no samples showing, and the
+     launch hero right below already says the site is launching and that
+     kitchens are added only after their permit is checked, so nothing is
+     lost by hiding it there. Static pages never call isLaunch() (they never
+     load kitchens.json), so their bar is unaffected. */
   function initPreviewBar() {
     var bar = document.getElementById('preview-bar');
     if (!bar) return;
@@ -4316,6 +4251,18 @@
         store.set(KEYS.preview, 1);
       });
     }
+  }
+
+  /* Called from render() on the home page, after every route change and
+     once the kitchen list has loaded: hides the preview bar while the site
+     has zero kitchens live (see the comment on initPreviewBar). Otherwise
+     it shows the bar again unless the visitor already dismissed it. Safe to
+     call before state.loaded (isLaunch() is false until then, its usual
+     state) and on pages with no #preview-bar (it just returns). */
+  function updatePreviewBarVisibility() {
+    var bar = document.getElementById('preview-bar');
+    if (!bar) return;
+    bar.hidden = isLaunch() || store.get(KEYS.preview, null) === 1;
   }
 
   /* ---------------------------------------------------------------------
@@ -5226,12 +5173,11 @@
     var status = document.getElementById('clear-data-status');
     btn.addEventListener('click', function () {
       store.remove(KEYS.follows);
-      store.remove(KEYS.alerts);
       store.remove(KEYS.theme);
       store.remove(KEYS.preview);
       state.follows = new Set();
       applyTheme(null);
-      if (status) status.textContent = 'Cleared. Follows, the alert sign-up, your theme choice and the preview-notice dismissal were removed from this device.';
+      if (status) status.textContent = 'Cleared. Follows, your theme choice and the preview-notice dismissal were removed from this device.';
     });
   }
 
@@ -5338,17 +5284,6 @@
     dom.hoodsGrid = document.getElementById('hoods-grid');
     dom.faq = document.getElementById('faq');
 
-    dom.alertsForm = document.getElementById('alerts-form');
-    dom.alertsFields = document.getElementById('alerts-fields');
-    dom.alertsSaved = document.getElementById('alerts-saved');
-    dom.alertsSavedText = document.getElementById('alerts-saved-text');
-    dom.alertsRemove = document.getElementById('alerts-remove');
-    dom.alertsSubmit = document.getElementById('alerts-submit');
-    dom.alertEmail = document.getElementById('alert-email');
-    dom.alertConsent = document.getElementById('alert-consent');
-    dom.alertConsentText = document.getElementById('alert-consent-text');
-    dom.alertConsentFine = document.getElementById('alert-consent-fine');
-    dom.alertsStatus = document.getElementById('alerts-status');
   }
 
   /* ---------------------------------------------------------------------
@@ -5542,8 +5477,18 @@
     document.body.insertBefore(bar, document.body.firstChild);
   }
 
+  /* One-time cleanup: an earlier build offered email alerts and saved a
+     sign-up email on-device under this key. Alerts were dropped before
+     launch, so any leftover copy on a returning visitor's device is
+     personal data we no longer use — delete it, quietly, every load
+     (removing an absent key is a harmless no-op). */
+  function cleanupLegacyAlerts() {
+    store.remove(LEGACY_ALERTS_KEY);
+  }
+
   function initCommon() {
     cacheDom();
+    cleanupLegacyAlerts();
     initFrameGuard();
     initNav();
     syncThemeUI();
@@ -5694,8 +5639,6 @@
   function initSolo() {
     state.solo = SOLO_AT_LOAD;
     if (!state.solo) return;
-    var alerts = document.getElementById('alerts');
-    if (alerts) alerts.hidden = true;
     var brand = document.querySelector('.site-header .brand');
     if (brand) {
       brand.removeAttribute('href');
@@ -5813,12 +5756,6 @@
     Array.prototype.forEach.call(document.querySelectorAll('.empty-art[data-hue]'), function (n) {
       n.appendChild(dabbaMark(Number(n.getAttribute('data-hue')), 56));
     });
-
-    if (dom.alertsForm) {
-      dom.alertsForm.addEventListener('submit', onAlertsSubmit);
-      if (dom.alertsRemove) dom.alertsRemove.addEventListener('click', onAlertsRemove);
-      renderAlertsState();
-    }
 
     updateFollowCount();
     render(false);

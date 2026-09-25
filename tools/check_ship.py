@@ -36,6 +36,13 @@ Checks (each prints its own PASS/FAIL lines):
     never appears anywhere in the site (Round 19 security review; that
     number is approved for Adeel's personal outreach only, never for the
     site).
+15. No promise of a menu-alerts feature: the phrases "alerts launch" and
+    "menu alerts" never appear (case-insensitive), and no page has an
+    #alerts section (id="alerts") or an .alerts band (class="alerts").
+    Alerts were dropped before launch (Round 31) -- see "ADEEL'S DECISIONS"
+    in the handoff repo's plans/overnight-loop.md. The Follow feature
+    itself is unaffected; this only guards against the site promising
+    notifications it doesn't have.
 
 Exits 0 if everything passes, 1 otherwise. Standard library only, no
 network access, deterministic.
@@ -445,6 +452,34 @@ def check_banned_phone():
         ok('old outreach phone number (368-399-4499) not found anywhere')
 
 
+# ---------------------------------------------------------------------------
+# 15. no menu-alerts promise: banned phrases, and no #alerts / .alerts
+# ---------------------------------------------------------------------------
+def check_no_alerts_promise():
+    hits = []
+    alert_phrases = ('alerts launch', 'menu alerts')
+    for path in scan_targets():
+        text = read_text(path)
+        low = text.lower()
+        for phrase in alert_phrases:
+            if phrase in low:
+                for i, line in enumerate(text.splitlines(), 1):
+                    if phrase in line.lower():
+                        hits.append('%s:%d: %r' % (os.path.relpath(path, ROOT), i, phrase))
+    section_re = re.compile(r'\b(?:id|class)\s*=\s*"(?:[^"]*\s)?alerts(?:\s[^"]*)?"', re.I)
+    for f in HTML_FILES:
+        path = os.path.join(ROOT, f)
+        text = read_text(path)
+        for i, line in enumerate(text.splitlines(), 1):
+            if section_re.search(line):
+                hits.append('%s:%d: an #alerts/.alerts section has come back - %s' % (f, i, line.strip()[:80]))
+    if hits:
+        for h in hits:
+            fail('alerts promise - ' + h)
+    else:
+        ok('no "alerts launch"/"menu alerts" phrase and no #alerts/.alerts section')
+
+
 def main():
     print('== Tiffin Finder ship check ==\n')
     check_cname()
@@ -462,6 +497,7 @@ def main():
     check_listings()
     check_target_blank()
     check_banned_phone()
+    check_no_alerts_promise()
 
     print('')
     if FAILURES:

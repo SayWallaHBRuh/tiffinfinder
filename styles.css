@@ -56,7 +56,7 @@
      every plain-theme surface it can land on -- checked numerically:
      4.0:1 on --surface-3 (the lowest), 4.2-5.5:1 on --bg/--surface/
      --surface-2/--accent-soft, 4.2:1 on --map-bg. On-brand (green) areas
-     and the map/alerts/page-hero sections keep their own --on-brand-accent
+     and the map/page-hero sections keep their own --on-brand-accent
      override just below, already saffron and already >=4.5:1 there. */
   --focus-brand: #c1481f;
   --focus: var(--focus-brand);
@@ -4784,148 +4784,6 @@ main[tabindex="-1"]:focus {
   --chip-q: var(--map-airdrie);
 }
 
-/* ---------- 11. Alerts panel --------------------------------------------- */
-.alerts {
-  --focus: var(--on-brand-accent);
-  margin-top: clamp(48px, 7vw, 88px);
-  color: var(--on-brand);
-  background:
-    radial-gradient(70% 80% at 0% 0%, rgb(60 140 90 / 0.22), transparent 60%),
-    linear-gradient(140deg, var(--brand), var(--brand-3));
-}
-
-.alerts-inner {
-  display: grid;
-  gap: 24px;
-  padding-block: clamp(36px, 5vw, 64px);
-}
-
-.alerts h2 {
-  color: var(--on-brand);
-  margin-bottom: 10px;
-}
-
-.alerts .eyebrow {
-  color: var(--on-brand-accent);
-  margin-bottom: 8px;
-}
-
-.alerts p {
-  color: var(--on-brand-muted);
-}
-
-.alerts-form {
-  display: grid;
-  gap: 14px;
-  padding: 20px;
-  border-radius: var(--radius);
-  background: rgb(0 0 0 / 0.18);
-  border: 1px solid var(--brand-line);
-}
-
-.alerts-form .field > label {
-  color: var(--on-brand-muted);
-}
-
-.alerts-form input[type="email"] {
-  width: 100%;
-  min-height: 50px;
-  padding: 12px 16px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--brand-field-line);
-  background: var(--brand-field);
-  color: var(--on-brand);
-  transition: border-color var(--dur-1) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
-}
-
-.alerts-form .fine {
-  margin: -4px 0 0;
-  font-size: 0.86rem;
-}
-
-.alerts-form input[type="email"]::placeholder {
-  color: var(--on-brand-muted);
-}
-
-.alerts-form input[type="email"]:focus {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
-  border-color: var(--on-brand-accent);
-  box-shadow: 0 0 0 4px rgb(250 210 154 / 0.28);
-}
-
-.check {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  min-height: 44px;
-  cursor: pointer;
-  color: var(--on-brand-muted);
-  font-size: 0.94rem;
-  line-height: 1.45;
-}
-
-.check input {
-  flex: none;
-  width: 22px;
-  height: 22px;
-  margin: 2px 0 0;
-  accent-color: var(--accent);
-  cursor: pointer;
-}
-
-.check input:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 3px;
-}
-
-.alerts .check p,
-.check span {
-  color: inherit;
-  margin: 0;
-}
-
-.form-status,
-.alerts .form-status {
-  margin: 0;
-  font-weight: 600;
-  color: var(--on-brand);
-  min-height: 1.4em;
-}
-
-.form-status.is-error {
-  color: #ffc4c4;
-}
-
-.form-status.is-ok {
-  color: #a6e6c0;
-}
-
-.alerts-saved {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.alerts .btn-ghost {
-  color: var(--on-brand);
-  border-color: var(--brand-line);
-}
-
-.alerts .btn-ghost:hover {
-  background: var(--brand-field);
-}
-
-@media (min-width: 820px) {
-  .alerts-inner {
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
-    gap: 40px;
-  }
-}
-
 /* ---------- 12. Footer --------------------------------------------------- */
 .site-footer {
   border-top: 1px solid var(--line);
@@ -5001,10 +4859,10 @@ main[tabindex="-1"]:focus {
 /* ---------- 12b. A kitchen's own link (?k=<slug>&solo=1) ----------------- */
 /* app.js puts .is-solo on <html> before first paint, so the directory
    never flashes: no site links, menu or install button, no hero, filters,
-   tabs, lists, neighbourhoods, FAQ or alerts, no back link, no "Leave
+   tabs, lists, neighbourhoods or FAQ, no back link, no "Leave
    demo" and no site footer. !important also beats app.js un-hiding the
    Install button later. Only on the app page. */
-:root.is-solo body[data-page="app"] :is(.site-nav, #menu-btn, #install-btn, #nav-sheet, #ios-sheet, #hero, #filters-section, #view-tabs-wrap, #view-browse, #view-following, #hoods, #faq, #alerts, .demo-leave, .site-footer .footer-inner, #kitchen-detail .back-link) {
+:root.is-solo body[data-page="app"] :is(.site-nav, #menu-btn, #install-btn, #nav-sheet, #ios-sheet, #hero, #filters-section, #view-tabs-wrap, #view-browse, #view-following, #hoods, #faq, .demo-leave, .site-footer .footer-inner, #kitchen-detail .back-link) {
   display: none !important;
 }
 

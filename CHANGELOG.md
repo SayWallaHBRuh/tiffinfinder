@@ -1,5 +1,55 @@
 # Changelog
 
+## Round 31 — 2026-09-25
+
+Round 31: the Round 30 launch rehearsal found two honesty problems and the
+next-backlog launch-day copy pass (A10/A11) — fixed all three, no other
+feature changes.
+
+- Removed the "Alerts" section from `index.html` (the email sign-up band
+  and its "Know the moment your kitchen posts" heading) and the "How will
+  menu alerts work?" FAQ item. Menu alerts were never on the settled
+  decisions list (see "ADEEL'S DECISIONS" in the handoff repo's
+  `plans/overnight-loop.md`) and aren't coming, so the site shouldn't
+  promise them. Removed every other alert mention: the "Is it free?" FAQ
+  answer no longer says "alerts will be free too"; `kitchens.html`'s
+  "Followers who get told" pitch card is now "Followers who find you
+  again" (no notification promise); `terms.html` no longer lists signing
+  up for alerts as a free feature; `privacy.html`'s "Alert sign-up" bullet
+  and "Future alerts and your consent" section are gone, replaced with one
+  honest line that an earlier version offered to save an email for this
+  and it's not coming back. `README.md` updated to match. The **Follow**
+  feature itself is unchanged — only the notification promise is gone.
+  Removed the matching JS (`app.js`: `renderAlertsState`, `onAlertsSubmit`,
+  `onAlertsRemove`, `maskEmail`, `consentText`, the alerts `dom.*` refs and
+  event listeners) and CSS (`.alerts`, `.alerts-form`, `.alerts-saved`,
+  `.check`, `.form-status` — all alerts-only, unused elsewhere). Added a
+  one-time cleanup, `cleanupLegacyAlerts()`, run on every page load, that
+  deletes any `tf.alerts` value an earlier build may have saved on a
+  returning visitor's device — that was a stored email address, personal
+  data the site doesn't use anymore.
+- The "Preview build" banner at the top of the home page used to say "Any
+  kitchen marked Sample is made up for testing" even in the launch state
+  (`show_samples: false`, zero real kitchens, zero samples showing) —
+  untrue with no samples on screen. New `updatePreviewBarVisibility()` in
+  `app.js` now hides that banner on the home page whenever the site has
+  zero kitchens live; the launch hero right below it already says the site
+  is launching and that kitchens are added only after their permit is
+  checked, so nothing is lost. Unaffected while samples are on (checked:
+  identical banner) and on every other page (`about.html`, `kitchens.html`,
+  etc., which never load `kitchens.json` and always show a sample listing
+  regardless of the switch, so the original wording stays accurate there).
+- Launch-day copy pass (`plans/next-backlog.md` A10/A11): re-read the
+  launch-state hero, FAQ and empty states with the above two fixes in
+  place — found nothing else that overpromises before real kitchens exist.
+- `tools/check_ship.py`: new check 15 fails the build if the phrase
+  "alerts launch" or "menu alerts" appears anywhere, or if an `#alerts` /
+  `.alerts` section comes back — so this can't silently regress.
+- Verified with `tools/rehearse_launch.py` (fresh screenshots: no banner,
+  no alerts anywhere, hero and FAQ read cleanly) and a manual pass with
+  samples on (banner text unchanged, byte-for-byte) at desktop and 390px.
+  `tf-v1.38.0`.
+
 ## Round 30 — 2026-09-25
 
 Round 30: launch-readiness build-out from `plans/next-backlog.md` section

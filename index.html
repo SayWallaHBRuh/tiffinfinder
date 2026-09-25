@@ -38,13 +38,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&family=Baloo+2:wght@800&display=swap">
-  <link rel="stylesheet" href="./styles.css?v=tf-v1.37.0">
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.38.0">
   <!-- app.js stays blocking here on purpose: it decides the route, a
        kitchen's own link (?k=&solo=1), demo mode and the pending hero
        before first paint, so a shared kitchen link never flashes the home
        page first. The other pages load it with defer (early.js covers
        the theme and a dismissed preview notice there). -->
-  <script src="./app.js?v=tf-v1.37.0"></script>
+  <script src="./app.js?v=tf-v1.38.0"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -432,11 +432,7 @@
           </div>
           <div class="faq-item is-open">
             <h3 class="faq-q"><button type="button" id="faq-q-free" aria-expanded="true" aria-controls="faq-a-free"><span>Is it free?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
-            <div class="faq-a" id="faq-a-free" role="region" aria-labelledby="faq-q-free"><div class="faq-a-inner"><p>Yes. Browsing and following kitchens cost households nothing, and alerts will be free too. There’s no markup: you pay the kitchen its own price. Listing is free for kitchens as well, with no commission.</p></div></div>
-          </div>
-          <div class="faq-item is-open">
-            <h3 class="faq-q"><button type="button" id="faq-q-alerts" aria-expanded="true" aria-controls="faq-a-alerts"><span>How will menu alerts work?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
-            <div class="faq-a" id="faq-a-alerts" role="region" aria-labelledby="faq-q-alerts"><div class="faq-a-inner"><p>Follow the kitchens you like, then leave your email in <a href="#alerts">the alerts box</a>. When alerts launch, you’ll get an email when a kitchen you follow posts its menu for the week, and every message has an unsubscribe link. Until then your follows and email stay on this device only. Nothing is sent.</p></div></div>
+            <div class="faq-a" id="faq-a-free" role="region" aria-labelledby="faq-q-free"><div class="faq-a-inner"><p>Yes. Browsing and following kitchens cost households nothing. There’s no markup: you pay the kitchen its own price. Listing is free for kitchens as well, with no commission.</p></div></div>
           </div>
           <div class="faq-item is-open">
             <h3 class="faq-q"><button type="button" id="faq-q-suggest" aria-expanded="true" aria-controls="faq-a-suggest"><span>Can I suggest a kitchen?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
@@ -447,35 +443,6 @@
             <div class="faq-a" id="faq-a-real" role="region" aria-labelledby="faq-q-real"><div class="faq-a-inner"><p>Not yet. Tiffin Finder is in preview. Any kitchen marked <strong>Sample</strong> is made up, with a 555 phone number. Real kitchens are added only after their permit is checked, and with their permission.</p></div></div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section class="alerts" id="alerts" aria-labelledby="alerts-heading">
-      <div class="wrap alerts-inner">
-        <div class="alerts-copy">
-          <p class="eyebrow">Alerts</p>
-          <h2 id="alerts-heading">Know the moment your kitchen posts</h2>
-          <p>Follow the kitchens you like and leave your email. When alerts launch, you’ll hear the moment they post the week’s menu. Right now this saves on your device only — nothing is sent, and nothing leaves your browser.</p>
-        </div>
-        <form class="alerts-form" id="alerts-form" novalidate>
-          <div id="alerts-fields">
-            <div class="field">
-              <label for="alert-email">Email</label>
-              <input id="alert-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com">
-            </div>
-            <label class="check">
-              <input type="checkbox" id="alert-consent" name="consent">
-              <span id="alert-consent-text">Yes, email me when kitchens I follow post a new menu. Every message has an unsubscribe link.</span>
-            </label>
-          </div>
-          <div class="alerts-saved" id="alerts-saved" hidden>
-            <p class="form-status" id="alerts-saved-text"></p>
-            <button type="button" class="btn btn-ghost btn-small" id="alerts-remove">Remove</button>
-          </div>
-          <button type="submit" class="btn btn-primary" id="alerts-submit">Save on this device</button>
-          <p class="fine" id="alert-consent-fine">Optional, and unchecked until you tick it.</p>
-          <p class="form-status" id="alerts-status" role="status" aria-live="polite"></p>
-        </form>
       </div>
     </section>
   </main>
