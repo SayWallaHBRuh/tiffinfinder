@@ -49,7 +49,7 @@
      (section 5) and about.html (#contact): change all four together. If it
      is ever set to '', the report link is hidden. */
   var REPORT_EMAIL = 'sitesbyadeel@gmail.com';
-  var DEFAULT_TITLE = 'Tiffin Finder — permit-checked home tiffin kitchens in Calgary';
+  var DEFAULT_TITLE = 'Tiffin Finder — permit-checked tiffin kitchens in Calgary';
   var QUADRANT_LABEL = { NE: 'Northeast', NW: 'Northwest', SE: 'Southeast', SW: 'Southwest', Airdrie: 'Airdrie' };
   var SVG_NS = 'http://www.w3.org/2000/svg';
   /* What the list says when kitchens.json can't be loaded: no connection

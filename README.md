@@ -1,6 +1,6 @@
 # Tiffin Finder
 
-Tiffin Finder is a Calgary directory of permit-checked home tiffin kitchens: households browse by quadrant, cuisine and price, open a kitchen to see this week's menu, follow it, and order by WhatsApp or phone directly with the kitchen. This is phase one: a read-only static PWA (no accounts, ordering, payments or delivery) built with plain HTML, CSS and JavaScript, and **`data/kitchens.json` is sample data** — fictional kitchens with 403-555-01xx numbers, labelled "Sample" on every card; real kitchens are added only after their permit is checked and with their permission.
+Tiffin Finder is a Calgary directory of permit-checked tiffin kitchens — home cooks, restaurants, caterers and rented commercial kitchens: households browse by quadrant, cuisine and price, open a kitchen to see this week's menu, follow it, and order by WhatsApp or phone directly with the kitchen. This is phase one: a read-only static PWA (no accounts, ordering, payments or delivery) built with plain HTML, CSS and JavaScript, and **`data/kitchens.json` is sample data** — fictional kitchens with 403-555-01xx numbers, labelled "Sample" on every card; real kitchens are added only after their permit is checked and with their permission.
 
 The live site is **<https://tiffinfinder.ca>** (the `CNAME` file points GitHub Pages at it; leave that file as it is).
 
@@ -13,7 +13,7 @@ The live site is **<https://tiffinfinder.ca>** (the `CNAME` file points GitHub P
 - **Follow and alerts, on this device only.** Follow a kitchen to find it again under "Following", and leave an email for alerts at launch. Both are saved in this browser only; nothing is sent.
 - **The order hand-off sheet** (Rounds 6 and 7). "Order on WhatsApp" and "Call" open a sheet with a message view and a call view. The message is built by `orderMessage()` in `app.js` and always starts "Hi, I found you on Tiffin Finder." Nothing is sent until the household sends it from their own WhatsApp or phone.
 - **Sample switch, demo and launch page** (Round 6). `show_samples` in `data/kitchens.json` hides the sample kitchens and shows the "Launching in NE Calgary" page; `?demo=1` shows the samples anyway. Every sample shows "Sample" / "Sample listing".
-- **The permit guide** (`permitted.html`, Round 8): what a home tiffin kitchen needs in Calgary, framed as "confirm with AHS" and "not legal advice".
+- **The permit guide** (`permitted.html`, Round 8): what a tiffin kitchen needs in Calgary, framed as "confirm with AHS" and "not legal advice".
 - **Tiffin 101** (`guide.html`, overnight round 3): a plain-language guide for households new to tiffin — what a tiffin service is, how plans and prices usually work, how to choose one, questions to ask a kitchen, and food-safety basics, all sourced and linked from `docs/research-notes.md`.
 - **Fresh pages, Share, a kitchen's own link and the report link** (Round 9). Pages are network-first; every kitchen page has Share; `?k=<slug>&solo=1` shows only that kitchen; and a "Report a problem with this listing" link stays hidden until a public contact address is set.
 - **Installable and offline.** Add it to the home screen; saved pages and the last kitchen list work without a connection.

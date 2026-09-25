@@ -1,7 +1,7 @@
 {
   "name": "Tiffin Finder",
   "short_name": "Tiffin Finder",
-  "description": "Permit-checked home tiffin kitchens in Calgary. Browse by quadrant, cuisine and price; see this week's menu; order by WhatsApp or phone.",
+  "description": "Permit-checked tiffin kitchens in Calgary. Browse by quadrant, cuisine and price; see this week's menu; order by WhatsApp or phone.",
   "id": "./",
   "start_url": "./",
   "scope": "./",

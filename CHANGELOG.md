@@ -1,5 +1,13 @@
 # Changelog
 
+## Round 16 — 2026-09-25
+
+- Wording pass to match Adeel's decisions: the site lists every permitted kind of tiffin operator, not home kitchens only, and pickup and delivery matter equally. Updated the tagline used across page titles, meta descriptions, social-share (Open Graph/Twitter) text, the shared footer line, the hero copy on the home page, and `manifest.webmanifest` from "permit-checked home tiffin kitchens" to "permit-checked tiffin kitchens", and worked "home cooks, restaurants and caterers" into the longer descriptions where there was room.
+- Rewrote the "Your pickup spot" section on the For Kitchens page so it explains that the map shows pickup spots and delivery areas side by side, instead of saying the map is "built around pickup" — the consent, precision-choice and no-home-address points are unchanged.
+- Softened one-sided phrasing on About, Tiffin 101 and the Terms page (e.g. "home tiffin kitchens" → "tiffin kitchens", with "home kitchens, restaurants, caterers and rented commercial kitchens" spelled out on Terms and the permit guide) so nothing reads as home-kitchens-only. Left "home-style" and "home-cooked" language alone where it's describing the food itself, and left the `home_kitchen_permitted` business-type label and sample data alone since a home kitchen with a permit is still one of the listed types.
+- `og-image.png`'s baked-in text still reads "home tiffin kitchen" from before this round; it needs a real browser render to regenerate, so `tools/og.html` was updated with the new wording for whenever that's next done, but the image itself is unchanged this round.
+- Housekeeping: version bumped to `tf-v1.24.0` (styles, scripts and the service worker's saved-files list all match).
+
 ## Round 15 — 2026-09-25
 
 - Got the site ready to hold real kitchens, following Adeel's decisions on 25 Sep 2026: every permitted kind of tiffin operator gets listed (a home kitchen with a permit, a restaurant, a caterer, or a cook renting a commercial kitchen), not home kitchens only; pickup and delivery are shown equally; the list stays the default view and the map stays secondary; the permit line keeps its one-date wording.
