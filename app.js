@@ -4059,15 +4059,20 @@
     container.appendChild(side);
 
     /* Section tabs: Menu, Plans, Nutrition (only when the kitchen filled
-       one in), Pickup/Delivery (whichever of the two it offers) and About.
-       Inserted right after the header card, so it sticks just under the
-       site header while the page scrolls. */
+       one in), Pickup/delivery (whichever of the two it offers, labelled
+       to match -- "Pickup", "Delivery" or "Pickup & delivery", the same
+       wording as the service chip elsewhere) and About. Inserted right
+       after the header card, so it sticks just under the site header
+       while the page scrolls. */
     var tabSections = [
       { id: 'section-menu', label: 'Menu', node: menu },
       { id: 'section-prices', label: 'Plans', node: prices }
     ];
     if (nutrition) tabSections.push({ id: 'section-nutrition', label: 'Nutrition', node: nutrition });
-    if (pickup || delivery) tabSections.push({ id: 'section-service', label: 'Pickup/Delivery', node: pickup || delivery });
+    if (pickup || delivery) {
+      var serviceTabLabel = pickup && delivery ? 'Pickup & delivery' : (pickup ? 'Pickup' : 'Delivery');
+      tabSections.push({ id: 'section-service', label: serviceTabLabel, node: pickup || delivery });
+    }
     tabSections.push({ id: 'section-permit', label: 'About', node: permit });
     var tabsNav = buildKitchenTabs(tabSections);
     if (tabsNav) container.insertBefore(tabsNav, menu);

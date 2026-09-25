@@ -1,5 +1,46 @@
 # Changelog
 
+## Round 29 — 2026-09-25
+
+Round 29: a measure-first performance, accessibility and copy quality pass
+on the rounds 18-28 UI work (logo/mascot, Baloo 2, the cuisine sprite, type
+icons, the bottom sheet, sticky kitchen tabs, the TOC, the nutrition
+panel). Full numbers and method in `docs/quality-pass-round29.md`.
+
+- Weighed everything a first load of the home page and a kitchen page
+  pulls in (`app.js` 250 KB / 69 KB over the wire, `styles.css` 132 KB /
+  31 KB, the icon SVGs, the three Google Fonts files). `app.js` and
+  `styles.css` are the two heavy files, both hand-authored with no
+  minifier by design (no build step); minifying either was considered and
+  declined this round since there's no pipeline in this repo to keep a
+  minified copy in sync with every future hand-edit safely. Confirmed the
+  render path (script load order/`defer`, image `width`/`height`) and the
+  service worker (precache list, map JSON staying lazy-loaded) were
+  already correct — no change needed there.
+- New `tools/optimize_svg.py` strips redundant trailing `.0` from numbers
+  in `icons/*.svg` (`139.0` and `139` are the same number to an SVG
+  renderer) — 390 bytes off `icon.svg`, `logo.svg` and `mascot.svg`,
+  pixel-identical (screenshot-verified).
+- `.card-price strong` was declared at Fraunces weight 800, but Fraunces
+  is only requested at weight 500-700 — the browser was already quietly
+  rendering it at 700, its nearest loaded weight. Declared 700 to match
+  what's actually shown; no visual change.
+- Accessibility re-audit of the bottom sheet, kitchen tabs, TOC, empty
+  states, nutrition panel, follow toast, type icons, heading order,
+  landmarks, 44px targets and 200%-zoom reflow: everything checked out
+  already correct. One fix did come out of it: a kitchen's sticky section
+  tab always read "Pickup/Delivery", even for a kitchen offering only one
+  of the two (misleading, and it didn't match the "Pickup" / "Delivery" /
+  "Pickup & delivery" wording used everywhere else on the site) — it now
+  reads whichever of the three actually applies.
+- Copy scan across every page and `app.js`'s string labels found no
+  typos and consistent sentence case; "rotli" and "roti" in the dish
+  glossary were checked and confirmed to be two different, correctly
+  distinct dishes, not an inconsistency.
+- Version bumped to `tf-v1.36.0` (styles, scripts and the service
+  worker's saved-files list all match; the three edited icons are
+  unchanged by name, only by content).
+
 ## Round 28 — 2026-09-25
 
 Round 28: a snappier Follow button, a sticky section nav on the kitchen

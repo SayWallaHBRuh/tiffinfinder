@@ -2475,7 +2475,11 @@ main[tabindex="-1"]:focus {
   color: var(--ink);
   font-family: var(--font-display);
   font-size: 1.28rem;
-  font-weight: 800;
+  /* Fraunces is only requested at weight 500-700 (Round 29); 800 isn't in
+     that range, so the browser already renders this at 700, its nearest
+     weight. Declaring 700 here matches what's actually shown -- no visual
+     change, just an honest value instead of one outside the loaded font. */
+  font-weight: 700;
 }
 
 /* "Trial week $64". --accent-ink on --accent-soft: 5.8:1 light, 7.5:1 dark. */
