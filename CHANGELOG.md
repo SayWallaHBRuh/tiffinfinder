@@ -137,3 +137,10 @@
 - The guide is now linked from the phone Menu sheet and the footer on every page, and added to the sitemap.
 - The kitchens are still made-up samples for testing, each marked "Sample".
 - Service worker tf-v1.15.0.
+
+## Overnight round 4 — 2026-09-24
+
+- Checked another 49 dish glossary entries (Afghan, Bengali, Hyderabadi, Nepali, Sri Lankan, Gujarati and Filipino), with extra attention to dietary claims. Seven were corrected: mantu and aushak now say what their toppings actually contain (aushak is often topped with a meat sauce, not just yogurt and mint); gotu kola sambol now notes it's traditionally made with dried fish; thukpa no longer implies meat is a fixed ingredient; kwati's "several kinds of beans" is now the correct "nine kinds"; puri is no longer sourced as if it were Gujarati-only; and menudo now mentions liver and is told apart from the unrelated Mexican dish of the same name. The other 42 checked out and were left as they were. Also checked the two sample kitchens marked Jain against their own sample menus: both already say up front that everything is cooked without onion, garlic or root vegetables, so no menu changes were needed.
+- The Tiffin 101 guide is now linked from a new "New to tiffins?" question on the home page FAQ, from the pre-launch "coming soon" page, and from every kitchen page near its plans and prices.
+- The kitchens are still made-up samples for testing, each marked "Sample".
+- Service worker tf-v1.16.0.

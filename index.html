@@ -38,13 +38,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&display=swap">
-  <link rel="stylesheet" href="./styles.css?v=tf-v1.15.0">
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.16.0">
   <!-- app.js stays blocking here on purpose: it decides the route, a
        kitchen's own link (?k=&solo=1), demo mode and the pending hero
        before first paint, so a shared kitchen link never flashes the home
        page first. The other pages load it with defer (early.js covers
        the theme and a dismissed preview notice there). -->
-  <script src="./app.js?v=tf-v1.15.0"></script>
+  <script src="./app.js?v=tf-v1.16.0"></script>
 </head>
 <body data-page="app">
   <a class="skip-link" href="#main">Skip to content</a>
@@ -108,7 +108,7 @@
             <a class="btn btn-primary" href="./kitchens.html">List your kitchen, free</a>
             <a class="btn btn-ghost" href="./?demo=1">See how it works</a>
           </div>
-          <p class="hero-launch-note">Tiffin Finder isn’t open yet. Real kitchens will show here as soon as each one is checked. Add it to your Home Screen to find it fast when it opens.</p>
+          <p class="hero-launch-note">Tiffin Finder isn’t open yet. Real kitchens will show here as soon as each one is checked. Add it to your Home Screen to find it fast when it opens. New to tiffins? Read the <a href="./guide.html">Tiffin 101 guide</a>.</p>
         </div>
       </div>
       <svg class="hero-art" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
@@ -344,6 +344,10 @@
           <div class="faq-item is-open">
             <h3 class="faq-q"><button type="button" id="faq-q-order" aria-expanded="true" aria-controls="faq-a-order"><span>How do I order a tiffin?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
             <div class="faq-a" id="faq-a-order" role="region" aria-labelledby="faq-q-order"><div class="faq-a-inner"><p>Straight from the kitchen. Open a kitchen and tap <strong>Order on WhatsApp</strong> or <strong>Call</strong>. Pick a plan and a start day, check the message, then send it or call. Then sort out delivery or pickup and payment with the cook, the way you already do. Tiffin Finder doesn’t take orders or payments and isn’t the seller of any meal.</p></div></div>
+          </div>
+          <div class="faq-item is-open">
+            <h3 class="faq-q"><button type="button" id="faq-q-new" aria-expanded="true" aria-controls="faq-a-new"><span>New to tiffins?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
+            <div class="faq-a" id="faq-a-new" role="region" aria-labelledby="faq-q-new"><div class="faq-a-inner"><p>Our <a href="./guide.html">Tiffin 101 guide</a> explains what a tiffin service is, what a typical meal includes, how plans and pricing usually work, and basic food-safety tips for storing and reheating your meals.</p></div></div>
           </div>
           <div class="faq-item is-open">
             <h3 class="faq-q"><button type="button" id="faq-q-permit" aria-expanded="true" aria-controls="faq-a-permit"><span>What does “Permit checked” mean?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>

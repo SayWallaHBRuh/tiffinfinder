@@ -3423,6 +3423,11 @@
       prices.appendChild(el('p', { class: 'fine plan-none', text: 'This kitchen hasn’t posted its plan prices yet. Ask when you order.' }));
     }
     prices.appendChild(el('p', { class: 'fine', text: confirmLine }));
+    prices.appendChild(el('p', { class: 'fine' }, [
+      'New to tiffins? ',
+      el('a', { href: './guide.html', text: 'Read the Tiffin 101 guide' }),
+      ' for how plans, pricing and ordering usually work.'
+    ]));
     container.appendChild(prices);
 
     /* Pickup (appended into the side rail below): where, how exactly the

@@ -383,8 +383,8 @@
       "terms": [
         "puri"
       ],
-      "description": "Small rounds of whole-wheat dough deep-fried until they puff up.",
-      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+      "description": "Small rounds of whole-wheat dough deep-fried until they puff up; a bread found across South Asia, including Gujarati thalis.",
+      "source": "https://en.wikipedia.org/wiki/Puri_(food)"
     },
     {
       "id": "chhundo",
@@ -943,7 +943,7 @@
       "terms": [
         "mantu"
       ],
-      "description": "Steamed dumplings filled with onion and ground beef, topped with yogurt and a lentil sauce.",
+      "description": "Steamed dumplings filled with onion and ground beef, topped with garlic yogurt and a tomato-lentil sauce.",
       "source": "https://en.wikipedia.org/wiki/Afghan_cuisine"
     },
     {
@@ -952,7 +952,7 @@
       "terms": [
         "aushak"
       ],
-      "description": "Dumplings filled mainly with leeks, topped with yogurt and mint.",
+      "description": "Dumplings filled mainly with leeks, topped with yogurt, mint and often a meat sauce.",
       "source": "https://en.wikipedia.org/wiki/Afghan_cuisine"
     },
     {
@@ -1006,7 +1006,7 @@
       "terms": [
         "kwati"
       ],
-      "description": "A Nepali soup made from several kinds of sprouted beans.",
+      "description": "A Nepali soup made from nine kinds of sprouted beans, traditionally eaten at the Janai Purnima festival.",
       "source": "https://en.wikipedia.org/wiki/Nepalese_cuisine"
     },
     {
@@ -1024,7 +1024,7 @@
       "terms": [
         "thukpa"
       ],
-      "description": "A warming Himalayan noodle soup with vegetables and meat.",
+      "description": "A warming Himalayan noodle soup with vegetables, and often meat or chicken.",
       "source": "https://en.wikipedia.org/wiki/Nepalese_cuisine"
     },
     {
@@ -1061,7 +1061,7 @@
       "terms": [
         "gotu kola sambol"
       ],
-      "description": "A fresh salad of finely shredded gotu kola leaves with coconut and lime.",
+      "description": "A fresh salad of finely shredded gotu kola leaves with coconut and lime, traditionally with dried Maldive fish flakes.",
       "source": "https://en.wikipedia.org/wiki/Sri_Lankan_cuisine"
     },
     {
@@ -1161,8 +1161,8 @@
       "terms": [
         "menudo"
       ],
-      "description": "Filipino pork stew with tomato sauce, potato and carrot.",
-      "source": "https://en.wikipedia.org/wiki/Filipino_cuisine"
+      "description": "Filipino pork-and-liver stew with tomato sauce, potato and carrot; unrelated to the Mexican tripe soup of the same name.",
+      "source": "https://en.wikipedia.org/wiki/Menudo_(Filipino_stew)"
     },
     {
       "id": "turon",
