@@ -15,7 +15,7 @@ The live site is **<https://tiffinfinder.ca>** (the `CNAME` file points GitHub P
 - **The permit guide** (`permitted.html`, Round 8): what a home tiffin kitchen needs in Calgary, framed as "confirm with AHS" and "not legal advice".
 - **Fresh pages, Share, a kitchen's own link and the report link** (Round 9). Pages are network-first; every kitchen page has Share; `?k=<slug>&solo=1` shows only that kitchen; and a "Report a problem with this listing" link stays hidden until a public contact address is set.
 - **Installable and offline.** Add it to the home screen; saved pages and the last kitchen list work without a connection.
-- **Round 10:** an accessibility pass (keyboard and screen-reader fixes), and versioned CSS/JS (`?v=<VERSION>`), so an update never serves old styles or scripts. The About page has no contact form: contact details will be added there at launch.
+- **Round 10:** an accessibility pass (keyboard and screen-reader fixes), and versioned CSS/JS (`?v=<VERSION>`), so an update never serves old styles or scripts. The About page has no contact form (the contact email was added later, see the Update entry in CHANGELOG.md).
 
 ## Run locally
 
@@ -35,7 +35,7 @@ Open <http://localhost:8000/>. (The service worker registers on `localhost` and 
 
 ## Showing or hiding the sample kitchens
 
-The made-up sample kitchens can be switched off in one place, for example when the site is about to launch. With them off, the home page shows a "Launching in NE Calgary" page (with "List your kitchen, free" and "See how it works") until real kitchens are added.
+The made-up sample kitchens can be switched off in one place, for example when the site is about to launch. With them off, the home page shows a "Launching in NE Calgary" page (with "List your kitchen, free" and "See how it works") until real kitchens are added. The map address shows the same page, and the Following page shows it with a short "Nothing to follow yet" note under it.
 
 1. On GitHub, open `data/kitchens.json` and click the pencil (**Edit**).
 2. Near the top, find `"show_samples": true`.
@@ -53,6 +53,7 @@ The home page (`./`) reads these from the address:
 
 - `?k=<slug>` opens a kitchen, for example `./?k=saffron-lane-rasoi`.
 - `?view=following` shows the kitchens you follow.
+- `price=low|mid|high` is the "Price per day" filter: under $12, $12 to $13 (up to $13.99), and $14 and up. A kitchen with no day price matches none of them.
 - Otherwise it shows the list, with any filters: `?q=<search>&area=NE|NW|SE|SW|Airdrie&service=pickup|delivery&near=<community>&cuisine=<name>&price=low|mid|high&veg=1&halal=1&jain=1&trial=1&open=1`. Filters left at their default are left out, so the plain list is just `./`. Changing a filter updates the address in place (no extra Back steps), so a filtered list can be reloaded or shared.
 - `trial=1` is the "Trial week" switch: only kitchens that offer a trial week. `open=1` is the "Taking new customers" switch: only kitchens whose `capacity` is `"open"` and that can take orders (permit checked, or a sample). Both count in "N filters on" and are cleared by "Reset filters"; `true`, `yes` and `on` work too.
 - `service=pickup` shows the kitchens that offer pickup (pickup-only, and pickup & delivery); `service=delivery` shows the kitchens that deliver (delivery-only, and pickup & delivery). It is the "Pickup / Delivery" chips under the quadrants, and the value is read in any case (`service=Pickup` works). Anything else means all kitchens.

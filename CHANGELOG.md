@@ -108,3 +108,15 @@
 - The "Report a problem with this listing" link is now switched on for every kitchen. It opens an email to sitesbyadeel@gmail.com in your own email app, with the kitchen's name filled in. Nothing is sent until you send it.
 - The privacy page, the terms and the About page now give sitesbyadeel@gmail.com as the contact address.
 - Service worker tf-v1.12.1.
+
+## Overnight round 1 — 2026-09-24
+
+- A full check of the site's code, offline support, wording, links, security and accessibility. Most things were already right; the fixes below are the ones that were confirmed.
+- On the Following page, unfollowing a kitchen with the keyboard no longer drops your place: focus moves to the next kitchen's Follow button, or to the page heading when none are left.
+- Before launch (samples switched off), the Following page now says plainly "Nothing to follow yet" under the "Launching in NE Calgary" heading, instead of silently showing the home page.
+- The launch heading now reads "Launching in NE Calgary: permit-checked tiffin kitchens in one place", and the line under it no longer says kitchens are being checked right now. It says each kitchen is listed only after its permit is checked and it agrees, and that you order directly with the kitchen.
+- The "Can I suggest a kitchen?" answer and the For kitchens page no longer say contact details are coming at launch; they point to the email address on the About page.
+- The "Are these real kitchens?" question now reads "Are the kitchens on Tiffin Finder real?", so it still makes sense when no kitchens are showing.
+- The "Price per day" choices now read "Under $12", "$12 – $13" and "$14 and up", so a kitchen above $15 a day is no longer filed under "$14 – $15". A kitchen with no day price no longer counts as "Under $12".
+- The kitchens are still made-up samples for testing, each marked "Sample".
+- Service worker tf-v1.13.0.

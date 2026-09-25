@@ -429,9 +429,11 @@
 
   function priceBand(k) {
     var day = k.price && Number(k.price.day);
-    if (!isFinite(day)) return '';
-    if (day <= 11) return 'low';
-    if (day <= 13) return 'mid';
+    /* No day price (missing, null or 0) is no band, never "Under $12". */
+    if (!isFinite(day) || day <= 0) return '';
+    /* Matches the labels in index.html: Under $12, $12 – $13, $14 and up. */
+    if (day < 12) return 'low';
+    if (day < 14) return 'mid';
     return 'high';
   }
 
@@ -845,7 +847,25 @@
     updateFollowCount();
     toast((nowFollowing ? 'Following ' : 'Unfollowed ') + kitchen.name);
     var route = parseRoute();
-    if (route.view === 'following') renderFollowing();
+    if (route.view === 'following') {
+      /* Unfollowing here removes the card, and the grid is rebuilt, so the
+         pressed button is gone. Keep keyboard focus in place: the Follow
+         button of the card now in the same spot (or the last one), else
+         the heading. */
+      var grid = dom.followingGrid;
+      var fromGrid = !!(grid && grid.contains(document.activeElement));
+      var at = -1;
+      if (fromGrid) {
+        var buttons = Array.prototype.slice.call(grid.querySelectorAll('[data-follow]'));
+        at = buttons.indexOf(document.activeElement.closest('[data-follow]'));
+      }
+      renderFollowing();
+      if (fromGrid && !grid.contains(document.activeElement)) {
+        var after = grid.querySelectorAll('[data-follow]');
+        var next = after.length ? after[Math.min(Math.max(at, 0), after.length - 1)] : null;
+        focusQuietly(next || dom.followingHeading);
+      }
+    }
   }
 
   function followButton(kitchen) {
@@ -1707,6 +1727,17 @@
   --------------------------------------------------------------------- */
   function renderFollowing() {
     if (!dom.followingGrid) return;
+    var launch = isLaunch();
+    if (dom.followingLaunch) dom.followingLaunch.hidden = !launch;
+    if (launch) {
+      /* The launch page: no kitchens are listed yet, so there is nothing to
+         follow. Say so plainly (follows saved from the demo stay saved and
+         show again in the demo). */
+      dom.followingGrid.replaceChildren();
+      dom.followingEmpty.hidden = true;
+      if (dom.followingStatus) setStatus(dom.followingStatus, 'No kitchens are listed yet.', false);
+      return;
+    }
     if (state.error) {
       /* Follows live on the device, but the kitchens they point at didn't load. */
       dom.followingGrid.replaceChildren();
@@ -3645,18 +3676,19 @@
     /* The order sheet belongs to one kitchen's page: any other page closes
        it at once (renderKitchen closes it too when the page is rebuilt). */
     if (!(isKitchen && orderDraft && orderDraft.slug === route.slug)) closeOrderSheetNow();
-    /* The launch page replaces the list and the Following view: no
-       filters, tabs, results, follows or neighbourhoods. The FAQ and the
-       alerts band stay. ?view=map shows it too: renderResults() returns
-       early on the launch page, so #map-view stays hidden and the map's
-       files (data/map/*.json) are never requested. */
+    /* The launch page replaces the list: no filters, tabs, results or
+       neighbourhoods. The FAQ and the alerts band stay. ?view=map shows it
+       too: renderResults() returns early on the launch page, so #map-view
+       stays hidden and the map's files (data/map/*.json) are never
+       requested. ?view=following keeps its own section under the launch
+       hero, which says there is nothing to follow yet (renderFollowing). */
     var launch = (isBrowse || isFollowing) && isLaunch();
 
     dom.hero.hidden = isKitchen;
     dom.filtersSection.hidden = !isBrowse || launch;
     dom.viewTabs.hidden = isKitchen || launch;
     dom.viewBrowse.hidden = !isBrowse || launch;
-    dom.viewFollowing.hidden = !isFollowing || launch;
+    dom.viewFollowing.hidden = !isFollowing;
     dom.viewKitchen.hidden = !isKitchen;
     if (dom.faq) dom.faq.hidden = isKitchen;
     if (dom.hoods) dom.hoods.hidden = !isBrowse || launch || !state.loaded || state.error || !(dom.hoodsGrid && dom.hoodsGrid.firstChild);
@@ -3685,8 +3717,7 @@
       else if (state.loaded && state.sampleSlugs[route.slug]) title = 'Sample listing — Tiffin Finder';
       else title = 'Kitchen — Tiffin Finder';
     } else if (isFollowing) {
-      /* On the launch page there is nothing to follow yet; the title stays. */
-      if (!launch) renderFollowing();
+      renderFollowing();
       title = 'Following — Tiffin Finder';
     } else {
       /* The address is the source of truth for the browse filters: first
@@ -3702,7 +3733,7 @@
     document.title = (state.demo ? 'Demo · ' : '') + title;
 
     if (moveFocus) {
-      var focusTarget = isKitchen ? document.getElementById('kitchen-heading') : ((isFollowing && !launch) ? dom.followingHeading : dom.heroHeading);
+      var focusTarget = isKitchen ? document.getElementById('kitchen-heading') : (isFollowing ? dom.followingHeading : dom.heroHeading);
       if (focusTarget) {
         try { focusTarget.focus({ preventScroll: true }); } catch (e) { focusTarget.focus(); }
       }
@@ -4643,6 +4674,7 @@
     dom.followingGrid = document.getElementById('following-grid');
     dom.followingEmpty = document.getElementById('following-empty');
     dom.followingStatus = document.getElementById('following-status');
+    dom.followingLaunch = document.getElementById('following-launch');
 
     dom.viewKitchen = document.getElementById('view-kitchen');
     dom.kitchenDetail = document.getElementById('kitchen-detail');
@@ -4671,8 +4703,8 @@
   var heroCopy = { eyebrow: '', heading: '', lede: '' };
   var LAUNCH_COPY = {
     eyebrow: 'Coming soon · Northeast Calgary',
-    heading: 'Launching in NE Calgary: every permit-checked tiffin option in one place',
-    lede: 'We’re checking kitchens’ permits and adding them now.'
+    heading: 'Launching in NE Calgary: permit-checked tiffin kitchens in one place',
+    lede: 'Each kitchen is listed only after we’ve checked its permit and it has agreed to be listed. You order directly with the kitchen, by WhatsApp or phone.'
   };
 
   function isLaunch() {
