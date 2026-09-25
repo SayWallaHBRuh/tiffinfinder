@@ -1,0 +1,36 @@
+Copyright (c) 2026 Adeel Ahmed (Tiffin Finder)
+
+All rights reserved.
+
+This repository's code, text, design, logo, illustrations and data are the
+property of the copyright holder. Except as stated below, no licence is
+granted to copy, modify, distribute or otherwise reuse them, in whole or in
+part, for any purpose. Viewing this site in a web browser, or viewing this
+repository's source on GitHub, is fine — that's how the web and GitHub Pages
+work. Copying the code or content elsewhere, or reusing it in another
+project, is not permitted without prior written permission from the
+copyright holder. To ask for permission, or to report a problem, contact
+sitesbyadeel@gmail.com.
+
+This notice does not apply to the following third-party material, which
+keeps its own licence:
+
+- Community, neighbourhood and boundary data in data/map/calgary.json is
+  from the City of Calgary's Open Data Portal, licensed under the Open
+  Government Licence - City of Calgary. See docs/map-data.md for the source
+  and licence details, and keep that attribution line wherever the data is
+  used.
+- Neighbourhood and boundary data in data/map/airdrie.json is from the City
+  of Airdrie's open data, licensed under the Open Data Licence - City of
+  Airdrie. See docs/map-data.md for the source and licence details, and keep
+  that attribution line wherever the data is used.
+- The Fraunces, Manrope and Baloo 2 fonts, loaded from Google Fonts, are
+  licensed under the SIL Open Font License. They are not redistributed in
+  this repository.
+
+Kitchen names, menus, prices and other listing details belong to the
+kitchens that provided them; Tiffin Finder displays them with the kitchen's
+permission (see terms.html).
+
+This is a plain-English summary of the owner's intent, not a substitute for
+legal advice.

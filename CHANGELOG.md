@@ -1,5 +1,36 @@
 # Changelog
 
+## Round 19 — 2026-09-25
+
+- Security review: checked the CSP, DOM/URL safety, link handling and the
+  service worker across the whole site, and scanned the repo's full git
+  history for secrets and the retired outreach phone number. Everything
+  already in place (the CSP hashes, `permit.source_url` https-only
+  validation in both `app.js` and `tools/check_listings.py`, `target=_blank`
+  `rel="noopener noreferrer"`, `encodeURIComponent` on every mailto/WhatsApp
+  link, the service worker's same-origin/`response.ok`-only caching and
+  old-cache cleanup) checked out clean — nothing there needed fixing. History
+  scan found nothing in this repo. Found one real gap: GitHub Pages can't
+  send the response headers that stop the site being framed by another page
+  (clickjacking), so `app.js` now tries to break out of a frame the moment
+  it loads, and shows a small warning bar with a link back to the real site
+  if that's blocked. Added two checks to `tools/check_ship.py` so this stays
+  caught automatically: every `target="_blank"` link must have
+  `rel="noopener noreferrer"`, and the retired outreach phone number must
+  never appear on the site. Full write-up in
+  `docs/security-review-2026-09-25.md`.
+- Copyright and ownership protections (free, no filing, no DNS change,
+  per `plans/protect-your-idea.md`): a `LICENSE` file at the repo root
+  ("all rights reserved", with the City of Calgary / City of Airdrie
+  open-data licences and Google Fonts' SIL licence carved out); "All rights
+  reserved." added to the footer copyright line on every page; a new
+  "Our content and brand" section in `terms.html`; a `SECURITY.md` (how to
+  report a problem); and a short Copyright note in `README.md` pointing to
+  `LICENSE`.
+- Version bumped to `tf-v1.26.0` (styles, scripts and the service worker's
+  saved-files list all match) — the footer text and `terms.html` changed on
+  every page.
+
 ## Round 18 — 2026-09-25
 
 - New Tiffin Finder logo: a smiling steel tiffin hanging from a coral map pin, on a saffron circle (from `design/brand.py`, approved by Adeel), with the wordmark "TiffinFinder" set in Google Font Baloo 2 (weight 800) — "Tiffin" in ink (cream in dark theme), "Finder" in orange, the three i-dots as small circles and the dot over "Finder"'s i as a tiny map pin. Replaced the old rounded-tile tiffin glyph and Fraunces wordmark in the header and footer on every page (home, about, guide, kitchens, permitted, privacy, terms, 404, offline). The visible lettering uses a dotless ı for the dot styling, so the mark is `aria-hidden` with a `.visually-hidden` "Tiffin Finder" text alongside it; the brand link's `aria-label` is unchanged. The mark keeps its 44px tap target, its hover/focus tilt (off under `prefers-reduced-motion`, as before), and is sized about 40px in the header and 32px in the footer.

@@ -496,6 +496,38 @@ main[tabindex="-1"]:focus {
   display: none;
 }
 
+/* Clickjacking guard (Round 19): shown only when the page detects it has
+   been loaded inside someone else's frame/iframe (window.top !== window.self)
+   and the automatic break-out below didn't work. Fixed on top of everything
+   else, in a warning colour distinct from the preview/demo bars. */
+.frame-warning {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 999;
+  background: #7a1f1f;
+  color: #fff;
+  padding: 12px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.25);
+}
+
+.frame-warning p {
+  margin: 0;
+  flex: 1 1 240px;
+}
+
+.frame-warning a {
+  color: #fff;
+  font-weight: 700;
+  text-decoration: underline;
+  flex: none;
+}
+
 /* Demo notice (?demo=1): deep green with a saffron pill, so it reads as
    part of the product, not an error. It has no dismiss; "Leave demo"
    reloads the real home page. Text 10.8:1+ and link 8.1:1+ on --brand-3

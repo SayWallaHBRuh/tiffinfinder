@@ -4,6 +4,10 @@ Tiffin Finder is a Calgary directory of permit-checked tiffin kitchens — home 
 
 The live site is **<https://tiffinfinder.ca>** (the `CNAME` file points GitHub Pages at it; leave that file as it is).
 
+## Copyright
+
+© 2026 Adeel Ahmed (Tiffin Finder). All rights reserved — see [`LICENSE`](./LICENSE) for what that means and for the third-party licences (City of Calgary and City of Airdrie open data, Google Fonts) that still apply.
+
 ## What it does
 
 - **Browse, search and filter.** Search dishes, kitchens or areas, and filter by quadrant (NE, NW, SE, SW, Airdrie), pickup or delivery, cuisine, price, type of kitchen, veg, halal, Jain, "Trial week", "Taking new customers" and near a neighbourhood (`?near=`). The filters live in the address, so a filtered list can be reloaded or shared.

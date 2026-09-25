@@ -11,6 +11,20 @@
 (function () {
   'use strict';
 
+  /* Clickjacking guard (Round 19). GitHub Pages can't send the
+     X-Frame-Options / frame-ancestors response headers that would stop the
+     site being framed by another page, and a meta CSP can't set
+     frame-ancestors either (README, "Security headers"). As a same-origin
+     mitigation: if the page finds itself inside someone else's frame, try to
+     break out to the top window immediately (before anything else runs), and
+     remember that it's framed so initFrameGuard() can show a plain warning
+     later if the break-out didn't work (a sandboxed iframe can block it). */
+  var isFramed = false;
+  try { isFramed = window.top !== window.self; } catch (e) { isFramed = true; }
+  if (isFramed) {
+    try { if (window.top) window.top.location = window.location.href; } catch (e) { /* blocked; warn instead */ }
+  }
+
   var DATA_URL = './data/kitchens.json';
   var DISHES_URL = './data/dishes.json';
   /* Map view (see "Map" below). The files are fetched only when the map is
@@ -4977,8 +4991,23 @@
     }
   }
 
+  /* Shows a plain warning bar (see isFramed above) when the page is still
+     inside another site's frame after the break-out attempt at the top of
+     this file. It never removes or blocks the rest of the page — a sandboxed
+     iframe may have stopped the redirect too, so this is the fallback
+     notice, not the only defence. */
+  function initFrameGuard() {
+    if (!isFramed || !document.body) return;
+    var bar = el('div', { class: 'frame-warning', role: 'alert' }, [
+      el('p', { text: 'This page may be showing inside another website, not tiffinfinder.ca.' }),
+      el('a', { href: 'https://tiffinfinder.ca/', target: '_top', rel: 'noopener noreferrer' }, 'Open the real Tiffin Finder site')
+    ]);
+    document.body.insertBefore(bar, document.body.firstChild);
+  }
+
   function initCommon() {
     cacheDom();
+    initFrameGuard();
     initNav();
     syncThemeUI();
     initPreviewBar();

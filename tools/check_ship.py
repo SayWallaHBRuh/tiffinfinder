@@ -30,6 +30,12 @@ Checks (each prints its own PASS/FAIL lines):
     diff-able source files.
 11. Runs tools/check_diet.py.
 12. Runs tools/check_listings.py (real-kitchen listing data checks).
+13. Every target="_blank" link in every HTML page carries rel="noopener" and
+    rel="noreferrer" (Round 19 security review).
+14. The old outreach phone number (368-399-4499, any spacing/punctuation)
+    never appears anywhere in the site (Round 19 security review; that
+    number is approved for Adeel's personal outreach only, never for the
+    site).
 
 Exits 0 if everything passes, 1 otherwise. Standard library only, no
 network access, deterministic.
@@ -404,6 +410,52 @@ def check_listings():
         ok('tools/check_listings.py passed')
 
 
+# ---------------------------------------------------------------------------
+# 13. target="_blank" always carries rel="noopener" and rel="noreferrer"
+# ---------------------------------------------------------------------------
+def check_target_blank():
+    hits = []
+    checked = 0
+    tag_re = re.compile(r'<a\b[^>]*\btarget\s*=\s*"_blank"[^>]*>', re.I)
+    for f in HTML_FILES:
+        path = os.path.join(ROOT, f)
+        text = read_text(path)
+        for i, line in enumerate(text.splitlines(), 1):
+            for m in tag_re.finditer(line):
+                checked += 1
+                tag = m.group(0)
+                rel_m = re.search(r'\brel\s*=\s*"([^"]*)"', tag, re.I)
+                rel_vals = rel_m.group(1).lower().split() if rel_m else []
+                missing = [w for w in ('noopener', 'noreferrer') if w not in rel_vals]
+                if missing:
+                    hits.append('%s:%d: target="_blank" missing rel=%s - %s'
+                                % (f, i, '/'.join(missing), tag.strip()[:100]))
+    if hits:
+        for h in hits:
+            fail('link safety - ' + h)
+    else:
+        ok('every target="_blank" link (%d) has rel="noopener noreferrer"' % checked)
+
+
+# ---------------------------------------------------------------------------
+# 14. old outreach phone number banned from the site
+# ---------------------------------------------------------------------------
+def check_banned_phone():
+    # Match the digits regardless of spacing/punctuation between them.
+    digits_re = re.compile(r'3\D*6\D*8\D*3\D*9\D*9\D*4\D*4\D*9\D*9')
+    hits = []
+    for path in scan_targets():
+        text = read_text(path)
+        for i, line in enumerate(text.splitlines(), 1):
+            if digits_re.search(line):
+                hits.append('%s:%d: old outreach phone number found' % (os.path.relpath(path, ROOT), i))
+    if hits:
+        for h in hits:
+            fail('banned phone number - ' + h)
+    else:
+        ok('old outreach phone number (368-399-4499) not found anywhere')
+
+
 def main():
     print('== Tiffin Finder ship check ==\n')
     check_cname()
@@ -419,6 +471,8 @@ def main():
     check_secrets()
     check_diet()
     check_listings()
+    check_target_blank()
+    check_banned_phone()
 
     print('')
     if FAILURES:
