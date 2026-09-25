@@ -828,6 +828,17 @@ main[tabindex="-1"]:focus {
   .header-inner .header-actions {
     grid-column: 3;
   }
+
+  /* From 720px there's room for the brand to read as a real logo instead
+     of a small header afterthought. */
+  .header-inner .logo {
+    width: 44px;
+    height: 44px;
+  }
+
+  .header-inner .wordmark {
+    font-size: 1.5rem;
+  }
 }
 
 /* Phone menu: a button in the header opens the site links in a bottom sheet
@@ -1199,88 +1210,70 @@ main[tabindex="-1"]:focus {
   background: var(--brand-field);
 }
 
-.hero-art-cluster {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-}
-
-.hero-art {
-  position: absolute;
-  right: -6%;
-  bottom: -12%;
-  width: clamp(180px, 28vw, 340px);
-  opacity: 0.16;
-  transform: rotate(-8deg);
-}
-
-.hero-art-small,
-.hero-art-dot {
+/* The mascot is the hero's brand moment: hidden on phones so it never
+   pushes the headline down or crowds the count pill, shown from 900px
+   where the hero has room on the right. It sits on its own layer above
+   the brand gradient (never under the text column) and is identical in
+   both themes, since the saffron-on-green mark is designed for the
+   brand band in either theme. Purely decorative: aria-hidden, empty alt. */
+.hero-mascot {
   display: none;
 }
 
-/* On wider screens the hero's right side has room to spare, so a second,
-   smaller tiffin carrier and a few soft accent dots add depth instead of
-   leaving it flat. Purely decorative (aria-hidden), never under the text
-   column, and identical in both themes since the hero is always on the
-   brand gradient. */
 @media (min-width: 900px) {
-  .hero-art-main {
-    right: 2%;
-    bottom: -6%;
-    width: clamp(260px, 22vw, 380px);
-    opacity: 0.22;
-  }
-
-  .hero-art-small {
-    display: block;
-    right: 24%;
-    top: 10%;
-    bottom: auto;
-    width: clamp(90px, 8vw, 130px);
-    opacity: 0.14;
-    transform: rotate(11deg);
-  }
-
-  .hero-art-dot {
+  .hero-mascot {
     display: block;
     position: absolute;
-    border-radius: 50%;
-    background: var(--on-brand-accent);
+    z-index: 0;
+    right: clamp(0px, 3vw, 56px);
+    top: 50%;
+    translate: 0 -50%;
+    width: clamp(260px, 22vw, 420px);
+    pointer-events: none;
   }
 
-  .hero-art-dot-1 {
-    right: 12%;
-    top: 22%;
-    width: 10px;
-    height: 10px;
-    opacity: 0.5;
+  .hero-mascot-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 22px 40px rgb(0 0 0 / 0.32));
+    opacity: 0;
+    animation: hero-mascot-in 900ms var(--ease-spring) 150ms both, hero-mascot-float 6s var(--ease-out) 1050ms infinite;
+  }
+}
+
+@keyframes hero-mascot-in {
+  0% {
+    opacity: 0;
+    scale: 0.7;
+    rotate: -8deg;
   }
 
-  .hero-art-dot-2 {
-    right: 34%;
-    top: 62%;
-    width: 7px;
-    height: 7px;
-    opacity: 0.35;
+  65% {
+    opacity: 1;
+    scale: 1.06;
+    rotate: 3deg;
   }
 
-  .hero-art-dot-3 {
-    right: 6%;
-    top: 55%;
-    width: 5px;
-    height: 5px;
-    opacity: 0.4;
+  100% {
+    opacity: 1;
+    scale: 1;
+    rotate: 0deg;
+  }
+}
+
+@keyframes hero-mascot-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 -10px;
   }
 }
 
 @media (max-width: 559px) {
-  /* At phone width the ghost tiffin sat under the count pill and peeked out. */
-  .hero-art-main {
-    display: none;
-  }
-
   .hero-count .long {
     display: none;
   }

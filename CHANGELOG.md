@@ -1,5 +1,33 @@
 # Changelog
 
+## Round 21 — 2026-09-25
+
+Round 21: mascot hero and a bigger header logo.
+
+- The home hero's old flat tiffin-carrier glyph (faded background art on
+  the green hero) is gone. In its place, from 900px, is the new mascot
+  (the full brand mark with its cloud streaks, `icons/mascot.svg`, copied
+  from `design/out/mark.svg`) as a real brand moment on the right side of
+  the hero: a decorative `<img>` (`aria-hidden`, empty `alt`), vertically
+  centred, with a soft drop shadow so the saffron circle reads clearly on
+  the green in both themes, and a gentle one-time pop-in plus a slow float
+  (both driven by CSS `animation`, so the sitewide `prefers-reduced-motion`
+  rule that forces `animation-duration` to near-zero already disables
+  them). Below 900px the mascot is hidden entirely rather than shown
+  small, so it never pushes the headline down or crowds the count pill.
+  The unused `.hero-art-cluster`/`.hero-art*`/`.hero-art-dot*` markup and
+  CSS (the old glyph, only ever used on the home hero) were removed.
+  Checked the other standalone pages' `page-hero` bands (guide, kitchens,
+  permitted, about) — none of them carried the old glyph art, so nothing
+  to swap there.
+- The header brand reads as a real logo next to the nav: from 720px the
+  mark is 44px (was 40px) and the wordmark is 1.5rem (was 1.25rem), still
+  vertically centred with the nav. Below 720px it's unchanged, so there's
+  no wrapping at 360px.
+- `icons/mascot.svg` is precached in `sw.js` alongside the other icons.
+- Version bumped to `tf-v1.28.0` (styles, scripts and the service
+  worker's saved-files list all match).
+
 ## Round 20 — 2026-09-25
 
 Round 20: site matches the new logo. Design review across the home page,
