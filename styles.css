@@ -5465,6 +5465,13 @@ main[tabindex="-1"]:focus {
   margin: 0 auto 20px;
 }
 
+.notfound .mascot-tile {
+  /* The mascot glyph carries its own saffron circle, so the square tile
+     behind it would double up; drop the tile's own background and let the
+     mascot read as a small brand moment instead of a generic icon. */
+  background: transparent;
+}
+
 .notfound .page-actions {
   justify-content: center;
 }

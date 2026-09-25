@@ -1,5 +1,27 @@
 # Changelog
 
+## Round 23 — 2026-09-25
+
+Round 23: design-director pass on the inner pages (a kitchen page, the
+order sheet, the map, the guide, kitchens/permitted/about/terms and the
+404/offline pages), which hadn't had a polish since the rebrand.
+
+- The 404 and "you're offline" pages showed a plain, generic stacked-tiffin
+  glyph as their icon. Both now show the actual mascot mark (the same
+  saffron-and-coral face used in the header and footer) instead, so an
+  error or empty state is a small brand moment rather than a leftover
+  placeholder. The round tile behind it no longer doubles up with the
+  mascot's own circle.
+- Reviewed the kitchen page (with and without a nutrition panel), the
+  order sheet, the map, the guide, kitchens.html, permitted.html,
+  about.html and terms.html at desktop and phone widths, light and dark:
+  card spacing, heading hierarchy, the phone sticky order bar, the
+  quadrant filter chips' scroll-fade, and dark-mode contrast were already
+  consistent with the round 18-22 rebrand, so this round stayed a small,
+  targeted fix rather than a rebuild.
+- Version bumped to `tf-v1.30.0` (styles, scripts and the service worker's
+  saved-files list all match).
+
 ## Round 22 — 2026-09-25
 
 Round 22: kitchen-provided nutrition info, a filter for it, and a new
