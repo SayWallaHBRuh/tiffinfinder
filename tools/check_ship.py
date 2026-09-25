@@ -17,8 +17,12 @@ Checks (each prints its own PASS/FAIL lines):
  6. Every local href="..."/src="..." in every HTML page resolves to a real
     file (external https:// links, mailto:, tel:, #fragments and the
     manifest's own entries are skipped).
- 7. The sha256 CSP hashes for the inline <script> blocks in 404.html and
-    offline.html match those blocks' actual contents.
+ 7. Every inline <script> block on every page (the <base> setters in
+    404.html/offline.html, and the speculationrules/ld+json blocks added in
+    Round 14) has its sha256 hash present in that page's own CSP script-src,
+    and every hash actually matches its block's exact bytes (rule 6/9: no
+    unhashed inline script can ever silently start working, or silently
+    break).
  8. Exactly one <h1> per standalone page.
  9. No innerHTML/eval/inline "on*" handlers/inline style= attributes in any
     tracked page or app.js/early.js (DOM safety -- rule 6).
@@ -260,37 +264,48 @@ def check_local_links():
 
 
 # ---------------------------------------------------------------------------
-# 7. CSP sha256 hashes for inline <script> blocks
+# 7. CSP sha256 hashes for every inline <script> block (any type: none,
+#    speculationrules, application/ld+json, ...), on every page.
 # ---------------------------------------------------------------------------
 def check_csp_hashes():
-    for f in ('404.html', 'offline.html'):
+    # Matches <script>, <script type="...">, with or without other
+    # attributes, but never a <script src="..."> (which carries no inline
+    # body to hash and isn't covered by a hash source anyway).
+    script_re = re.compile(
+        r'<script(?![^>]*\bsrc=)([^>]*)>(.*?)</script>', re.S)
+
+    for f in HTML_FILES:
         path = os.path.join(ROOT, f)
-        if not os.path.isfile(path):
-            continue
         text = read_text(path)
+
+        blocks = [m.group(2) for m in script_re.finditer(text)]
+        if not blocks:
+            continue
+
         csp_m = re.search(r'Content-Security-Policy" content="([^"]+)"', text)
         if not csp_m:
-            fail('%s: no CSP meta tag found' % f)
+            fail('%s: has inline <script> block(s) but no CSP meta tag' % f)
             continue
         csp = csp_m.group(1)
-        script_hash_m = re.search(r"script-src[^;]*'sha256-([^']+)'", csp)
-        if not script_hash_m:
-            fail('%s: no script-src sha256 hash in CSP' % f)
-            continue
-        declared = script_hash_m.group(1)
+        script_src_m = re.search(r'script-src([^;]*)', csp)
+        script_src_value = script_src_m.group(1) if script_src_m else ''
+        declared_hashes = set(re.findall(r"'sha256-([^']+)'", script_src_value))
 
-        block_m = re.search(r'<script>(.*?)</script>', text, re.S)
-        if not block_m:
-            fail('%s: no inline <script> block found' % f)
-            continue
-        block = block_m.group(1)
-        digest = hashlib.sha256(block.encode('utf-8')).digest()
-        actual = base64.b64encode(digest).decode('ascii')
-        if actual != declared:
-            fail('%s: inline <script> sha256 hash mismatch (CSP has %s, actual is %s)'
-                 % (f, declared, actual))
-        else:
-            ok('%s: inline <script> CSP hash matches its content' % f)
+        for block in blocks:
+            digest = hashlib.sha256(block.encode('utf-8')).digest()
+            actual = base64.b64encode(digest).decode('ascii')
+            if actual not in declared_hashes:
+                fail('%s: inline <script> sha256 hash not in CSP script-src '
+                     '(actual is sha256-%s) - %s'
+                     % (f, actual, block.strip()[:60].replace('\n', ' ')))
+
+        if all(
+            (base64.b64encode(hashlib.sha256(b.encode('utf-8')).digest()).decode('ascii'))
+            in declared_hashes
+            for b in blocks
+        ):
+            ok('%s: every inline <script> block (%d) is hash-allowed by its CSP'
+               % (f, len(blocks)))
 
 
 # ---------------------------------------------------------------------------

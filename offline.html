@@ -2,7 +2,7 @@
 <html lang="en-CA">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-7+28wn6pdLDm9NgAY9XG1CdC7HtTNrSTUsixXFKFghs='; style-src 'self' 'sha256-hylQCSWyCT1qAdAKWuDrmj2ceediT2ivk76jYnrRwo4=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-7+28wn6pdLDm9NgAY9XG1CdC7HtTNrSTUsixXFKFghs=' 'sha256-J+xASHBHcj7Z6purppfpjdA1vHzePKJOoH6E7b+cYeE='; style-src 'self' 'sha256-hylQCSWyCT1qAdAKWuDrmj2ceediT2ivk76jYnrRwo4=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <script>
   /* The service worker serves this page, offline, for any address it has
@@ -69,9 +69,28 @@
     .footer-nav a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; text-decoration: none; color: inherit; }
     .menu-btn, .theme-toggle { display:none; }
   </style>
-  <script src="./early.js?v=tf-v1.21.0"></script>
-  <link rel="stylesheet" href="./styles.css?v=tf-v1.21.0">
-  <script src="./app.js?v=tf-v1.21.0" defer></script>
+  <script src="./early.js?v=tf-v1.22.0"></script>
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.22.0">
+  <script src="./app.js?v=tf-v1.22.0" defer></script>
+  <script type="speculationrules">
+  {
+    "prefetch": [
+      {
+        "source": "document",
+        "where": {
+          "and": [
+            { "href_matches": "/*" },
+            { "not": { "href_matches": { "search": "*demo=1*" } } },
+            { "not": { "selector_matches": "[href^=\"mailto:\"]" } },
+            { "not": { "selector_matches": "[href^=\"tel:\"]" } },
+            { "not": { "selector_matches": "[href^=\"https://wa.me/\"]" } }
+          ]
+        },
+        "eagerness": "moderate"
+      }
+    ]
+  }
+  </script>
 </head>
 <body data-page="offline">
   <a class="skip-link" href="#main">Skip to content</a>

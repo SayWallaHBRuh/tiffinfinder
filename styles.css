@@ -5449,6 +5449,37 @@ main[tabindex="-1"]:focus {
   animation-delay: 180ms;
 }
 
+/* Cross-document view transitions (page to page). Opting in lives entirely
+   inside this no-preference query, so a browser set to reduced motion never
+   even declares @view-transition -- it just navigates normally, same as an
+   unsupporting browser. Quick and subtle on purpose: a fast cross-fade,
+   never a slide or zoom, so it reads as premium rather than showy. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+
+  ::view-transition-group(root) {
+    animation-duration: 200ms;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 200ms;
+    animation-timing-function: ease-out;
+  }
+
+  /* Named so the header keeps its own identity (a quick cross-fade in
+     place) instead of sliding along with the rest of the page. */
+  .site-header {
+    view-transition-name: site-header;
+  }
+
+  ::view-transition-group(site-header) {
+    animation-duration: 160ms;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

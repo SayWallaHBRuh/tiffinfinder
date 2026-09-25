@@ -2,7 +2,7 @@
 <html lang="en-CA">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-J+xASHBHcj7Z6purppfpjdA1vHzePKJOoH6E7b+cYeE='; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Terms — Tiffin Finder</title>
@@ -37,9 +37,28 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&display=swap">
-  <script src="./early.js?v=tf-v1.21.0"></script>
-  <link rel="stylesheet" href="./styles.css?v=tf-v1.21.0">
-  <script src="./app.js?v=tf-v1.21.0" defer></script>
+  <script src="./early.js?v=tf-v1.22.0"></script>
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.22.0">
+  <script src="./app.js?v=tf-v1.22.0" defer></script>
+  <script type="speculationrules">
+  {
+    "prefetch": [
+      {
+        "source": "document",
+        "where": {
+          "and": [
+            { "href_matches": "/*" },
+            { "not": { "href_matches": { "search": "*demo=1*" } } },
+            { "not": { "selector_matches": "[href^=\"mailto:\"]" } },
+            { "not": { "selector_matches": "[href^=\"tel:\"]" } },
+            { "not": { "selector_matches": "[href^=\"https://wa.me/\"]" } }
+          ]
+        },
+        "eagerness": "moderate"
+      }
+    ]
+  }
+  </script>
 </head>
 <body data-page="terms">
   <a class="skip-link" href="#main">Skip to content</a>

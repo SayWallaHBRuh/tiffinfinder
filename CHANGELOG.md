@@ -1,5 +1,13 @@
 # Changelog
 
+## Round 14 — 2026-09-25
+
+- Smoother moves between pages. Going from the home page to a page like the Tiffin 101 guide, or back, now gently cross-fades instead of the old hard jump, and the header stays put while it happens. It's quick (under a quarter of a second) so it feels snappy, not slow, and it only runs for browsers that support it and for visitors who haven't asked their device to reduce motion — everyone else just sees a normal page change, exactly as before.
+- Faster page-to-page navigation on the About, Tiffin 101, For kitchens, How permits work, Privacy, Terms, page-not-found and offline pages: the browser quietly starts fetching the other Tiffin Finder pages you're likely to tap next (never a WhatsApp, phone or email link, and never a demo link), so tapping them can feel closer to instant. This is a Chromium feature today (Chrome, Edge); other browsers simply ignore it.
+- The home page now carries a small, honest description of the site itself for search engines — its name and web address, not any claim about the kitchens listed on it. Nothing about kitchens, reviews or ratings was added.
+- Both new script blocks are locked down the same way every inline script on this site already is: the security policy only allows the exact, checked bytes of each one to run, and a new automated check (`tools/check_ship.py`) now checks every inline script on every page against that policy, so a future edit that forgets to update it will fail the check loudly instead of quietly breaking.
+- Housekeeping: version bumped to `tf-v1.22.0` (styles, scripts and the service worker's saved-files list all match).
+
 ## Overnight round 11 — 2026-09-25
 
 - Finished the dish glossary audit: the 56 `data/dishes.json` entries not already checked in rounds 2 and 4 were each compared against a reputable source, prioritising dietary claims. Every one of the 126 glossary dishes has now been checked once. Two small fixes: "khichdi" was sourced to a page describing a different, millet-based regional dish under the same name, so it's now sourced to khichdi's own article instead (the wording was already accurate); "double ka meetha" now says it's fried in ghee, a dairy ingredient the old wording left out.
