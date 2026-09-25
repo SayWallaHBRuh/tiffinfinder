@@ -511,7 +511,7 @@
     if (isNaN(then.getTime())) return '';
     var days = Math.floor((Date.now() - then.getTime()) / 86400000);
     if (days <= MENU_STALE_DAYS) return '';
-    return 'This menu was posted over 2 weeks ago — ask the kitchen for this week’s.';
+    return 'This menu was posted over 3 weeks ago — ask the kitchen for this week’s.';
   }
 
   function money(n) {

@@ -22,7 +22,7 @@ capacity wording, Airdrie inset.
   months, then years ("posted 3 months ago", "posted 1 year ago"), the
   same "posted N ago" shape all the way through. A kitchen's own page also
   gets a new, quiet, factual note once a menu is more than 21 days old --
-  "This menu was posted over 2 weeks ago -- ask the kitchen for this
+  "This menu was posted over 3 weeks ago -- ask the kitchen for this
   week's." -- never a red "stale" badge, and never on the compact card.
   Every sample kitchen's menu is well under 21 days old today, so nothing
   changes on the live samples.
