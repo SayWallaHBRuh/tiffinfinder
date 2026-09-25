@@ -37,9 +37,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&display=swap">
-  <script src="./early.js?v=tf-v1.18.0"></script>
-  <link rel="stylesheet" href="./styles.css?v=tf-v1.18.0">
-  <script src="./app.js?v=tf-v1.18.0" defer></script>
+  <script src="./early.js?v=tf-v1.19.0"></script>
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.19.0">
+  <script src="./app.js?v=tf-v1.19.0" defer></script>
 </head>
 <body data-page="kitchens">
   <a class="skip-link" href="#main">Skip to content</a>
@@ -121,6 +121,13 @@
             <p>Your page has one big “Order on WhatsApp” button and a “Call” button. Orders and payments stay between you and your customers. We never touch them and never take a cut. Messages from Tiffin Finder start with “Hi, I found you on Tiffin Finder”, so you can see who found you here.</p>
           </div>
         </div>
+
+        <h2 id="sample">What your listing looks like</h2>
+        <p>This is the same card every household sees in the list and on the map, built with a made-up kitchen so you can see it before yours goes up. It's clearly marked <strong>Sample listing</strong> — tap the name to see the full page it links to.</p>
+        <div class="sample-card-frame">
+          <div class="grid" id="kitchens-sample-mount" aria-label="Sample listing preview"></div>
+        </div>
+
         <h2 id="pickup">Your pickup spot</h2>
         <p>Most home tiffin kitchens are pickup-only, so Tiffin Finder’s <a href="./?view=map">map</a> is built around pickup. You choose how your pickup spot is shown: your exact address, the nearest intersection, or your neighbourhood only. Households see only what you choose, and you can change it or take it down at any time. Just message us.</p>
         <p>If you also deliver, your delivery areas show too. If you only deliver, your listing shows your neighbourhood and delivery areas, with no pickup spot.</p>
@@ -173,12 +180,56 @@
           <p><strong>Preview note.</strong> The kitchens on the site right now are samples with made-up names and numbers. Real kitchens start being listed once permit checks are running, with their permission.</p>
         </div>
 
+        <h2 id="request">Request a listing</h2>
+        <p>Ready to be listed? Send us an email — no account, no form. The button below opens your email app with a short list of what we need already filled in; just answer each line and hit send.</p>
+        <ul>
+          <li>We check your permit and ask your written consent before anything is listed. You see your page and approve it first.</li>
+          <li>Your pickup spot shows only at the precision you pick: your exact address, the nearest intersection, or your neighbourhood only. We never show a home address.</li>
+          <li>Listing is free, with no commission, now and once it's live.</li>
+        </ul>
         <div class="page-actions">
-          <a class="btn btn-primary" href="./about.html#contact">How to get in touch</a>
+          <a class="btn btn-primary" href="mailto:sitesbyadeel@gmail.com?subject=Listing%20request%20%E2%80%93%20%5Byour%20kitchen%20name%5D&amp;body=Kitchen%20name%3A%0AArea%20%2F%20quadrant%20(NE%2C%20NW%2C%20SE%2C%20SW%2C%20Airdrie)%3A%0APickup%2C%20delivery%2C%20or%20both%3A%0AWhatsApp%20or%20phone%20number%20you%20want%20shown%20on%20your%20page%3A%0ADo%20you%20already%20hold%20a%20current%20AHS%20Food%20Handling%20Permit%3F%20(yes%20%2F%20no%20%2F%20applying)%3A%0A%0ASend%20this%20and%20we%20will%20reply%20about%20checking%20your%20permit%20and%20getting%20your%20listing%20set%20up.">Email your listing request</a>
           <a class="btn btn-secondary" href="./permitted.html">How permits work</a>
         </div>
+        <p class="fine">Opens in your email app addressed to <a href="./about.html#contact">sitesbyadeel@gmail.com</a>. Prefer to write your own note instead? That address works just as well.</p>
       </article>
     </div>
+
+    <section class="faq" id="faq" aria-labelledby="kitchens-faq-heading">
+      <div class="wrap faq-inner">
+        <div class="faq-intro">
+          <p class="eyebrow">Good to know</p>
+          <h2 id="kitchens-faq-heading">Questions kitchen owners ask</h2>
+          <p class="faq-lede">Short answers about cost, the permit check, customers and your listing.</p>
+        </div>
+        <div class="faq-list">
+          <div class="faq-item is-open">
+            <h3 class="faq-q"><button type="button" id="faq-q-k-cost" aria-expanded="true" aria-controls="faq-a-k-cost"><span>What does it cost to be listed?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
+            <div class="faq-a" id="faq-a-k-cost" role="region" aria-labelledby="faq-q-k-cost"><div class="faq-a-inner"><p>Nothing. Your listing, your weekly menu and your follower list are free, with no commission on anything you sell. See <a href="#free">what's free, and what "Pro" will be</a> above.</p></div></div>
+          </div>
+          <div class="faq-item is-open">
+            <h3 class="faq-q"><button type="button" id="faq-q-k-need" aria-expanded="true" aria-controls="faq-a-k-need"><span>What do you need from me?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
+            <div class="faq-a" id="faq-a-k-need" role="region" aria-labelledby="faq-q-k-need"><div class="faq-a-inner"><p>Your kitchen's name, quadrant and cuisine, your pickup spot (and how you want it shown) or the areas you deliver to, the WhatsApp number or phone you want shown, and a photo or copy of your current AHS Food Handling Permit. <a href="#request">Email us</a> and we'll take it from there.</p></div></div>
+          </div>
+          <div class="faq-item is-open">
+            <h3 class="faq-q"><button type="button" id="faq-q-k-permit" aria-expanded="true" aria-controls="faq-a-k-permit"><span>How does the permit check work?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
+            <div class="faq-a" id="faq-a-k-permit" role="region" aria-labelledby="faq-q-k-permit"><div class="faq-a-inner"><p>We match your permit to its public Alberta Health Services record before you go live, and again if it expires. It's the site's one rule: no permit, no listing, no exceptions. Full details are on <a href="./permitted.html">how permits work</a>.</p></div></div>
+          </div>
+          <div class="faq-item is-open">
+            <h3 class="faq-q"><button type="button" id="faq-q-k-contact" aria-expanded="true" aria-controls="faq-a-k-contact"><span>How do customers contact me?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
+            <div class="faq-a" id="faq-a-k-contact" role="region" aria-labelledby="faq-q-k-contact"><div class="faq-a-inner"><p>Straight on WhatsApp or by phone, the way you already take orders. Every message a household sends from your page starts with “Hi, I found you on Tiffin Finder,” so you can tell who found you here. We never touch the order or the payment, and we never take a cut.</p></div></div>
+          </div>
+          <div class="faq-item is-open">
+            <h3 class="faq-q"><button type="button" id="faq-q-k-update" aria-expanded="true" aria-controls="faq-a-k-update"><span>How do I update or remove my listing?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
+            <div class="faq-a" id="faq-a-k-update" role="region" aria-labelledby="faq-q-k-update"><div class="faq-a-inner"><p>Email <a href="./about.html#contact">sitesbyadeel@gmail.com</a> any time — a new week's menu, a price change, a new pickup spot, or to take your listing down. We're not self-serve yet, so we make the change and confirm it with you.</p></div></div>
+          </div>
+          <div class="faq-item is-open">
+            <h3 class="faq-q"><button type="button" id="faq-q-k-privacy" aria-expanded="true" aria-controls="faq-a-k-privacy"><span>Is my location kept private?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
+            <div class="faq-a" id="faq-a-k-privacy" role="region" aria-labelledby="faq-q-k-privacy"><div class="faq-a-inner"><p>Yes. You choose how your pickup spot shows: your exact address, the nearest intersection, or your neighbourhood only. We never show a home address, and you can ask us to change or remove it at any time.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">

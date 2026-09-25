@@ -5118,6 +5118,13 @@ main[tabindex="-1"]:focus {
   color: var(--accent-ink);
 }
 
+/* kitchens.html "What your listing looks like": the real card component,
+   built by app.js's kitchenCard(), shown alone instead of in a full grid. */
+.sample-card-frame {
+  max-width: 360px;
+  margin: 22px 0;
+}
+
 .pitch-card .glyph svg {
   width: 22px;
   height: 22px;

@@ -1279,6 +1279,51 @@
     return card;
   }
 
+  /* kitchens.html "What your listing looks like": one made-up kitchen, built
+     with the same kitchenCard() every list and map card uses, so it never
+     drifts from the real design. Fields match the shape of data/kitchens.json. */
+  var KITCHENS_PAGE_SAMPLE = {
+    slug: 'saffron-lane-rasoi',
+    name: 'Saffron Lane Rasoi',
+    sample: true,
+    hue: 28,
+    cuisine: 'Punjabi',
+    quadrant: 'NE',
+    area: 'Saddle Ridge',
+    service: 'both',
+    veg_only: false,
+    halal: false,
+    jain: false,
+    price: { day: 13, weekly: 75, monthly: 260 },
+    trial: { offered: true, price: 64, note: null },
+    capacity: 'open',
+    menu: {
+      week_of: '2026-09-21',
+      items: [{ day: 'Mon', dish: 'Rajma, jeera rice, 4 rotis, kachumber salad', price: 13 }]
+    },
+    contact: { whatsapp: '14035550101', phone: '403-555-0101' },
+    permit: { status: 'verified' },
+    last_posted: '2026-09-20T18:05:00-06:00'
+  };
+
+  /* Builds the sample card into #kitchens-sample-mount when that container
+     is on the page (kitchens.html only). The Follow button is disabled: this
+     page never loads kitchens.json, so there's no real kitchen behind it. */
+  function renderKitchensSampleCard() {
+    var mount = document.getElementById('kitchens-sample-mount');
+    if (!mount) return;
+    var card = kitchenCard(KITCHENS_PAGE_SAMPLE, 0, 'kitchens-sample');
+    card.classList.add('no-rise');
+    var followBtn = card.querySelector('[data-follow]');
+    if (followBtn) {
+      followBtn.removeAttribute('data-follow');
+      followBtn.disabled = true;
+      followBtn.setAttribute('aria-disabled', 'true');
+      followBtn.setAttribute('title', 'Following works once your real listing is live');
+    }
+    mount.replaceChildren(card);
+  }
+
   /* Fill a grid. The first real paint stages in (rise); later re-renders
      (filter taps, keystrokes, coming back from a kitchen) only settle (fade). */
   function fillGrid(grid, list, idPrefix) {
@@ -4897,6 +4942,8 @@
     document.addEventListener('click', onDocumentClick);
     initClearData();
     initOfflinePage();
+    initFaq();
+    renderKitchensSampleCard();
   }
 
   /* offline.html (served by the service worker when a page isn't saved and
@@ -4911,9 +4958,11 @@
     window.addEventListener('online', go);
   }
 
-  /* Household FAQ (index.html #faq). The markup ships every answer open, so
-     it reads fine without JavaScript; here it becomes an accordion. Items
-     open independently; the buttons' own Enter/Space handling is enough. */
+  /* Any page's #faq (index.html's household FAQ, kitchens.html's owner FAQ).
+     The markup ships every answer open, so it reads fine without JavaScript;
+     here it becomes an accordion. Items open independently; the buttons' own
+     Enter/Space handling is enough. Called from initCommon() so it runs on
+     every page; it no-ops where there's no #faq. */
   function initFaq() {
     var faq = document.getElementById('faq');
     if (!faq) return;
@@ -5086,7 +5135,6 @@
     Array.prototype.forEach.call(document.querySelectorAll('.empty-art[data-hue]'), function (n) {
       n.appendChild(dabbaMark(Number(n.getAttribute('data-hue')), 56));
     });
-    initFaq();
 
     if (dom.alertsForm) {
       dom.alertsForm.addEventListener('submit', onAlertsSubmit);

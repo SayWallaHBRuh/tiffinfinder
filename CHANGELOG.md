@@ -1,5 +1,12 @@
 # Changelog
 
+## Overnight round 7 — 2026-09-24
+
+- The "For kitchens" page now shows what a real listing looks like: a live sample card, built by the same code that draws every card on the list and map, clearly marked "Sample listing".
+- A new "Request a listing" button opens your email app with a short, already-filled-in message to sitesbyadeel@gmail.com — your kitchen's name, area, pickup or delivery, the number you want shown, and whether you already hold a permit. The page also spells out plainly that we check the permit and ask written consent before anything goes live, your pickup spot only shows at the precision you choose, and we never show a home address.
+- A new "Questions kitchen owners ask" section, an accordion like the household one on the home page: cost, what we need, how the permit check works, how customers reach you, how to update or remove a listing, and privacy of your location.
+- Housekeeping: version bumped to `tf-v1.19.0` (styles, scripts and the service worker's saved-files list all match).
+
 ## Overnight round 6 — 2026-09-24
 
 - A new ship checklist: `python tools/check_ship.py` runs every pre-commit check in one command (CNAME, banned words, security policy, version numbers, broken links, one heading per page, DOM safety, no secrets, the diet cross-check) and fails loudly if anything is wrong. Documented in the README.
