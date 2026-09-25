@@ -112,13 +112,17 @@ def build_nutrition(k):
     cal_min = 480 + (int(h[0:6], 16) % 180)          # 480-659
     cal_span = 70 + (int(h[6:9], 16) % 61)            # 70-130
     cal_max = cal_min + cal_span
+    # Round to tens: real kitchen estimates are never this precise.
+    cal_min = cal_min // 10 * 10
+    cal_max = -(-cal_max // 10) * 10
 
     pro_min = 18 + (int(h[9:12], 16) % 12)            # 18-29
     pro_span = 6 + (int(h[12:14], 16) % 8)            # 6-13
     pro_max = pro_min + pro_span
 
     method_pick = int(h[14:16], 16) % 5
-    method = 'kitchen estimate' if method_pick < 3 else ('recipe calculator' if method_pick == 3 else 'dietitian')
+    # Samples never claim a dietitian review: that would imply a real check.
+    method = 'kitchen estimate' if method_pick < 4 else 'recipe calculator'
 
     # A recent, non-future date: 2026-09-08 through 2026-09-22 (today used
     # for this round is 2026-09-25), spread deterministically by slug.

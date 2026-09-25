@@ -388,8 +388,8 @@
       "capacity": "waitlist",
       "nutrition": {
         "per": "meal",
-        "calories_min": 644,
-        "calories_max": 722,
+        "calories_min": 640,
+        "calories_max": 730,
         "protein_min_g": 18,
         "protein_max_g": 25,
         "contains": [
@@ -398,7 +398,7 @@
         ],
         "notes": "Mild spice available on request.",
         "estimated_on": "2026-09-20",
-        "method": "dietitian"
+        "method": "kitchen estimate"
       },
       "menu": {
         "week_of": "2026-09-21",
@@ -572,8 +572,8 @@
       "capacity": "waitlist",
       "nutrition": {
         "per": "meal",
-        "calories_min": 539,
-        "calories_max": 616,
+        "calories_min": 530,
+        "calories_max": 620,
         "protein_min_g": 29,
         "protein_max_g": 39,
         "contains": [
@@ -661,8 +661,8 @@
       "capacity": "waitlist",
       "nutrition": {
         "per": "meal",
-        "calories_min": 555,
-        "calories_max": 646,
+        "calories_min": 550,
+        "calories_max": 650,
         "protein_min_g": 28,
         "protein_max_g": 35,
         "contains": [
@@ -1018,8 +1018,8 @@
       "capacity": "open",
       "nutrition": {
         "per": "meal",
-        "calories_min": 488,
-        "calories_max": 595,
+        "calories_min": 480,
+        "calories_max": 600,
         "protein_min_g": 25,
         "protein_max_g": 31,
         "contains": null,
@@ -1120,8 +1120,8 @@
       "capacity": "open",
       "nutrition": {
         "per": "meal",
-        "calories_min": 562,
-        "calories_max": 633,
+        "calories_min": 560,
+        "calories_max": 640,
         "protein_min_g": 18,
         "protein_max_g": 25,
         "contains": [
@@ -1394,8 +1394,8 @@
       "capacity": "full",
       "nutrition": {
         "per": "meal",
-        "calories_min": 557,
-        "calories_max": 655,
+        "calories_min": 550,
+        "calories_max": 660,
         "protein_min_g": 22,
         "protein_max_g": 35,
         "contains": [
@@ -1572,8 +1572,8 @@
       "capacity": "open",
       "nutrition": {
         "per": "meal",
-        "calories_min": 614,
-        "calories_max": 737,
+        "calories_min": 610,
+        "calories_max": 740,
         "protein_min_g": 19,
         "protein_max_g": 29,
         "contains": [
@@ -1844,7 +1844,7 @@
       "capacity": "full",
       "nutrition": {
         "per": "meal",
-        "calories_min": 511,
+        "calories_min": 510,
         "calories_max": 630,
         "protein_min_g": 27,
         "protein_max_g": 35,
