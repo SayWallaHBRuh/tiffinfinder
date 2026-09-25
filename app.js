@@ -1221,7 +1221,12 @@
     [['day', 'Day', price.day, 1], ['week', 'Week', price.weekly, 7], ['month', 'Month', price.monthly, 30]].forEach(function (row) {
       if (isFiniteNumber(row[2]) && row[2] > 0) out.push({ id: row[0], label: row[1], amount: row[2], perDay: row[2] / row[3] });
     });
-    if (out.length > 1) {
+    /* "Best value" is switched off: the data doesn't say how many meals a
+       week or month plan includes (most tiffins are weekday-only), so a
+       calendar-day comparison could favour the wrong plan. Turn it back on
+       only once listings carry meals-per-plan. */
+    var SHOW_BEST_VALUE = false;
+    if (SHOW_BEST_VALUE && out.length > 1) {
       var lowest = Math.min.apply(null, out.map(function (p) { return p.perDay; }));
       var cheapest = out.filter(function (p) { return p.perDay === lowest; });
       if (cheapest.length === 1) cheapest[0].best = true;
