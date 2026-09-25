@@ -86,7 +86,16 @@ the information you've collected.
 
 ### 5. Enter the listing
 
-Tell Claude what you collected in steps 2-4. Claude:
+There's also a listing editor: an offline form that walks through every
+field on this list and checks it the same way `tools/check_listings.py`
+does, before you paste anything in. It lives in the private handoff repo,
+not this one, at `tools\listing-editor.html` — open it by double-clicking,
+no server and no internet needed. It never uploads or saves anything on
+its own; you still paste its output here and Claude still runs the checks
+below. Using it is optional — telling Claude what you collected works too.
+
+Tell Claude what you collected in steps 2-4 (or paste what the listing
+editor produced). Claude:
 
 1. Adds one entry to `data/kitchens.json`, following
    `docs/listing-data.md` field by field, with `"sample": false`. The full

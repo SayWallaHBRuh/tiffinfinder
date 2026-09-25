@@ -1,5 +1,26 @@
 # Changelog
 
+## Round 39 — 2026-09-25
+
+Round 39: kitchen-owner guides; pointer to the private listing editor.
+
+- **Two new sections on the "List your kitchen" page.** "Presenting your
+  weekly plan clearly" (name the dishes and roti count, show day/week/month
+  price together, say plainly whether you offer a trial week, post the same
+  day each week with a cut-off time and pickup/delivery window, keep
+  "taking new customers" honest) and "Photographing your tiffin with a
+  phone" (daylight instead of flash, an overhead or slight-angle shot,
+  a plain background, show the real portion) — both plain, short, and
+  sourced where they make a factual claim. The photography section notes
+  the site doesn't host kitchen photos yet; this is guidance for a
+  kitchen's own WhatsApp status, Instagram or Google Business Profile.
+- **A pointer to the private listing editor.** `docs/launch-runbook.md`
+  now says where the offline listing-entry tool lives (the private
+  handoff repo, not this one) for whoever picks up step 5 next.
+- No app.js/styles.css changes this round; `sw.js` VERSION and every
+  page's `?v=` moved to `tf-v1.45.0` because `kitchens.html` (precached)
+  changed.
+
 ## Round 38 — 2026-09-25
 
 Round 38: screen-reader focus and inert dialogs, performance budget, a11y
