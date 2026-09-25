@@ -1,5 +1,12 @@
 # Changelog
 
+## Overnight round 9 — 2026-09-24
+
+- A full fresh-eyes review of everything built since the last published version (rounds 1-8): the JavaScript, the wording on the new "For kitchens" sample card and FAQ, the Tiffin 101 guide's prices and sources, the navigation on all nine pages, and accessibility. Almost everything held up; one confirmed bug is fixed below.
+- The "For kitchens" page's sample listing card has a Follow button that's meant to do nothing (there's no real kitchen behind a made-up sample). It was disabled correctly for screen readers and keyboard users, but looked exactly like a normal, clickable button — full colour, a pointing-hand cursor — so a sighted visitor could tap it and get no response with no clue why. It now dims and shows a "not allowed" cursor, like a disabled button should.
+- Everything else checked out: no wording issues, no broken links, no repeated FAQ setup, prices consistent across the guide and the site's own filters, dark-mode colours unchanged, `tools/check_ship.py` passes.
+- Housekeeping: version bumped to `tf-v1.21.0` (styles, scripts and the service worker's saved-files list all match).
+
 ## Overnight round 8 — 2026-09-24
 
 - Checked the permit guide's exemption section (why Alberta's low-risk home-food rule doesn't cover hot tiffin meals) against the two official Government of Alberta pages it's built on. Both still say exactly what the page already quotes, so the wording is unchanged — the sources were just re-confirmed and logged.

@@ -885,6 +885,25 @@ main[tabindex="-1"]:focus {
   transform: translateY(0) scale(0.98);
 }
 
+/* A disabled button (currently only the sample card's Follow button on
+   kitchens.html) must look and feel disabled, not like a live control that
+   silently does nothing when tapped. */
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:disabled:hover {
+    transform: none;
+  }
+}
+
+.btn:disabled:active {
+  transform: none;
+}
+
 .btn-primary {
   background: var(--accent);
   color: var(--on-accent);
