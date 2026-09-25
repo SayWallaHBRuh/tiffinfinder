@@ -386,6 +386,20 @@
         "note": null
       },
       "capacity": "waitlist",
+      "nutrition": {
+        "per": "meal",
+        "calories_min": 644,
+        "calories_max": 722,
+        "protein_min_g": 18,
+        "protein_max_g": 25,
+        "contains": [
+          "milk",
+          "fish"
+        ],
+        "notes": "Mild spice available on request.",
+        "estimated_on": "2026-09-20",
+        "method": "dietitian"
+      },
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -556,6 +570,20 @@
         "note": null
       },
       "capacity": "waitlist",
+      "nutrition": {
+        "per": "meal",
+        "calories_min": 539,
+        "calories_max": 616,
+        "protein_min_g": 29,
+        "protein_max_g": 39,
+        "contains": [
+          "milk",
+          "wheat and triticale"
+        ],
+        "notes": "Vegetarian, mild spice by default.",
+        "estimated_on": "2026-09-21",
+        "method": "kitchen estimate"
+      },
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -631,6 +659,20 @@
         "note": null
       },
       "capacity": "waitlist",
+      "nutrition": {
+        "per": "meal",
+        "calories_min": 555,
+        "calories_max": 646,
+        "protein_min_g": 28,
+        "protein_max_g": 35,
+        "contains": [
+          "milk",
+          "wheat and triticale"
+        ],
+        "notes": "Halal, mild spice available on request.",
+        "estimated_on": "2026-09-14",
+        "method": "kitchen estimate"
+      },
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -974,6 +1016,17 @@
         "note": null
       },
       "capacity": "open",
+      "nutrition": {
+        "per": "meal",
+        "calories_min": 488,
+        "calories_max": 595,
+        "protein_min_g": 25,
+        "protein_max_g": 31,
+        "contains": null,
+        "notes": "Mild spice available on request.",
+        "estimated_on": "2026-09-08",
+        "method": "kitchen estimate"
+      },
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -1065,6 +1118,19 @@
         "note": null
       },
       "capacity": "open",
+      "nutrition": {
+        "per": "meal",
+        "calories_min": 562,
+        "calories_max": 633,
+        "protein_min_g": 18,
+        "protein_max_g": 25,
+        "contains": [
+          "milk"
+        ],
+        "notes": "Vegetarian, mild spice by default.",
+        "estimated_on": "2026-09-16",
+        "method": "kitchen estimate"
+      },
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -1326,6 +1392,20 @@
         "note": null
       },
       "capacity": "full",
+      "nutrition": {
+        "per": "meal",
+        "calories_min": 557,
+        "calories_max": 655,
+        "protein_min_g": 22,
+        "protein_max_g": 35,
+        "contains": [
+          "fish",
+          "wheat and triticale"
+        ],
+        "notes": "Mild spice available on request.",
+        "estimated_on": "2026-09-16",
+        "method": "kitchen estimate"
+      },
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -1490,6 +1570,20 @@
         "note": null
       },
       "capacity": "open",
+      "nutrition": {
+        "per": "meal",
+        "calories_min": 614,
+        "calories_max": 737,
+        "protein_min_g": 19,
+        "protein_max_g": 29,
+        "contains": [
+          "milk",
+          "wheat and triticale"
+        ],
+        "notes": "Mild spice available on request.",
+        "estimated_on": "2026-09-21",
+        "method": "recipe calculator"
+      },
       "menu": {
         "week_of": "2026-09-21",
         "items": [
@@ -1748,6 +1842,20 @@
         "note": null
       },
       "capacity": "full",
+      "nutrition": {
+        "per": "meal",
+        "calories_min": 511,
+        "calories_max": 630,
+        "protein_min_g": 27,
+        "protein_max_g": 35,
+        "contains": [
+          "milk",
+          "wheat and triticale"
+        ],
+        "notes": "Halal, mild spice available on request.",
+        "estimated_on": "2026-09-18",
+        "method": "kitchen estimate"
+      },
       "menu": {
         "week_of": "2026-09-21",
         "items": [

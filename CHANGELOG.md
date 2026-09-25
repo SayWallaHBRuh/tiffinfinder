@@ -1,5 +1,45 @@
 # Changelog
 
+## Round 22 — 2026-09-25
+
+Round 22: kitchen-provided nutrition info, a filter for it, and a new
+"Choosing a balanced tiffin" section in the guide.
+
+- New, entirely optional `nutrition` field a kitchen can fill in: a calorie
+  range, a protein range, an allergen "Contains:" list (drawn only from
+  Canada's 11 priority allergens), a short factual note, and how and when
+  it was worked out. Ranges only, never a single precise number — see
+  `docs/listing-data.md` for the full shape.
+- A kitchen's own page shows it as a quiet "Nutrition (estimated by the
+  kitchen)" panel next to "Plans and prices", with a fixed disclaimer
+  (estimates from the kitchen, not lab-tested, not checked by Tiffin
+  Finder, general information not medical advice) and a link to the new
+  guide section. A sample kitchen's panel is clearly marked "Sample
+  estimate" on top of the listing's existing Sample tag. A kitchen with no
+  nutrition data gets a one-line "Ask the kitchen about nutrition and
+  allergens" instead of the panel.
+- A small "Nutrition info" chip appears on a kitchen's card when it has
+  this data — never any numbers on the card itself.
+- A new "Shows nutrition info" filter (`nutrition=1` in the address),
+  wired the same way as the other on/off filters.
+- Nutrient-content and health/lifestyle claims ("low fat", "high protein",
+  "healthy", "keto", "diabetic", "nut-free", "allergen-free",
+  "guaranteed", and others) are banned from `data/kitchens.json`,
+  everywhere a kitchen or its food is described — `tools/check_listings.py`
+  now scans for them and fails the build if any appear, same as the
+  existing "AHS approved" check.
+- 8 of the 24 sample kitchens now carry illustrative sample nutrition data
+  (new `tools/sample_nutrition.py`, deterministic, worked out from each
+  kitchen's own menu and `data/dishes.json` glossary so a vegetarian
+  kitchen's "Contains" list never picks up fish).
+- The guide gets a new "Choosing a balanced tiffin" section (Canada's food
+  guide's plate model, whole grains, sodium, oil/ghee, water) and a "What a
+  kitchen's nutrition panel means (and its limits)" part explaining the
+  panel and what claims the site won't allow, without repeating the banned
+  words. Sources added to the guide's source list.
+- Version bumped to `tf-v1.29.0` (styles, scripts and the service worker's
+  saved-files list all match).
+
 ## Round 21 — 2026-09-25
 
 Round 21: mascot hero and a bigger header logo.

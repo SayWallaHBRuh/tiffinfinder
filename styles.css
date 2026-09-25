@@ -2324,6 +2324,28 @@ main[tabindex="-1"]:focus {
   color: var(--verified);
 }
 
+/* Card chip: "Nutrition info", no numbers — those only show on the
+   kitchen's own page. Neutral, quiet, same shape family as .trial-chip. */
+.nutrition-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 26px;
+  padding: 2px 10px 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.nutrition-chip svg {
+  flex: none;
+  width: 13px;
+  height: 13px;
+}
+
 .card-foot {
   display: flex;
   align-items: center;
@@ -3029,6 +3051,43 @@ main[tabindex="-1"]:focus {
 
 .k-prices .fine {
   margin-top: 10px;
+}
+
+/* Nutrition panel: a small definition list, one fact per row (label left,
+   value right, wraps to its own line under 420px). */
+.nutrition-facts {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.nutrition-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding: 8px 12px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+}
+
+.nutrition-row dt {
+  min-width: 70px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.nutrition-row dd {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+.k-nutrition > p:first-of-type {
+  margin: 0 0 12px;
+}
+
+.k-nutrition .nutrition-facts + .fine {
+  margin-top: 12px;
 }
 
 .fine {

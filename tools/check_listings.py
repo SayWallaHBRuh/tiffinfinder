@@ -26,6 +26,13 @@ the data model in docs/listing-data.md:
     pickup.precision is "community" (never show a home address).
  7. None of the banned phrases ("AHS approved", "verified by", "Permit
     verified") appear anywhere in the file.
+ 8. nutrition (optional, per kitchen), if present, is well-formed: calorie
+    and protein ranges (min <= max, sane bounds), contains only Canada's
+    priority allergens, notes carries no banned nutrition/health claim,
+    estimated_on is a real date, method is a known value.
+ 9. None of the banned nutrition/health claim phrases ("low fat", "healthy",
+    "keto", "guaranteed", etc. -- see plans/nutrition-research.md) appear
+    anywhere in the file, sample kitchens included.
 
 Prints one line per problem, naming the kitchen (or "file" for a whole-file
 problem), and exits non-zero if anything fails. Never writes to the file.
@@ -45,9 +52,26 @@ AIRDRIE_PATH = os.path.join(ROOT, 'data', 'map', 'airdrie.json')
 
 BANNED_PHRASES = ('AHS approved', 'verified by', 'Permit verified')
 
+# Nutrient-content and health/lifestyle claims Health Canada/CFIA regulate
+# with numeric thresholds or evidence a home kitchen can't easily produce
+# (plans/nutrition-research.md section 2), plus absolute allergen promises
+# a shared or home kitchen can't credibly make. Never allowed anywhere that
+# describes a kitchen or its food, even quoted or negated.
+CLAIM_PHRASES = (
+    'low fat', 'low-fat', 'high protein', 'high-protein', 'healthy', 'keto',
+    'diabetic', 'low sodium', 'low carb', 'heart-healthy', 'nut-free',
+    'allergen-free', 'guaranteed',
+)
+
 BUSINESS_TYPES = ('home_kitchen_permitted', 'restaurant', 'caterer', 'commissary_cook')
 SERVICES = ('pickup', 'delivery', 'both')
 PICKUP_PRECISIONS = ('exact', 'intersection', 'community')
+ALLERGENS = (
+    'peanuts', 'tree nuts', 'sesame', 'milk', 'eggs', 'fish',
+    'crustaceans and molluscs', 'soy', 'wheat and triticale', 'mustard',
+    'sulphites',
+)
+NUTRITION_METHODS = ('kitchen estimate', 'recipe calculator', 'dietitian')
 
 ISO_DATE_RE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
 # A street-address shape: a leading house number, then a street-type word
@@ -213,6 +237,64 @@ def check_kitchen(k, communities):
     if permit.get('holder_name_matches') is not True:
         fail(label, 'permit.holder_name_matches must be exactly true (confirm the permit holder\'s name matches before listing)')
 
+    # --- Nutrition (optional, kitchen-provided) ---------------------------
+    nutrition = k.get('nutrition')
+    if nutrition is not None:
+        if not isinstance(nutrition, dict):
+            fail(label, 'nutrition must be an object (or left out)')
+        else:
+            per = nutrition.get('per', 'meal')
+            if per != 'meal':
+                fail(label, 'nutrition.per must be "meal" (the only unit understood today)')
+
+            cal_min = nutrition.get('calories_min')
+            cal_max = nutrition.get('calories_max')
+            has_cal = cal_min is not None or cal_max is not None
+            if has_cal:
+                if not (is_number(cal_min) and is_number(cal_max)):
+                    fail(label, 'nutrition.calories_min/calories_max must both be numbers when either is present')
+                elif not (0 < cal_min <= cal_max <= 3000):
+                    fail(label, 'nutrition.calories_min/calories_max must satisfy 0 < min <= max <= 3000')
+
+            pro_min = nutrition.get('protein_min_g')
+            pro_max = nutrition.get('protein_max_g')
+            has_pro = pro_min is not None or pro_max is not None
+            if has_pro:
+                if not (is_number(pro_min) and is_number(pro_max)):
+                    fail(label, 'nutrition.protein_min_g/protein_max_g must both be numbers when either is present')
+                elif not (0 <= pro_min <= pro_max <= 250):
+                    fail(label, 'nutrition.protein_min_g/protein_max_g must satisfy 0 <= min <= max <= 250')
+
+            if not has_cal and not has_pro:
+                fail(label, 'nutrition needs at least a calorie or protein range to be worth showing')
+
+            contains = nutrition.get('contains')
+            if contains is not None:
+                if not isinstance(contains, list):
+                    fail(label, 'nutrition.contains must be a list')
+                else:
+                    for a in contains:
+                        if a not in ALLERGENS:
+                            fail(label, 'nutrition.contains has %r, not one of the 11 priority allergens (see docs/listing-data.md)' % (a,))
+
+            notes = nutrition.get('notes')
+            if notes is not None:
+                if not isinstance(notes, str) or len(notes) > 200:
+                    fail(label, 'nutrition.notes must be text, 200 characters or fewer')
+                else:
+                    low = notes.lower()
+                    for phrase in CLAIM_PHRASES:
+                        if phrase in low:
+                            fail(label, 'nutrition.notes contains a banned nutrition/health claim: %r' % (phrase,))
+
+            estimated_on = nutrition.get('estimated_on')
+            if estimated_on is not None and not iso_day(estimated_on):
+                fail(label, 'nutrition.estimated_on must be a real YYYY-MM-DD date')
+
+            method = nutrition.get('method')
+            if method is not None and method not in NUTRITION_METHODS:
+                fail(label, 'nutrition.method must be one of %s, got %r' % (NUTRITION_METHODS, method))
+
     # --- Consent (the safety gate) ---------------------------------------
     consent = k.get('consent') if isinstance(k.get('consent'), dict) else {}
     if consent.get('listing_ok') is not True:
@@ -229,6 +311,16 @@ def check_banned_phrases(raw_text):
             fail('file', 'banned phrase found: %r' % (phrase,))
 
 
+def check_claim_phrases(raw_text):
+    """Whole-file safety net on top of the per-kitchen nutrition.notes check
+    above: no nutrient-content or health claim may appear anywhere in
+    kitchens.json (description, notes, anywhere), sample kitchens included."""
+    low = raw_text.lower()
+    for phrase in CLAIM_PHRASES:
+        if phrase in low:
+            fail('file', 'banned nutrition/health claim found: %r' % (phrase,))
+
+
 def main():
     if not os.path.isfile(KITCHENS_PATH):
         print('FAIL: data/kitchens.json not found')
@@ -240,6 +332,7 @@ def main():
     kitchens = data.get('kitchens', [])
 
     check_banned_phrases(raw)
+    check_claim_phrases(raw)
 
     communities = {
         'calgary': load_communities(CALGARY_PATH),

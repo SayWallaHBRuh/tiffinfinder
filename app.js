@@ -622,7 +622,68 @@
     } else {
       k.trial = null;
     }
+    normalizeNutrition(k);
     return true;
+  }
+
+  /* ---------------------------------------------------------------------
+     Nutrition (optional, kitchen-provided; see docs/listing-data.md)
+     Voluntary calorie/protein ranges and an allergen "Contains:" list. Never
+     required, never checked by Tiffin Finder — always shown with the
+     disclaimer that it's the kitchen's own estimate. Anything malformed is
+     dropped quietly rather than shown wrong; it never affects whether the
+     kitchen itself is listed (unlike the permit/consent safety gate). */
+  var ALLERGENS = ['peanuts', 'tree nuts', 'sesame', 'milk', 'eggs', 'fish',
+    'crustaceans and molluscs', 'soy', 'wheat and triticale', 'mustard', 'sulphites'];
+  var NUTRITION_METHODS = ['kitchen estimate', 'recipe calculator', 'dietitian'];
+  var NUTRITION_METHOD_LABEL = {
+    'kitchen estimate': 'Kitchen estimate',
+    'recipe calculator': 'Recipe calculator',
+    'dietitian': 'Dietitian reviewed'
+  };
+  /* Nutrient-content and health/lifestyle claims a kitchen or Tiffin Finder
+     must never make (plans/nutrition-research.md). Checked case-insensitively
+     as a substring, so "Low-Fat" and "LOW FAT" both match. */
+  var CLAIM_WORDS = ['low fat', 'low-fat', 'high protein', 'high-protein',
+    'healthy', 'keto', 'diabetic', 'low sodium', 'low carb', 'heart-healthy',
+    'nut-free', 'allergen-free', 'guaranteed'];
+
+  function hasClaimWords(s) {
+    var low = String(s || '').toLowerCase();
+    return CLAIM_WORDS.some(function (w) { return low.indexOf(w) !== -1; });
+  }
+
+  function normalizeNutrition(k) {
+    var n = k.nutrition;
+    if (!n || typeof n !== 'object') { k.nutrition = null; return; }
+    if (n.per !== undefined && n.per !== null && n.per !== 'meal') { k.nutrition = null; return; }
+    var out = { per: 'meal' };
+    var calMin = n.calories_min, calMax = n.calories_max;
+    if (isFiniteNumber(calMin) && isFiniteNumber(calMax) && calMin > 0 && calMax >= calMin && calMax <= 3000) {
+      out.calories_min = Math.round(calMin);
+      out.calories_max = Math.round(calMax);
+    }
+    var pMin = n.protein_min_g, pMax = n.protein_max_g;
+    if (isFiniteNumber(pMin) && isFiniteNumber(pMax) && pMin >= 0 && pMax >= pMin && pMax <= 250) {
+      out.protein_min_g = Math.round(pMin);
+      out.protein_max_g = Math.round(pMax);
+    }
+    /* Neither range is usable: nothing worth a panel. */
+    if (out.calories_min === undefined && out.protein_min_g === undefined) { k.nutrition = null; return; }
+    if (Array.isArray(n.contains)) {
+      var seen = {};
+      var contains = n.contains.filter(function (a) {
+        return typeof a === 'string' && ALLERGENS.indexOf(a) !== -1 && !seen[a] && (seen[a] = true);
+      });
+      out.contains = contains.length ? contains : null;
+    } else {
+      out.contains = null;
+    }
+    var notes = typeof n.notes === 'string' ? n.notes.trim().slice(0, 200) : '';
+    out.notes = (notes && !hasClaimWords(notes)) ? notes : null;
+    out.estimated_on = isoDay(n.estimated_on) || null;
+    out.method = NUTRITION_METHODS.indexOf(n.method) !== -1 ? n.method : null;
+    k.nutrition = out;
   }
 
   /* ---------------------------------------------------------------------
@@ -1050,6 +1111,58 @@
     return out;
   }
 
+  var NUTRITION_DISCLAIMER = 'These figures are estimates provided by the kitchen, not lab-tested values. They can vary from batch to batch. This is general information, not nutrition or medical advice — if you have an allergy or medical condition, confirm directly with the kitchen before ordering.';
+
+  /* The "Nutrition (estimated by the kitchen)" panel on a kitchen's own
+     page, only when k.nutrition survived normalizeNutrition(). Calories and
+     protein as ranges, "Contains: …", method + date, then the fixed
+     disclaimer. A sample kitchen's panel says so plainly, on top of the
+     listing's existing Sample tag. Returns null when there's nothing to show. */
+  function nutritionPanel(k) {
+    var n = k.nutrition;
+    if (!n) return null;
+    var section = el('section', { class: 'k-section k-nutrition', 'aria-labelledby': 'nutrition-heading' });
+    section.appendChild(el('h2', { id: 'nutrition-heading', text: 'Nutrition (estimated by the kitchen)' }));
+    if (k.sample) {
+      section.appendChild(el('p', {}, [
+        el('strong', { text: 'Sample estimate.' }),
+        ' Made up for testing, like the rest of this listing.'
+      ]));
+    }
+    var list = el('dl', { class: 'nutrition-facts' });
+    if (isFiniteNumber(n.calories_min)) {
+      list.appendChild(el('div', { class: 'nutrition-row' }, [
+        el('dt', { text: 'Calories' }),
+        el('dd', { text: 'approx. ' + n.calories_min + '–' + n.calories_max + ' kcal per ' + n.per })
+      ]));
+    }
+    if (isFiniteNumber(n.protein_min_g)) {
+      list.appendChild(el('div', { class: 'nutrition-row' }, [
+        el('dt', { text: 'Protein' }),
+        el('dd', { text: 'approx. ' + n.protein_min_g + '–' + n.protein_max_g + ' g per ' + n.per })
+      ]));
+    }
+    if (n.contains && n.contains.length) {
+      list.appendChild(el('div', { class: 'nutrition-row' }, [
+        el('dt', { text: 'Contains' }),
+        el('dd', { text: n.contains.join(', ') })
+      ]));
+    }
+    section.appendChild(list);
+    if (n.notes) section.appendChild(el('p', { class: 'fine', text: n.notes }));
+    var meta = [];
+    if (n.method) meta.push(NUTRITION_METHOD_LABEL[n.method]);
+    if (n.estimated_on) meta.push(formatDate(n.estimated_on));
+    if (meta.length) section.appendChild(el('p', { class: 'fine', text: meta.join(' · ') }));
+    section.appendChild(el('p', { class: 'fine', text: NUTRITION_DISCLAIMER }));
+    section.appendChild(el('p', { class: 'fine' }, [
+      'Not a guarantee about allergens — cross-contact is common in home and shared kitchens. ',
+      el('a', { href: './guide.html#nutrition-info', text: 'What this panel means' }),
+      '.'
+    ]));
+    return section;
+  }
+
   /* The capacity to show: only while ordering is open (a checked kitchen
      or a sample). A kitchen that can't take orders never shows one. */
   function capacityShown(k) {
@@ -1080,6 +1193,16 @@
   function trialChip(k) {
     if (!k.trial) return null;
     return el('span', { class: 'trial-chip', text: k.trial.price !== null ? 'Trial week ' + money(k.trial.price) : 'Trial week' });
+  }
+
+  /* A quiet card chip when the kitchen has filled in a nutrition panel.
+     Never any numbers here — those only show on the kitchen's own page. */
+  function nutritionChip(k) {
+    if (!k.nutrition) return null;
+    var chip = el('span', { class: 'nutrition-chip' });
+    chip.appendChild(icon('info', 13));
+    chip.appendChild(el('span', { text: 'Nutrition info' }));
+    return chip;
   }
 
   /* A small neutral label for the kind of permitted operator this is
@@ -1300,7 +1423,7 @@
     }
 
     /* "From $13/day · $75/week · $260/month" and the trial week. */
-    var priceRow = el('div', { class: 'card-price-row' }, [priceLine(kitchen), trialChip(kitchen)]);
+    var priceRow = el('div', { class: 'card-price-row' }, [priceLine(kitchen), trialChip(kitchen), nutritionChip(kitchen)]);
     if (priceRow.firstChild) card.appendChild(priceRow);
 
     /* Always in this order: the badge (Sample listing or the permit), the
@@ -1423,7 +1546,7 @@
   --------------------------------------------------------------------- */
   function readFilters() {
     var form = dom.filters;
-    if (!form) return { q: '', quadrant: '', service: '', near: state.near, cuisine: '', type: '', price: '', veg: false, halal: false, jain: false, trial: false, open: false };
+    if (!form) return { q: '', quadrant: '', service: '', near: state.near, cuisine: '', type: '', price: '', veg: false, halal: false, jain: false, trial: false, open: false, nutrition: false };
     var quad = form.querySelector('input[name="quadrant"]:checked');
     var svc = form.querySelector('input[name="service"]:checked');
     return {
@@ -1438,7 +1561,8 @@
       halal: !!(form.elements.halal && form.elements.halal.checked),
       jain: !!(form.elements.jain && form.elements.jain.checked),
       trial: !!(form.elements.trial && form.elements.trial.checked),
-      open: !!(form.elements.open && form.elements.open.checked)
+      open: !!(form.elements.open && form.elements.open.checked),
+      nutrition: !!(form.elements.nutrition && form.elements.nutrition.checked)
     };
   }
 
@@ -1472,6 +1596,7 @@
        ordering is open, so a pending kitchen never matches). */
     if (f.trial && k.trial === null) return false;
     if (f.open && capacityShown(k) !== 'open') return false;
+    if (f.nutrition && !k.nutrition) return false;
     if (f.q && searchText(k).indexOf(f.q) === -1) return false;
     return true;
   }
@@ -1490,6 +1615,7 @@
     if (f.jain) n += 1;
     if (f.trial) n += 1;
     if (f.open) n += 1;
+    if (f.nutrition) n += 1;
     return n;
   }
 
@@ -1693,9 +1819,10 @@
      view=map (state.mode, the List / Map switch) comes last; the list is
      the default and has no view= at all.
   --------------------------------------------------------------------- */
-  var FILTER_KEYS = ['q', 'area', 'service', 'near', 'cuisine', 'type', 'price', 'veg', 'halal', 'jain', 'trial', 'open', 'view'];
-  /* The on/off switches: diet, then "Trial week" and "Taking new customers". */
-  var SWITCH_KEYS = ['veg', 'halal', 'jain', 'trial', 'open'];
+  var FILTER_KEYS = ['q', 'area', 'service', 'near', 'cuisine', 'type', 'price', 'veg', 'halal', 'jain', 'trial', 'open', 'nutrition', 'view'];
+  /* The on/off switches: diet, then "Trial week", "Taking new customers" and
+     "Shows nutrition info". */
+  var SWITCH_KEYS = ['veg', 'halal', 'jain', 'trial', 'open', 'nutrition'];
   var PRICE_BANDS = ['low', 'mid', 'high'];
   var QUERY_MAX = 100;
 
@@ -3542,7 +3669,13 @@
       el('a', { href: './guide.html', text: 'Read the Tiffin 101 guide' }),
       ' for how plans, pricing and ordering usually work.'
     ]));
+    if (!k.nutrition) prices.appendChild(el('p', { class: 'fine', text: 'Ask the kitchen about nutrition and allergens.' }));
     container.appendChild(prices);
+
+    /* Nutrition: a quiet optional panel, only when the kitchen filled one
+       in (see nutritionPanel). Sits right after plans and prices. */
+    var nutrition = nutritionPanel(k);
+    if (nutrition) container.appendChild(nutrition);
 
     /* Pickup (appended into the side rail below): where, how exactly the
        kitchen chose to share it, when, and a way to the map. */
