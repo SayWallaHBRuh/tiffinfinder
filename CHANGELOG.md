@@ -1,5 +1,27 @@
 # Changelog
 
+## Round 35 — 2026-09-25
+
+Round 35: an automated layout and console check, so the kind of
+phone-overflow bug found by hand in Round 34 gets caught by a script next
+time.
+
+- New `tools/check_layout.py` (standard library only): serves a temp copy
+  of the site, launches headless Edge, and drives it over the Chrome
+  DevTools Protocol with a minimal stdlib WebSocket client to check every
+  page (index, a kitchen page in demo mode, the map, guide, kitchens, the
+  checklist, the consent form, a poster, permitted, about, privacy,
+  terms, 404) at four widths (360/390/768/1280), in both light and dark
+  `prefers-color-scheme`, and in both the normal and "samples hidden"
+  (launch) states -- 208 checks in all. Each one confirms no horizontal
+  overflow, no element wider than the viewport, exactly one rendered
+  `<h1>`, and no console errors. Run it by hand after UI changes:
+  `python tools/check_layout.py` (`--quick` for a faster 360px + 1280px,
+  light-only pass). Not part of `check_ship.py` -- it's slow and needs
+  Edge installed -- see README.md, "Before you ship".
+- Ran the new check across the whole site: all 208 combinations passed,
+  no layout or console issues found. No site behaviour changed.
+
 ## Round 34 — 2026-09-25
 
 Round 34: no phone overflow anywhere, a kitchen print view, and consistent

@@ -60,6 +60,16 @@ local-link check calls into. Run it by hand with `--online` (never inside
 once there are real kitchens — and report anything that doesn't answer:
 `python tools/check_links.py --online`.
 
+`tools/check_layout.py` drives headless Edge across every page, four
+widths (360/390/768/1280) and both colour schemes, in both the normal and
+"samples hidden" (launch) states, checking for horizontal overflow, an
+extra/missing `<h1>`, elements wider than the viewport and console errors
+(Round 35 — a phone-overflow bug that shipped once because nothing
+checked it automatically, see `docs/quality-pass-round34.md`). It's slow
+and needs Edge installed, so it's not part of `check_ship.py` — run it by
+hand after UI changes: `python tools/check_layout.py` (or
+`--quick` for a faster 360px + 1280px, light-only pass).
+
 ## Deploy to GitHub Pages
 
 1. Push this folder to a repository (for example `tiffinfinder`) on the `main` branch.
