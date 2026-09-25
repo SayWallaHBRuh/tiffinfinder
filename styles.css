@@ -1629,7 +1629,92 @@ main[tabindex="-1"]:focus {
   display: flex;
 }
 
+/* Phone: search field plus the "Filters" button that opens the bottom
+   sheet (.filters-sheet, section 13). The service chips, selects and
+   switches live inside that sheet on phones; the sheet's own footer
+   replaces this row's Reset link there, so it stays out of the way. */
+.filters-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filters-top .search-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.btn-filters-open {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  min-height: 52px;
+  padding: 0 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--field-line);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 0.92rem;
+  transition: background var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out), transform var(--dur-2) var(--ease-spring);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-filters-open:hover {
+    border-color: var(--ink-2);
+    transform: translateY(-1px);
+  }
+}
+
+.btn-filters-open:active {
+  transform: scale(0.97);
+}
+
+.btn-filters-open[aria-expanded="true"] {
+  background: var(--chip-on-bg);
+  border-color: var(--chip-on-bg);
+  color: var(--chip-on-ink);
+}
+
+.btn-filters-open:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.filters-open-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+/* The sheet carries its own Clear all button on phones. */
+@media (max-width: 899px) {
+  .filters-foot {
+    display: none !important;
+  }
+}
+
 @media (min-width: 900px) {
+  /* No sheet, no trigger button above 900px: the search field is the only
+     child of .filters-top that still needs a place in the grid. */
+  .filters-top {
+    display: contents;
+  }
+
+  .btn-filters-open,
+  .sheet.filters-sheet {
+    display: none;
+  }
+
   .filters {
     grid-template-columns: 1.2fr 1fr;
     grid-template-areas:
@@ -4809,6 +4894,61 @@ main[tabindex="-1"]:focus {
 
 .sheet-panel > p {
   color: var(--muted);
+}
+
+/* ---------- 13b. Filters sheet (phone) ------------------------------------
+   Reuses the .sheet component above. The service chips, selects and
+   switches (section 7) are moved in here below 900px by app.js and moved
+   back for 900px and up, so the URL sync, filtering and counts in app.js
+   keep working on the same DOM nodes -- nothing here duplicates state. */
+.filters-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.filters-sheet-head h2 {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+/* The panel itself never scrolls; only the body between the fixed head and
+   the sticky foot does. */
+.filters-sheet-panel {
+  display: flex;
+  flex-direction: column;
+  max-height: 85dvh;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+.filters-sheet-body {
+  display: grid;
+  gap: 20px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+  padding-bottom: 8px;
+}
+
+.filters-sheet-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 0 calc(14px + env(safe-area-inset-bottom, 0px));
+  margin-top: 4px;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.filters-sheet-foot #filters-sheet-clear {
+  flex: none;
+}
+
+.filters-sheet-foot #filters-sheet-show {
+  flex: 1;
 }
 
 .steps {

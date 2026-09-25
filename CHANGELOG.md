@@ -1,5 +1,32 @@
 # Changelog
 
+## Round 24 — 2026-09-25
+
+Round 24: on phones, the filter panel used to fill most of the first
+screen (search, quadrant chips, pickup/delivery chips, cuisine/price/type,
+and six switches), pushing every kitchen card below the fold.
+
+- Below 900px wide, only the search field and the quadrant chips (NE, NW,
+  SE, SW, Airdrie) stay on screen, next to a new "Filters" button. Pickup
+  or delivery, cuisine, price, type and the six switches (veg, halal,
+  jain, trial week, taking new customers, shows nutrition info) now open
+  in a bottom sheet titled "Filters", with a sticky footer ("Clear all"
+  and a live "Show N kitchens"). The button shows a badge with how many of
+  those moved filters are on (search and the quadrant don't count towards
+  it, since they're already visible).
+- The sheet reuses the exact same controls, just moved in and out of the
+  form by app.js as the screen crosses 900px, so the address-bar filters,
+  the results count and the map keep working exactly as before -- nothing
+  about how filtering works changed, only where the controls that aren't
+  always visible live on a phone.
+- Same pattern as the existing Menu and order sheets: focus moves in,
+  Tab is trapped inside, Escape and a tap on the backdrop close it and
+  return focus to the Filters button, `prefers-reduced-motion` skips the
+  slide, and the page can't scroll behind it while it's open. 900px and
+  up, nothing changed -- the filters look exactly as they did in round 23.
+- Version bumped to `tf-v1.31.0` (styles, scripts and the service worker's
+  saved-files list all match).
+
 ## Round 23 — 2026-09-25
 
 Round 23: design-director pass on the inner pages (a kitchen page, the

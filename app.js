@@ -1642,6 +1642,7 @@
 
   function renderResults() {
     if (!dom.results) return;
+    var f = readFilters();
     /* The launch page (render() hides the list): nothing to draw, and the
        map is never loaded, even with ?view=map. */
     if (isLaunch()) {
@@ -1649,6 +1650,7 @@
       dom.results.removeAttribute('aria-busy');
       if (dom.mapView) dom.mapView.hidden = true;
       closeMapCardNow();
+      updateFiltersSheetSummary(f, null);
       return;
     }
     var status = dom.resultsStatus;
@@ -1667,6 +1669,7 @@
       /* The grid is hidden in map mode; the map shows its own placeholder. */
       if (isMap) showMapSkeleton();
       renderNearPill();
+      updateFiltersSheetSummary(f, null);
       return;
     }
     dom.results.removeAttribute('aria-busy');
@@ -1679,10 +1682,10 @@
       dom.resultsError.hidden = false;
       if (dom.filters) dom.filters.classList.remove('has-active');
       renderNearPill();
+      updateFiltersSheetSummary(f, null);
       return;
     }
 
-    var f = readFilters();
     var list = state.kitchens.filter(function (k) { return matches(k, f); });
     var fresh = fillGrid(dom.results, list, 'results');
 
@@ -1698,6 +1701,7 @@
     if (isMap) renderMap(list, f);
     markCurrentHood();
     renderNearPill();
+    updateFiltersSheetSummary(f, n);
   }
 
   /* List or map: the switch's pressed state, which of the two shows, and the
@@ -4252,12 +4256,12 @@
   var lastFocusBeforeSheet = null;
   var iosOpen = false;
 
-  /* True while any of the three sheets (#ios-sheet, #nav-sheet,
-     #order-sheet) is open or opening; a sheet stops counting the moment it
-     starts to close. body.sheet-open (no page scroll) comes off only when
-     none is. */
+  /* True while any of the four sheets (#ios-sheet, #nav-sheet,
+     #order-sheet, #filters-sheet) is open or opening; a sheet stops
+     counting the moment it starts to close. body.sheet-open (no page
+     scroll) comes off only when none is. */
   function anySheetOpen() {
-    return iosOpen || navOpen || orderOpen;
+    return iosOpen || navOpen || orderOpen || filtersOpen;
   }
 
   function openSheet() {
@@ -4435,8 +4439,182 @@
         closeNavNow();
         closeMapCardNow();
         closeOrderSheetNow();
+        closeFiltersSheetNow();
       }
     });
+  }
+
+  /* ---------------------------------------------------------------------
+     Filters sheet (index.html #filters-sheet; phones under 900px only)
+     Above 900px every filter control shows inline, unchanged. Below it, the
+     search field and quadrant chips stay on screen and the "Filters" button
+     opens the rest (service chips, cuisine/price/type, the six switches) in
+     this bottom sheet. moveFiltersIntoSheet()/moveFiltersInline() relocate
+     the real control nodes between the sheet and their place in the form,
+     so URL sync, filtering and counts (app.js's existing readFilters(),
+     matches(), filterParams()...) keep working on the same elements --
+     nothing here tracks a second copy of the filter state.
+  --------------------------------------------------------------------- */
+  var filtersOpen = false;
+  var filtersTimer = null;
+  var lastFocusBeforeFilters = null;
+  var filtersMoved = false;
+  var filtersMq = null;
+  var filtersServiceAnchor = null, filtersSelectAnchor = null, filtersSwitchAnchor = null;
+
+  function isPhoneFilters() {
+    return !!(filtersMq && !filtersMq.matches);
+  }
+
+  /* Comment nodes mark each control's inline position in the form, so it can
+     always go back exactly where it started, however many times the
+     breakpoint is crossed. */
+  function markFilterAnchors() {
+    if (filtersServiceAnchor || !dom.filtersServiceGroup || !dom.selectRow || !dom.switchRow) return;
+    filtersServiceAnchor = document.createComment('service-filters');
+    filtersSelectAnchor = document.createComment('select-filters');
+    filtersSwitchAnchor = document.createComment('switch-filters');
+    dom.filtersServiceGroup.parentNode.insertBefore(filtersServiceAnchor, dom.filtersServiceGroup);
+    dom.selectRow.parentNode.insertBefore(filtersSelectAnchor, dom.selectRow);
+    dom.switchRow.parentNode.insertBefore(filtersSwitchAnchor, dom.switchRow);
+  }
+
+  function moveFiltersIntoSheet() {
+    if (filtersMoved || !dom.filtersSheetBody) return;
+    filtersMoved = true;
+    dom.filtersSheetBody.appendChild(dom.filtersServiceGroup);
+    dom.filtersSheetBody.appendChild(dom.selectRow);
+    dom.filtersSheetBody.appendChild(dom.switchRow);
+  }
+
+  function moveFiltersInline() {
+    if (!filtersMoved) return;
+    filtersMoved = false;
+    filtersServiceAnchor.parentNode.insertBefore(dom.filtersServiceGroup, filtersServiceAnchor.nextSibling);
+    filtersSelectAnchor.parentNode.insertBefore(dom.selectRow, filtersSelectAnchor.nextSibling);
+    filtersSwitchAnchor.parentNode.insertBefore(dom.switchRow, filtersSwitchAnchor.nextSibling);
+  }
+
+  function openFiltersSheet() {
+    var sheet = dom.filtersSheet;
+    if (!sheet || filtersOpen) return;
+    clearTimeout(filtersTimer);
+    filtersTimer = null;
+    lastFocusBeforeFilters = document.activeElement;
+    filtersOpen = true;
+    sheet.hidden = false;
+    document.body.classList.add('sheet-open');
+    if (dom.openFiltersBtn) dom.openFiltersBtn.setAttribute('aria-expanded', 'true');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        if (filtersOpen) sheet.classList.add('is-open');
+      });
+    });
+    var firstFocus = sheet.querySelector('.filters-sheet-head [data-close-filters]');
+    if (firstFocus) {
+      setTimeout(function () {
+        if (filtersOpen) focusQuietly(firstFocus);
+      }, 60);
+    }
+    document.addEventListener('keydown', onFiltersKeydown);
+  }
+
+  function closeFiltersSheet(restoreFocus) {
+    var sheet = dom.filtersSheet;
+    if (!sheet || sheet.hidden || !filtersOpen) return;
+    filtersOpen = false;
+    sheet.classList.remove('is-open');
+    if (dom.openFiltersBtn) dom.openFiltersBtn.setAttribute('aria-expanded', 'false');
+    document.removeEventListener('keydown', onFiltersKeydown);
+    if (!anySheetOpen()) document.body.classList.remove('sheet-open');
+    clearTimeout(filtersTimer);
+    filtersTimer = setTimeout(function () {
+      filtersTimer = null;
+      sheet.hidden = true;
+      if (restoreFocus !== false) {
+        var back = dom.openFiltersBtn && dom.openFiltersBtn.getClientRects().length ? dom.openFiltersBtn : lastFocusBeforeFilters;
+        focusQuietly(back);
+      }
+      lastFocusBeforeFilters = null;
+    }, prefersReducedMotion() ? 0 : 420);
+  }
+
+  /* Hide at once, without the transition or moving focus: used when the
+     viewport widens past 900px and when the page comes back from the
+     back/forward cache. */
+  function closeFiltersSheetNow() {
+    var sheet = dom.filtersSheet;
+    if (!sheet) return;
+    var wasShown = !sheet.hidden;
+    clearTimeout(filtersTimer);
+    filtersTimer = null;
+    filtersOpen = false;
+    sheet.classList.remove('is-open');
+    sheet.hidden = true;
+    if (dom.openFiltersBtn) dom.openFiltersBtn.setAttribute('aria-expanded', 'false');
+    document.removeEventListener('keydown', onFiltersKeydown);
+    if (wasShown && !anySheetOpen()) document.body.classList.remove('sheet-open');
+    lastFocusBeforeFilters = null;
+  }
+
+  function onFiltersKeydown(event) {
+    if (event.key === 'Escape') {
+      closeFiltersSheet(true);
+      return;
+    }
+    if (event.key === 'Tab' && dom.filtersSheetPanel) trapFocus(dom.filtersSheetPanel, event);
+  }
+
+  /* The "Filters" button badge (service, near, cuisine, type, price, the
+     three diet switches, trial, open, nutrition -- everything the sheet
+     holds, never search or quadrant, which stay on screen) and the sheet's
+     own "Show N kitchens" button. Called from renderResults() with the
+     filters just read and, once the list is known, its length. */
+  function updateFiltersSheetSummary(f, n) {
+    if (!dom.openFiltersBtn) return;
+    var count = activeFilterCount(f) - (f.q ? 1 : 0) - (f.quadrant ? 1 : 0);
+    if (dom.filtersBadge) {
+      if (count > 0) {
+        dom.filtersBadge.textContent = String(count);
+        dom.filtersBadge.hidden = false;
+      } else {
+        dom.filtersBadge.hidden = true;
+      }
+    }
+    dom.openFiltersBtn.setAttribute('aria-label', count > 0 ? ('Filters, ' + count + ' ' + plural(count, 'filter', 'filters') + ' on') : 'Filters');
+    if (dom.filtersSheetShow) {
+      dom.filtersSheetShow.textContent = typeof n === 'number' ? ('Show ' + n + ' ' + plural(n, 'kitchen', 'kitchens')) : 'Show kitchens';
+    }
+  }
+
+  function initFiltersSheet() {
+    var btn = dom.openFiltersBtn;
+    var sheet = dom.filtersSheet;
+    if (!btn || !sheet || !dom.filtersServiceGroup || !dom.selectRow || !dom.switchRow) return;
+    markFilterAnchors();
+
+    filtersMq = window.matchMedia ? window.matchMedia('(min-width: 900px)') : null;
+    if (isPhoneFilters()) moveFiltersIntoSheet();
+
+    btn.addEventListener('click', function () {
+      if (btn.getAttribute('aria-expanded') !== 'true') openFiltersSheet();
+      else closeFiltersSheet(true);
+    });
+    Array.prototype.forEach.call(sheet.querySelectorAll('[data-close-filters]'), function (node) {
+      node.addEventListener('click', function () { closeFiltersSheet(true); });
+    });
+    if (dom.filtersSheetClear) dom.filtersSheetClear.addEventListener('click', resetFilters);
+    if (dom.filtersSheetShow) dom.filtersSheetShow.addEventListener('click', function () { closeFiltersSheet(true); });
+
+    if (filtersMq) {
+      var onFiltersMqChange = function (event) {
+        closeFiltersSheetNow();
+        if (event.matches) moveFiltersInline();
+        else moveFiltersIntoSheet();
+      };
+      if (typeof filtersMq.addEventListener === 'function') filtersMq.addEventListener('change', onFiltersMqChange);
+      else if (typeof filtersMq.addListener === 'function') filtersMq.addListener(onFiltersMqChange);
+    }
   }
 
   /* ---------------------------------------------------------------------
@@ -4886,6 +5064,17 @@
     dom.cuisine = document.getElementById('cuisine');
     dom.resetFilters = document.getElementById('reset-filters');
 
+    dom.openFiltersBtn = document.getElementById('open-filters-sheet');
+    dom.filtersBadge = document.getElementById('filters-open-badge');
+    dom.filtersServiceGroup = document.getElementById('service-group');
+    dom.selectRow = document.getElementById('select-row');
+    dom.switchRow = document.getElementById('switch-row');
+    dom.filtersSheet = document.getElementById('filters-sheet');
+    dom.filtersSheetPanel = document.getElementById('filters-sheet-panel');
+    dom.filtersSheetBody = document.getElementById('filters-sheet-body');
+    dom.filtersSheetClear = document.getElementById('filters-sheet-clear');
+    dom.filtersSheetShow = document.getElementById('filters-sheet-show');
+
     dom.viewTabs = document.getElementById('view-tabs-wrap') || document.getElementById('view-tabs');
     dom.tabAll = document.getElementById('tab-all');
     dom.tabFollowing = document.getElementById('tab-following');
@@ -5299,6 +5488,7 @@
       dom.filters.addEventListener('change', onFilterChange);
     }
     if (dom.resetFilters) dom.resetFilters.addEventListener('click', resetFilters);
+    initFiltersSheet();
     var emptyReset = document.getElementById('empty-reset');
     if (emptyReset) emptyReset.addEventListener('click', resetFilters);
     if (dom.nearPill) dom.nearPill.addEventListener('click', onNearPillClick);
