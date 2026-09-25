@@ -1,5 +1,39 @@
 # Changelog
 
+## Round 41 — 2026-09-25
+
+Round 41: focused delivery-area map, dividers only on the home list.
+
+- **The kitchen-page delivery map is now a focused crop, not the whole
+  Calgary + Airdrie picture.** Round 40's version shaded every community
+  across both cities, leaving a kitchen's 3-6 delivery neighbourhoods tiny
+  and hard to tell apart. `map.js`'s `renderDeliveryPreview` now works out
+  a bounding box from the kitchen's own delivery communities' map shapes
+  plus its pickup point, adds a comfortable margin, and sets the SVG's own
+  `viewBox` to that box -- a real viewBox change, never a CSS transform
+  (Round 40 found a scaled transform can measure wider than its own small
+  frame, which is exactly what `check_layout.py`'s horizontal-overflow
+  sweep watches for). Communities outside the kitchen's own delivery areas
+  now render in a muted neutral (no quadrant colour), so the delivery
+  communities in the brand delivery green are the only ones that stand
+  out; each delivery community gets a small name label, positioned and
+  measured after insertion so one that would collide with another is
+  hidden rather than shown crowded or overlapping. The frame's aspect
+  ratio moved from the old tall whole-city portrait to a shorter 4:3 (with
+  a `max-height` on phones), and a quiet "Delivers to these neighbourhoods"
+  caption sits under it. Still entirely `aria-hidden`: the text list of
+  delivery areas beside it stays the one accessible source of truth.
+- **The decorative section dividers no longer show up under the header on
+  a kitchen page.** Round 40 added them between the hero and the filters,
+  and between the FAQ and the footer, on the home list -- but hiding the
+  hero on a kitchen page left the first one stranded at the very top of
+  the page with nothing above it. Both dividers now carry an id and
+  `render()` hides them outright on every view but the home list itself
+  (never on a kitchen page, the map, Following or the pre-launch page).
+- No data or wording change. `sw.js` VERSION and every page's `?v=` moved
+  to `tf-v1.47.0` (map.js, map.css, app.js, styles.css and index.html all
+  changed).
+
 ## Round 40 — 2026-09-25
 
 Round 40: lighter first load (lazy map), delivery-area map, dividers,

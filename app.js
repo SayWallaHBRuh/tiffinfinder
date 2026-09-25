@@ -3020,17 +3020,23 @@
       delivery.appendChild(areas);
       if (!solo) delivery.appendChild(el('p', { class: 'fine', text: 'Tap an area to see every kitchen that serves it.' }));
       if (k.delivery.notes) delivery.appendChild(el('p', { class: 'fine', text: k.delivery.notes }));
-      /* A small at-a-glance map of the same areas, softly shaded, with the
+      /* A small at-a-glance map of the same areas, cropped to this
+         kitchen's own delivery communities (Round 41, see map.js's
+         renderDeliveryPreview) with a quiet caption under it, and the
          pickup pin if the kitchen has one. The list above is the source of
          truth (it's built from the same k.delivery.areas either way); the
-         map is a picture of it, so it's aria-hidden rather than trying to
-         say the same thing twice. Loads map.js/map.css the same lazy way
-         the browse map does -- most kitchen pages are read without ever
-         opening the map, so this is the first time many visitors fetch
-         either file. Left out entirely if that load fails (offline, no
-         connection the first time): the text list already covers it. */
-      var deliveryMap = el('div', { class: 'k-delivery-map', 'aria-hidden': 'true' });
-      delivery.appendChild(deliveryMap);
+         map is a picture of it, so the whole wrap is aria-hidden rather
+         than trying to say the same thing twice. Loads map.js/map.css the
+         same lazy way the browse map does -- most kitchen pages are read
+         without ever opening the map, so this is the first time many
+         visitors fetch either file. The map div is left empty (caption
+         still shows) if that load fails (offline, no connection the first
+         time): the text list already covers it. */
+      var deliveryMapWrap = el('div', { class: 'k-delivery-map-wrap', 'aria-hidden': 'true' });
+      var deliveryMap = el('div', { class: 'k-delivery-map' });
+      deliveryMapWrap.appendChild(deliveryMap);
+      deliveryMapWrap.appendChild(el('p', { class: 'k-delivery-caption', text: 'Delivers to these neighbourhoods' }));
+      delivery.appendChild(deliveryMapWrap);
       loadDeliveryMap(deliveryMap, k);
     }
 
@@ -3300,6 +3306,14 @@
     var launch = (isBrowse || isFollowing) && isLaunch();
 
     dom.hero.hidden = isKitchen;
+    /* The decorative section dividers belong to the home list view only
+       (between the hero and the filters, and between the FAQ and the
+       footer) -- never at the top of a kitchen page (no hero above them
+       there) or the map, which reuses the same hero/filters markup but
+       isn't the list they're meant to punctuate. */
+    var showDividers = isBrowse && route.mode !== 'map' && !launch;
+    if (dom.dividerHero) dom.dividerHero.hidden = !showDividers;
+    if (dom.dividerFaq) dom.dividerFaq.hidden = !showDividers;
     dom.filtersSection.hidden = !isBrowse || launch;
     dom.viewTabs.hidden = isKitchen || launch;
     dom.viewBrowse.hidden = !isBrowse || launch;
@@ -4615,6 +4629,8 @@
     dom.countPendingWrap = document.getElementById('count-pending-wrap');
     dom.countLabel = document.getElementById('count-label');
 
+    dom.dividerHero = document.getElementById('divider-hero');
+    dom.dividerFaq = document.getElementById('divider-faq');
     dom.filtersSection = document.getElementById('filters-section');
     dom.filters = document.getElementById('filters');
     dom.cuisine = document.getElementById('cuisine');

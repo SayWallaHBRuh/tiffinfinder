@@ -4674,6 +4674,13 @@ main[tabindex="-1"]:focus {
   margin: 8px 0;
 }
 
+/* app.js hides the two home-page dividers outright on every other view
+   (kitchen, map, following, launch) via the hidden attribute; it needs to
+   win over the display rule above, which otherwise always sets one. */
+.section-divider[hidden] {
+  display: none;
+}
+
 .section-divider svg {
   overflow: visible;
 }

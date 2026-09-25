@@ -1234,17 +1234,71 @@
     });
   }
 
+  /* Round 41: a focused crop, not the whole Calgary + Airdrie picture --
+     round 40's version shaded every community across both cities, leaving
+     a kitchen's 3-6 delivery neighbourhoods tiny and hard to tell apart.
+     growPathBounds/fitBoxToAspect (below) work out a tight box around just
+     this kitchen's own delivery communities + pickup point, with a comfy
+     margin, and that box becomes the SVG's own viewBox -- never a CSS
+     transform (round 40 found a scaled transform can measure wider than
+     its own small frame, which is exactly what check_layout.py's
+     horizontal-overflow sweep watches for; a viewBox change never does). */
+  var DELIVERY_ASPECT = 4 / 3;
+  var DELIVERY_MIN_SIZE = 90;
+  var DELIVERY_MARGIN_RATIO = 0.3;
+
+  /* Grow an arbitrary [minX, minY, maxX, maxY] box by every point of one
+     path, with an optional offset (the Airdrie group's own translate,
+     applied here since this box becomes a viewBox with no group transform
+     of its own to carry it). Same number-pair reading as growBounds. */
+  function growPathBounds(b, path, dx, dy) {
+    var nums = path.match(/-?(?:\d+\.?\d*|\.\d+)/g);
+    if (!nums) return;
+    for (var i = 0; i + 1 < nums.length; i += 2) {
+      var x = Number(nums[i]) + dx;
+      var y = Number(nums[i + 1]) + dy;
+      if (x < b[0]) b[0] = x;
+      if (y < b[1]) b[1] = y;
+      if (x > b[2]) b[2] = x;
+      if (y > b[3]) b[3] = y;
+    }
+  }
+
+  /* Whether box `inner` sits entirely inside box `outer`. Used to decide
+     which muted context shapes to draw around the delivery crop below:
+     only a shape that fits *entirely* inside the reach zone is added, so
+     the group's own bounding box can never grow past that zone -- a
+     shape only partly inside would still contribute its *whole* extent
+     to the group's bounding box (SVG can't partially count a child), and
+     that is exactly what produced the oversized <g> the horizontal-
+     overflow check caught. */
+  function boxFits(inner, outer) {
+    return inner[0] >= outer[0] && inner[1] >= outer[1] && inner[2] <= outer[2] && inner[3] <= outer[3];
+  }
+
+  /* Grow the shorter side of a box out to a target width/height ratio,
+     keeping it centred, so the viewBox always matches the frame's own
+     aspect ratio and the picture never letterboxes or stretches. */
+  function fitBoxToAspect(box, aspect) {
+    var bw = box[2] - box[0];
+    var bh = box[3] - box[1];
+    var cx = (box[0] + box[2]) / 2;
+    var cy = (box[1] + box[3]) / 2;
+    if (bw / bh < aspect) bw = bh * aspect;
+    else bh = bw / aspect;
+    return [cx - bw / 2, cy - bh / 2, cx + bw / 2, cy + bh / 2];
+  }
+
   /* The small static map on a kitchen's own page (app.js loadDeliveryMap):
-     the whole Calgary + Airdrie picture (never zoomed to a quadrant -- a
-     scaled-up transform can measure wider than its own small frame, which
-     is exactly the horizontal-overflow check_layout.py's sweep watches
-     for), with its delivery.areas shaded the same "delivers here" green
-     the browse map uses on hover (.is-serves) and its pickup pin (if it
-     has pickup) at the precision it chose -- the same point ensurePins
-     places on the main map, just drawn once here with no cluster/zoom/
-     click logic, since there's only ever one kitchen and one fixed view.
-     Entirely aria-hidden (see loadDeliveryMap): the accessible list of
-     areas next to it is the real content. */
+     a focused crop around its own delivery.areas, shaded the same
+     "delivers here" green the browse map uses on hover (.is-serves), every
+     other community nearby left in a muted neutral (.is-context) for
+     bearings, and its pickup pin (if it has pickup) at the precision it
+     chose -- the same point ensurePins places on the main map, just drawn
+     once here with no cluster/zoom/click logic, since there's only ever
+     one kitchen and one fixed view. Entirely aria-hidden (see
+     loadDeliveryMap): the accessible list of areas next to it is the real
+     content. */
   function renderDeliveryPreview(container, k) {
     if (!container) return;
     loadMap().then(function () {
@@ -1253,7 +1307,6 @@
          beside this already says the same thing, so just leave it empty
          rather than showing a broken or half-drawn map. */
       if (m.status !== 'ready') return;
-      var z = { s: 1, tx: 0, ty: 0 };
       var airdrieKitchen = k.quadrant === 'Airdrie';
       var prefix = airdrieKitchen ? 'airdrie:' : 'calgary:';
       var serveSlugs = Object.create(null);
@@ -1261,38 +1314,107 @@
         if (typeof area === 'string' && area.trim()) serveSlugs[TF.communitySlug(area)] = true;
       });
 
+      var box = [Infinity, Infinity, -Infinity, -Infinity];
+      var served = [];
+      m.order.forEach(function (okey) {
+        var a = m.areas[okey];
+        var inAirdrie = a.city === 'airdrie';
+        if ((inAirdrie ? 'airdrie:' : 'calgary:') !== prefix) return;
+        if (!serveSlugs[a.slug]) return;
+        growPathBounds(box, a.path, inAirdrie ? AIRDRIE_OFFSET[0] : 0, inAirdrie ? AIRDRIE_OFFSET[1] : 0);
+        served.push(a);
+      });
+
+      var pickupPt = null;
+      if (TF.hasPickup(k) && k.pickup && Array.isArray(k.pickup.point)) {
+        var ppx = k.pickup.point[0] + (airdrieKitchen ? AIRDRIE_OFFSET[0] : 0);
+        var ppy = k.pickup.point[1] + (airdrieKitchen ? AIRDRIE_OFFSET[1] : 0);
+        pickupPt = [ppx, ppy];
+        if (ppx < box[0]) box[0] = ppx;
+        if (ppy < box[1]) box[1] = ppy;
+        if (ppx > box[2]) box[2] = ppx;
+        if (ppy > box[3]) box[3] = ppy;
+      }
+
+      /* Bad data (no delivery shape matched) and no pickup point: fall
+         back to the full picture rather than an empty or broken viewBox. */
+      if (!(box[2] > box[0]) || !(box[3] > box[1])) {
+        box = [MAP_VB.x, MAP_VB.y, MAP_VB.x + MAP_VB.w, MAP_VB.y + MAP_VB.h];
+      } else {
+        var bw0 = box[2] - box[0];
+        var bh0 = box[3] - box[1];
+        var mx = Math.max(bw0 * DELIVERY_MARGIN_RATIO, DELIVERY_MIN_SIZE * 0.4);
+        var my = Math.max(bh0 * DELIVERY_MARGIN_RATIO, DELIVERY_MIN_SIZE * 0.4);
+        box[0] -= mx; box[1] -= my; box[2] += mx; box[3] += my;
+        if (box[2] - box[0] < DELIVERY_MIN_SIZE) {
+          var cx0 = (box[0] + box[2]) / 2;
+          box[0] = cx0 - DELIVERY_MIN_SIZE / 2;
+          box[2] = cx0 + DELIVERY_MIN_SIZE / 2;
+        }
+        if (box[3] - box[1] < DELIVERY_MIN_SIZE) {
+          var cy0 = (box[1] + box[3]) / 2;
+          box[1] = cy0 - DELIVERY_MIN_SIZE / 2;
+          box[3] = cy0 + DELIVERY_MIN_SIZE / 2;
+        }
+        box = fitBoxToAspect(box, DELIVERY_ASPECT);
+      }
+
+      var vb = { x: box[0], y: box[1], w: box[2] - box[0], h: box[3] - box[1] };
+
       var svg = TF.svgEl('svg', {
         class: 'map-canvas k-delivery-canvas',
-        viewBox: MAP_VB.x + ' ' + MAP_VB.y + ' ' + MAP_VB.w + ' ' + MAP_VB.h,
+        viewBox: fmt(vb.x) + ' ' + fmt(vb.y) + ' ' + fmt(vb.w) + ' ' + fmt(vb.h),
+        preserveAspectRatio: 'xMidYMid meet',
         focusable: 'false'
       });
       var calgary = TF.svgEl('g', { class: 'map-calgary' });
       var airdrie = TF.svgEl('g', { class: 'map-airdrie', transform: 'translate(' + AIRDRIE_OFFSET[0] + ' ' + AIRDRIE_OFFSET[1] + ')' });
-      if (m.outline) airdrie.appendChild(TF.svgEl('path', { class: 'map-outline', d: m.outline }));
+      /* Only the kitchen's own city is ever drawn (Round 41): the other
+         city's shapes sit far outside this tight crop, and even muted and
+         clipped by overflow:hidden, a <g> whose content spans that far
+         still measures a huge width once getBoundingClientRect() applies
+         the crop's own high zoom factor to it -- exactly the horizontal-
+         overflow check_layout.py's sweep flags. For the same reason, a
+         muted community from the *same* city is only drawn when its own
+         shape fits entirely inside a "reach" zone a little past the crop's
+         own edges: a shape only partly inside would still count its
+         *whole* extent toward the group's bounding box (SVG can't
+         partially count a child), so a community clear across town, or
+         even one merely astride the edge, would suffer the same fate. */
+      var slack = Math.max(vb.w, vb.h) * 0.25;
+      var reach = [vb.x - slack, vb.y - slack, vb.x + vb.w + slack, vb.y + vb.h + slack];
+      if (airdrieKitchen && m.outline) {
+        var outlineBox = [Infinity, Infinity, -Infinity, -Infinity];
+        growPathBounds(outlineBox, m.outline, AIRDRIE_OFFSET[0], AIRDRIE_OFFSET[1]);
+        if (boxFits(outlineBox, reach)) airdrie.appendChild(TF.svgEl('path', { class: 'map-outline', d: m.outline }));
+      }
       m.order.forEach(function (okey) {
         var a = m.areas[okey];
         var inAirdrie = a.city === 'airdrie';
-        var serves = serveSlugs[a.slug] && ((inAirdrie ? 'airdrie:' : 'calgary:') === prefix);
-        var path = TF.svgEl('path', {
-          class: serves ? 'map-area is-serves' : 'map-area',
-          d: a.path,
-          'data-q': inAirdrie ? 'Airdrie' : a.quadrant,
-          'data-cls': a.cls,
-          'data-tone': slugTone(a.slug)
-        });
+        if ((inAirdrie ? 'airdrie:' : 'calgary:') !== prefix) return;
+        var serves = !!serveSlugs[a.slug];
+        if (!serves) {
+          var abox = [Infinity, Infinity, -Infinity, -Infinity];
+          growPathBounds(abox, a.path, inAirdrie ? AIRDRIE_OFFSET[0] : 0, inAirdrie ? AIRDRIE_OFFSET[1] : 0);
+          if (!boxFits(abox, reach)) return;
+        }
+        var attrs = { class: serves ? 'map-area is-serves' : 'map-area is-context', d: a.path };
+        if (serves) {
+          attrs['data-q'] = inAirdrie ? 'Airdrie' : a.quadrant;
+          attrs['data-cls'] = a.cls;
+          attrs['data-tone'] = slugTone(a.slug);
+        }
+        var path = TF.svgEl('path', attrs);
         (inAirdrie ? airdrie : calgary).appendChild(path);
       });
       svg.appendChild(calgary);
       svg.appendChild(airdrie);
-      svg.style.transform = 'translate(' + fmt(z.tx / MAP_VB.w * 100) + '%, ' + fmt(z.ty / MAP_VB.h * 100) + '%) scale(' + fmt(z.s) + ')';
 
       var frag = document.createDocumentFragment();
       frag.appendChild(svg);
 
-      if (TF.hasPickup(k) && k.pickup && Array.isArray(k.pickup.point)) {
-        var px = k.pickup.point[0] + (airdrieKitchen ? AIRDRIE_OFFSET[0] : 0);
-        var py = k.pickup.point[1] + (airdrieKitchen ? AIRDRIE_OFFSET[1] : 0);
-        var pos = stagePos(px, py, z);
+      if (pickupPt) {
+        var pos = { left: (pickupPt[0] - vb.x) / vb.w * 100, top: (pickupPt[1] - vb.y) / vb.h * 100 };
         var dot = TF.el('span', { class: 'map-pin-dot', 'aria-hidden': 'true' });
         var pin = TF.el('span', { class: 'map-pin k-delivery-pin', 'data-kind': 'pickup' }, dot);
         pin.style.setProperty('--x', fmt(pos.left) + '%');
@@ -1300,7 +1422,35 @@
         frag.appendChild(pin);
       }
 
+      /* A small name label per delivery community, positioned the same
+         percent way as the pin. Any that lands too close to the frame's
+         own edge is skipped outright; the rest are measured once inserted
+         and any that overlaps a label already kept is hidden -- legible
+         labels only, never crowded or clipped ones. */
+      var labelSpans = [];
+      served.forEach(function (a) {
+        var lp = { left: (a.x - vb.x) / vb.w * 100, top: (a.y - vb.y) / vb.h * 100 };
+        if (lp.left < 3 || lp.left > 97 || lp.top < 3 || lp.top > 97) return;
+        var span = TF.el('span', { class: 'k-delivery-label' }, a.name);
+        span.style.setProperty('--x', fmt(lp.left) + '%');
+        span.style.setProperty('--y', fmt(lp.top) + '%');
+        frag.appendChild(span);
+        labelSpans.push(span);
+      });
+
       container.replaceChildren(frag);
+
+      if (labelSpans.length > 1) {
+        var kept = [];
+        labelSpans.forEach(function (span) {
+          var r = span.getBoundingClientRect();
+          var hit = kept.some(function (kr) {
+            return !(r.right < kr.left || r.left > kr.right || r.bottom < kr.top || r.top > kr.bottom);
+          });
+          if (hit) span.hidden = true;
+          else kept.push(r);
+        });
+      }
     }).catch(function () { /* text list already covers it */ });
   }
 

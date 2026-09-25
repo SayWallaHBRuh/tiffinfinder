@@ -557,17 +557,24 @@
 }
 
 /* The small delivery-area map on a kitchen's own page (app.js
-   loadDeliveryMap / map.js renderDeliveryPreview): the same frame shape
-   as the browse map's stage, just smaller and beside the text list of
-   areas instead of full-width. Starts empty (no skeleton -- this file is
-   already loaded by the time anything is drawn into it) and stays
-   aria-hidden; the accessible text list is the real content. */
+   loadDeliveryMap / map.js renderDeliveryPreview) and its quiet caption,
+   grouped so replacing the map's own contents on load never touches the
+   caption beside it. Both stay inside the outer aria-hidden wrap; the
+   accessible text list next to them is the real content. */
+.k-delivery-map-wrap {
+  margin-top: 10px;
+}
+
+/* Round 41: a focused crop around the kitchen's own delivery communities
+   (map.js sets the SVG's viewBox to that crop), so the frame is now
+   closer to landscape than the old whole-city portrait shape -- shorter
+   on phones too (max-height), never taller than it needs to be. */
 .k-delivery-map {
   position: relative;
   width: 100%;
-  max-width: 280px;
-  aspect-ratio: 1000 / 1663;
-  margin-top: 10px;
+  max-width: 320px;
+  aspect-ratio: 4 / 3;
+  max-height: 260px;
   overflow: hidden;
   background: radial-gradient(120% 80% at 50% 40%, var(--surface) 0%, var(--map-bg) 70%);
   border: 1px solid var(--line);
@@ -582,10 +589,53 @@
   overflow: hidden;
 }
 
+/* Every other community near the crop, for bearings only: a muted,
+   low-contrast fill and a thin line, well behind the delivery shading
+   (.is-serves below) so the 3-6 communities that matter are the ones
+   that stand out. No quadrant colour or tone here (map.js leaves off
+   data-q/data-cls/data-tone for these), so the generic .map-area fill
+   (var(--map-muted)) shows through, just toned down further. */
+.k-delivery-canvas .map-area.is-context {
+  fill-opacity: 0.55;
+  stroke-width: 0.6;
+}
+
+.k-delivery-canvas .map-area.is-serves {
+  stroke-width: 1.75;
+}
+
+/* A small name label per shaded community, the same absolute --x/--y
+   percent positioning as a pin. Purely decorative (the whole wrap is
+   aria-hidden); a light pill keeps it legible over any tone of fill. */
+.k-delivery-label {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(-50%, -50%);
+  max-width: 84px;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-2);
+  font: 600 0.6875rem var(--font-body);
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
 /* Static -- no hover, no click, no transition (it never moves once
    placed), unlike the interactive pins on the browse map. */
 .k-delivery-pin {
   cursor: default;
   pointer-events: none;
   transition: none;
+}
+
+.k-delivery-caption {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
 }
