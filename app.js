@@ -3894,9 +3894,15 @@
       }
       list.appendChild(li);
     });
-    menu.appendChild(list);
     var confirmLine = 'Menus and prices are set by the kitchen and can change. Confirm when you order.';
-    if (anyTerm) menu.appendChild(el('p', { class: 'fine dish-hint', text: 'Tap a dish name with a dotted underline to see what it is.' }));
+    /* No days posted yet: the same honest "Ask the kitchen" pattern used
+       everywhere else optional data is missing, instead of an empty list. */
+    if (list.firstChild) {
+      menu.appendChild(list);
+      if (anyTerm) menu.appendChild(el('p', { class: 'fine dish-hint', text: 'Tap a dish name with a dotted underline to see what it is.' }));
+    } else {
+      menu.appendChild(el('p', { class: 'fine', text: 'Ask the kitchen about this week’s menu.' }));
+    }
     menu.appendChild(el('p', { class: 'fine', text: confirmLine }));
     container.appendChild(menu);
 
@@ -3941,6 +3947,24 @@
     ]));
     if (!k.nutrition) prices.appendChild(el('p', { class: 'fine', text: 'Ask the kitchen about nutrition and allergens.' }));
     container.appendChild(prices);
+
+    /* How ordering works: the same three steps on every kitchen page
+       (pending and sample too -- it describes the process, not a promise
+       you can order right now), visually separate from the order button
+       itself. Also the plain-text version of "how to order" a printed
+       copy needs (see @media print). */
+    var howOrder = el('section', { class: 'k-section k-how-order', 'aria-labelledby': 'how-order-heading' });
+    howOrder.appendChild(el('h2', { id: 'how-order-heading', text: 'How ordering works' }));
+    var howOrderSteps = el('ol', { class: 'steps' });
+    [
+      'Browse this kitchen’s menu, plans and prices.',
+      'Message or call the kitchen directly, on WhatsApp or by phone, to confirm your plan and start day.',
+      'Pick up or get delivery, and pay the kitchen directly. Tiffin Finder never takes orders or payments.'
+    ].forEach(function (text) {
+      howOrderSteps.appendChild(el('li', null, el('span', { text: text })));
+    });
+    howOrder.appendChild(howOrderSteps);
+    container.appendChild(howOrder);
 
     /* Nutrition: a quiet optional panel, only when the kitchen filled one
        in (see nutritionPanel). Sits right after plans and prices. */
@@ -4076,10 +4100,15 @@
     var rechecking = info.state === 'rechecking';
     var order = el('aside', { class: 'order-bar' + (canOrder ? '' : ' is-pending'), 'aria-labelledby': 'order-heading' });
     var orderHead = el('div', { class: 'order-head' }, el('h2', { id: 'order-heading', text: canOrder ? 'Order directly with the kitchen' : (rechecking ? 'Ordering paused' : 'Ordering not open yet') }));
-    /* No pill when the capacity is unknown (statusPill gives null). */
+    /* No pill when the capacity is unknown (statusPill gives null) -- the
+       same honest "Ask the kitchen" pattern used for other optional data,
+       rather than a blank space where the pill would be. */
     var capacityPill = canOrder ? statusPill(k) : null;
     if (capacityPill) orderHead.appendChild(capacityPill);
     order.appendChild(orderHead);
+    if (canOrder && !capacityPill) {
+      order.appendChild(el('p', { class: 'fine', text: 'Ask the kitchen if they’re taking new customers right now.' }));
+    }
     if (canOrder) {
       /* Both buttons open the order sheet (openOrderSheet), which builds
          the message and holds the only WhatsApp or tel: link. The label
@@ -4165,6 +4194,14 @@
       side.appendChild(shareKit);
     }
     container.appendChild(side);
+
+    /* Printed copies have no Share button, so the plain-text link goes on
+       the page itself -- shown only in print (see .print-only, @media
+       print). */
+    container.appendChild(el('p', { class: 'fine k-print-link print-only' }, [
+      el('strong', { text: 'This kitchen on Tiffin Finder: ' }),
+      pageLink
+    ]));
 
     /* Section tabs: Menu, Plans, Nutrition (only when the kitchen filled
        one in), Pickup/delivery (whichever of the two it offers, labelled

@@ -1,5 +1,39 @@
 # Changelog
 
+## Round 34 — 2026-09-25
+
+Round 34: no phone overflow anywhere, a kitchen print view, and consistent
+"Ask the kitchen" wording wherever data is missing.
+
+- Fixed a horizontal-scroll bug on kitchen pages (`?k=...`): the sticky
+  section tabs and the sticky order bar could force the page a little
+  wider than the phone screen. Checked every page at 360px and 390px in
+  the built-in browser (list, a kitchen page, the map, guide, kitchens,
+  the checklist, the consent form, a poster, permitted, about, privacy,
+  terms, 404) -- see `docs/quality-pass-round34.md` for the full list and
+  what was wrong on each.
+- Fixed the same kind of overflow on the printable checklist
+  (`kitchens-checklist.html`): the long fill-in-the-blank lines
+  ("Your neighbourhood: ______") couldn't wrap and pushed the page wide on
+  a phone.
+- New: a kitchen page prints cleanly. `?k=...`, printed or saved as a PDF,
+  now shows just the name, cuisine and type, the permit line, this week's
+  menu, plans and prices, "How ordering works", pickup/delivery, and the
+  kitchen's own Tiffin Finder link as plain text -- no header, footer,
+  section tabs, buttons, Follow/Share, or the map link. Checked with
+  headless Edge (`--print-to-pdf`).
+- New "How ordering works" on every kitchen page: three plain steps
+  (browse here, message or call the kitchen directly, pick up or get
+  delivery and pay the kitchen directly) -- a reminder, next to the order
+  button but not on it, that Tiffin Finder never takes orders or payments.
+- Two small gaps in the "Ask the kitchen" pattern, fixed: a kitchen with no
+  menu posted yet used to show a blank space instead of a line asking to
+  check with the kitchen; and the order bar showed no line at all when a
+  kitchen's "taking new customers" status wasn't known. Audited nutrition
+  panel edge cases (only calories, only protein, only allergens, an empty
+  allergen list) and the map's dark-mode legend/attribution contrast --
+  both were already correct, no change needed there.
+
 ## Round 33 — 2026-09-25
 
 Round 33: a real, scannable QR code on each kitchen's poster.
