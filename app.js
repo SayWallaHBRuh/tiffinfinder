@@ -159,6 +159,10 @@
   var dom = {};
   var deferredInstallPrompt = null;
   var toastTimer = null;
+  /* The kitchen page's section tabs (Menu/Plans/.../About): the scroll-spy
+     observer from the page currently on screen, disconnected and replaced
+     each time renderKitchen rebuilds the page. */
+  var kitchenTabsObserver = null;
 
   /* ---------------------------------------------------------------------
      Storage helpers (every access wrapped; private mode may throw)
@@ -1013,9 +1017,9 @@
       nowFollowing = true;
     }
     saveFollows();
-    updateFollowButtons(slug, kitchen.name);
+    updateFollowButtons(slug, kitchen.name, nowFollowing);
     updateFollowCount();
-    toast((nowFollowing ? 'Following ' : 'Unfollowed ') + kitchen.name);
+    toast((nowFollowing ? 'Now following ' : 'No longer following ') + kitchen.name + '.');
     var route = parseRoute();
     if (route.view === 'following') {
       /* Unfollowing here removes the card, and the grid is rebuilt, so the
@@ -1053,7 +1057,7 @@
     return btn;
   }
 
-  function updateFollowButtons(slug, name) {
+  function updateFollowButtons(slug, name, animate) {
     var following = state.follows.has(slug);
     var buttons = document.querySelectorAll('[data-follow="' + slug.replace(/"/g, '\\"') + '"]');
     Array.prototype.forEach.call(buttons, function (btn) {
@@ -1062,6 +1066,19 @@
       btn.setAttribute('aria-label', (following ? 'Unfollow ' : 'Follow ') + name);
       var label = btn.querySelector('.btn-label');
       if (label) label.textContent = following ? 'Following' : 'Follow';
+      /* A quick pop on the checkmark when a tap actively follows a kitchen
+         (never on unfollow, never on the initial render of an
+         already-followed card). Restart it even on a fast double-tap by
+         dropping the class and forcing a reflow before re-adding it.
+         prefers-reduced-motion turns the animation itself off (see the CSS),
+         so this class is harmless there. */
+      if (animate && following) {
+        btn.classList.remove('is-popping');
+        void btn.offsetWidth;
+        btn.classList.add('is-popping');
+      } else {
+        btn.classList.remove('is-popping');
+      }
     });
   }
 
@@ -1185,7 +1202,7 @@
   function nutritionPanel(k) {
     var n = k.nutrition;
     if (!n) return null;
-    var section = el('section', { class: 'k-section k-nutrition', 'aria-labelledby': 'nutrition-heading' });
+    var section = el('section', { class: 'k-section k-nutrition', id: 'section-nutrition', 'aria-labelledby': 'nutrition-heading' });
     section.appendChild(el('h2', { id: 'nutrition-heading', text: 'Nutrition (estimated by the kitchen)' }));
     if (k.sample) {
       section.appendChild(el('p', {}, [
@@ -3136,9 +3153,6 @@
       /* No day price, no "/day" at all: never a bare " /day", and never
          "$0 /day" for a missing (null) or zero price. Same rule as
          planPrices: a number above 0. */
-      var day = k.price ? k.price.day : null;
-      var dayPrice = (isFiniteNumber(day) && day > 0) ? money(day) : '';
-      var price = dayPrice ? el('span', { class: 'map-kitchen-price' }, [el('strong', { text: dayPrice }), ' /day']) : null;
       var actions = el('div', { class: 'map-kitchen-actions' }, el('a', { class: 'btn btn-primary btn-small', href: kitchenHref(k.slug), 'data-route': '' }, [
         'See this week’s menu',
         el('span', { class: 'visually-hidden', text: ' from ' + k.name })
@@ -3150,21 +3164,22 @@
           el('span', { class: 'visually-hidden', text: ' to ' + k.name + ' (opens Google Maps in a new tab)' })
         ]));
       }
+      /* Same helpers, and the same order, as kitchenCard: tile, name, the
+         business-type label, then "From $X/day · $X/week · $X/month" with
+         the trial week and nutrition chips (card-price-row, reused as-is)
+         -- so the map preview reads exactly like the list card. */
+      var priceRow = el('div', { class: 'card-price-row map-kitchen-price-row' }, [priceLine(k), trialChip(k), nutritionChip(k)]);
       list.appendChild(el('li', { class: 'map-kitchen', 'data-slug': k.slug }, [
         dabbaTile(k.hue, k.cuisine, false),
         el('div', { class: 'map-kitchen-body' }, [
           el('p', { class: 'map-kitchen-name' }, [el('span', { text: k.name }), k.sample ? sampleTag() : null]),
-          /* The service chip rides in the meta line, just before the trial
-             week (always last): when the line wraps, the two chips share the
-             second row instead of each taking a row, so a phone-sized preview
-             grows by at most one row. */
+          businessTypeChip(k),
           el('p', { class: 'map-kitchen-meta' }, [
             el('span', { text: k.cuisine || '' }),
             el('span', { class: 'q-chip', 'data-q': k.quadrant, text: k.quadrant }),
-            price,
-            serviceChip(k),
-            trialChip(k)
+            serviceChip(k)
           ]),
+          priceRow.firstChild ? priceRow : null,
           hasPickup(k) ? el('p', { class: 'map-kitchen-where' }, [icon('bag', 14), el('span', { text: pickupLine(k) })]) : null,
           hasDelivery(k) ? el('p', { class: 'map-kitchen-where' }, [icon('truck', 14), el('span', { text: deliversLine(k) })]) : null,
           /* Same helpers and order as kitchenCard: the badge (Sample listing
@@ -3546,6 +3561,58 @@
     return frag;
   }
 
+  /* A slim sticky nav under the header on a kitchen page, one link per
+     section that exists on the page (Menu, Plans, Nutrition when the
+     kitchen filled one in, Pickup/Delivery, About). Plain #hash links do
+     the actual scrolling -- html has scroll-behavior: smooth, turned off
+     under prefers-reduced-motion in styles.css, and each .k-section has
+     scroll-margin-top so it lands clear of the sticky header and this bar.
+     This only builds the tab markup and wires scroll-spy (aria-current
+     follows the section in view), the same IntersectionObserver pattern as
+     the guide/permit pages' page-toc (see initPageToc). Returns null when
+     there's nothing worth a tab bar for (a kitchen with no ordering info
+     at all still always has Menu, Plans and About, so this only returns
+     null if that ever changes). */
+  function buildKitchenTabs(sections) {
+    if (kitchenTabsObserver) {
+      kitchenTabsObserver.disconnect();
+      kitchenTabsObserver = null;
+    }
+    if (!sections || sections.length < 2) return null;
+    var nav = el('nav', { class: 'k-tabs', 'aria-label': 'Sections on this page' });
+    var scroller = el('div', { class: 'k-tabs-scroll' });
+    var targets = [];
+    sections.forEach(function (s, i) {
+      var a = el('a', { href: '#' + s.id, class: 'k-tab', text: s.label });
+      if (i === 0) a.setAttribute('aria-current', 'true');
+      scroller.appendChild(a);
+      targets.push({ id: s.id, el: s.node, link: a });
+    });
+    nav.appendChild(scroller);
+
+    if (typeof IntersectionObserver === 'function') {
+      var visible = {};
+      var setActive = function (id) {
+        targets.forEach(function (t) {
+          if (t.id === id) t.link.setAttribute('aria-current', 'true');
+          else t.link.removeAttribute('aria-current');
+        });
+      };
+      /* The band a section has to cross to count as "current": below the
+         header and this bar, and above the last ~30% of the viewport, so
+         a short section near the bottom of the page can still take over
+         from the one before it. */
+      kitchenTabsObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) { visible[entry.target.id] = entry.isIntersecting; });
+        for (var i = 0; i < targets.length; i++) {
+          if (visible[targets[i].id]) { setActive(targets[i].id); return; }
+        }
+      }, { rootMargin: '-128px 0px -70% 0px', threshold: 0 });
+      targets.forEach(function (t) { kitchenTabsObserver.observe(t.el); });
+    }
+    return nav;
+  }
+
   function renderKitchen(slug) {
     /* If focus was inside the view (a link, Try again, or the heading), it
        follows the new heading through loading, data and retry instead of
@@ -3560,6 +3627,12 @@
     closeSharePanel(false);
     var hadFocus = container.contains(document.activeElement);
     container.replaceChildren();
+    /* The section tabs' scroll-spy belongs to the old page's sections too;
+       buildKitchenTabs() below reconnects it once the new ones exist. */
+    if (kitchenTabsObserver) {
+      kitchenTabsObserver.disconnect();
+      kitchenTabsObserver = null;
+    }
     var solo = state.solo;
 
     /* Back to the list with the filters the form still holds (it keeps its
@@ -3697,7 +3770,7 @@
     container.appendChild(head);
 
     /* Menu */
-    var menu = el('section', { class: 'k-section k-menu', 'aria-labelledby': 'menu-heading' });
+    var menu = el('section', { class: 'k-section k-menu', id: 'section-menu', 'aria-labelledby': 'menu-heading' });
     menu.appendChild(el('h2', { id: 'menu-heading', text: 'This week’s menu' }));
     var sub = [];
     if (k.menu.week_of) sub.push('Week of ' + formatDate(k.menu.week_of));
@@ -3755,7 +3828,7 @@
     /* Plans and prices: a real table (Plan / Price), day, week and month
        where the kitchen has them, then the trial week when it offers one
        (priced, or "Ask the kitchen"), with its note on its own line. */
-    var prices = el('section', { class: 'k-section k-prices', 'aria-labelledby': 'prices-heading' });
+    var prices = el('section', { class: 'k-section k-prices', id: 'section-prices', 'aria-labelledby': 'prices-heading' });
     prices.appendChild(el('h2', { id: 'prices-heading', text: 'Plans and prices' }));
     var tbody = el('tbody');
     planPrices(k).forEach(function (p) {
@@ -3805,7 +3878,7 @@
     if (hasPickup(k)) {
       var spot = k.pickup;
       var spotLabel = spot.label.trim();
-      pickup = el('section', { class: 'k-section k-pickup', 'aria-labelledby': 'pickup-heading' });
+      pickup = el('section', { class: 'k-section k-pickup', id: 'section-service', 'aria-labelledby': 'pickup-heading' });
       pickup.appendChild(el('h2', { id: 'pickup-heading', text: 'Pickup' }));
       pickup.appendChild(el('p', { class: 'k-pickup-line' }, [icon('bag', 18), el('strong', { text: pickupLine(k) })]));
       /* A neighbourhood-only label that says more than "Pickup in <area>". */
@@ -3841,7 +3914,7 @@
     /* Delivery (appended into the side rail below) */
     var delivery = null;
     if (hasDelivery(k)) {
-      delivery = el('section', { class: 'k-section k-delivery', 'aria-labelledby': 'delivery-heading' });
+      delivery = el('section', { class: 'k-section k-delivery', id: pickup ? null : 'section-service', 'aria-labelledby': 'delivery-heading' });
       delivery.appendChild(el('h2', { id: 'delivery-heading', text: 'Delivery areas' }));
       /* Each area links to "who serves X": ?near= only, so the list's other
          filters reset. data-near makes navigate() land on the results. On
@@ -3877,13 +3950,13 @@
     var noOrdersLine = 'Tiffin Finder doesn’t take orders or payments. You arrange everything with the kitchen, the way you already do.';
     var permit;
     if (info.state === 'sample') {
-      permit = el('section', { class: 'k-section k-permit', 'aria-labelledby': 'listing-heading' });
+      permit = el('section', { class: 'k-section k-permit', id: 'section-permit', 'aria-labelledby': 'listing-heading' });
       permit.appendChild(el('h2', { id: 'listing-heading', text: 'About this listing' }));
       permit.appendChild(permitBadge(k));
       permit.appendChild(el('p', { class: 'fine', text: 'This is a sample listing, made up to show how Tiffin Finder works. It isn’t a real kitchen and its phone numbers aren’t real.' }));
       permit.appendChild(el('p', { class: 'fine', text: noOrdersLine }));
     } else {
-      permit = el('section', { class: 'k-section k-permit', 'aria-labelledby': 'permit-heading' });
+      permit = el('section', { class: 'k-section k-permit', id: 'section-permit', 'aria-labelledby': 'permit-heading' });
       permit.appendChild(el('h2', { id: 'permit-heading', text: 'Permit' }));
       permit.appendChild(permitBadge(k));
       if (info.state === 'checked') {
@@ -3984,6 +4057,21 @@
     if (pickup) side.appendChild(pickup);
     if (delivery) side.appendChild(delivery);
     container.appendChild(side);
+
+    /* Section tabs: Menu, Plans, Nutrition (only when the kitchen filled
+       one in), Pickup/Delivery (whichever of the two it offers) and About.
+       Inserted right after the header card, so it sticks just under the
+       site header while the page scrolls. */
+    var tabSections = [
+      { id: 'section-menu', label: 'Menu', node: menu },
+      { id: 'section-prices', label: 'Plans', node: prices }
+    ];
+    if (nutrition) tabSections.push({ id: 'section-nutrition', label: 'Nutrition', node: nutrition });
+    if (pickup || delivery) tabSections.push({ id: 'section-service', label: 'Pickup/Delivery', node: pickup || delivery });
+    tabSections.push({ id: 'section-permit', label: 'About', node: permit });
+    var tabsNav = buildKitchenTabs(tabSections);
+    if (tabsNav) container.insertBefore(tabsNav, menu);
+
     if (hadFocus) focusQuietly(document.getElementById('kitchen-heading'));
   }
 

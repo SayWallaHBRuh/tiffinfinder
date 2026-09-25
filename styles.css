@@ -1092,6 +1092,9 @@ main[tabindex="-1"]:focus {
   color: var(--ink);
   min-height: 44px;
   padding: 8px 16px;
+  /* Faster than .btn's own 160ms: the pressed state should read as
+     instant (under 100ms), not merely quick. */
+  transition: background 90ms var(--ease-out), border-color 90ms var(--ease-out), color 90ms var(--ease-out), transform var(--dur-2) var(--ease-spring);
 }
 
 .btn-follow:hover {
@@ -1115,6 +1118,23 @@ main[tabindex="-1"]:focus {
 
 .btn-follow.is-following .icon-plus {
   display: none;
+}
+
+/* A quick pop on the checkmark right after tapping Follow (never on
+   unfollow, never on a card that already loads as followed -- app.js only
+   adds .is-popping when a tap just turned following on). Gated on its own
+   behind no-preference on top of the blanket reduced-motion override
+   below, so it never runs for someone who has asked for less motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .btn-follow.is-following.is-popping .icon-check {
+    animation: follow-pop var(--dur-2) var(--ease-spring);
+  }
+
+  @keyframes follow-pop {
+    0% { transform: scale(0.55); }
+    60% { transform: scale(1.22); }
+    100% { transform: scale(1); }
+  }
 }
 
 /* The main conversion button follows the rule "saffron carries action,
@@ -2853,6 +2873,61 @@ main[tabindex="-1"]:focus {
   gap: 10px;
 }
 
+/* Slim sticky in-page nav (Menu / Plans / Nutrition / Pickup-Delivery /
+   About), built by buildKitchenTabs() in app.js. Sticks just under the
+   site header -- lower in the stacking order (z-index 30 against the
+   header's 40) so the header always paints on top of it during the
+   overlap -- and never meets the order bar, which sticks to the opposite
+   (bottom) edge instead. Scroll-spy adds aria-current to the link for the
+   section in view; each .k-section's scroll-margin-top below keeps a
+   tapped section clear of both sticky bars. */
+.k-tabs {
+  --k-tabs-h: 48px;
+  position: sticky;
+  top: var(--header-h);
+  z-index: 30;
+  margin-inline: calc(-1 * var(--gutter));
+  background: var(--bg);
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  -webkit-backdrop-filter: saturate(160%) blur(14px);
+  backdrop-filter: saturate(160%) blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+
+.k-tabs-scroll {
+  display: flex;
+  align-items: center;
+  min-height: var(--k-tabs-h);
+  gap: 4px;
+  overflow-x: auto;
+  padding-inline: var(--gutter);
+  -webkit-overflow-scrolling: touch;
+}
+
+.k-tab {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  flex: none;
+  padding: 0 14px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--ink-2);
+  text-decoration: none;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out);
+}
+
+.k-tab:hover {
+  color: var(--ink);
+}
+
+.k-tab[aria-current="true"] {
+  color: var(--accent-ink);
+  border-bottom-color: var(--focus-brand);
+}
+
 .k-section {
   padding: 20px;
   background: var(--surface);
@@ -2860,6 +2935,10 @@ main[tabindex="-1"]:focus {
   border-radius: var(--radius);
   box-shadow: inset 0 1px 0 var(--inset-hi), var(--shadow-1);
   animation: rise var(--dur-3) var(--ease-out) backwards;
+  /* Room for the sticky header plus the sticky tab bar above it (see
+     .k-tabs, 48px tall); html's own scroll-padding-top already covers
+     the header on its own. */
+  scroll-margin-top: 60px;
 }
 
 .k-side .k-section {
@@ -3482,9 +3561,13 @@ main[tabindex="-1"]:focus {
 @media (min-width: 900px) {
   .kitchen {
     grid-template-columns: 1.3fr 0.9fr;
+    /* "side" must stay one unbroken rectangle for grid-template-areas to be
+       valid, so tabs sits in the content column only (row 3, column 1)
+       rather than spanning full width the way it does on a phone. */
     grid-template-areas:
       "back back"
       "head side"
+      "tabs side"
       "menu side"
       "prices side"
       "permit side";
@@ -3497,6 +3580,11 @@ main[tabindex="-1"]:focus {
 
   .kitchen .k-head {
     grid-area: head;
+  }
+
+  .kitchen .k-tabs {
+    grid-area: tabs;
+    margin-inline: 0;
   }
 
   .kitchen .k-menu {
@@ -4536,6 +4624,13 @@ main[tabindex="-1"]:focus {
   letter-spacing: 0.05em;
 }
 
+/* .type-label's own -2px top margin assumes the card's flex gap (see
+   section 9); .map-kitchen-body is an ungapped grid, so that would pull
+   it up into the name line above instead. */
+.map-kitchen-body .type-label {
+  margin-top: 0;
+}
+
 .map-kitchen-meta {
   display: flex;
   flex-wrap: wrap;
@@ -4546,23 +4641,17 @@ main[tabindex="-1"]:focus {
   color: var(--ink-2);
 }
 
-.map-kitchen-price strong {
-  color: var(--ink);
-}
-
 /* The service chip sits in the meta line (see fillMapCard), so the flex
    gap spaces it; no margin of its own. */
 .map-kitchen-meta .svc-chip {
   margin: 0;
 }
 
-/* The preview's "Trial week $N": a touch smaller than the card's, sharing
-   the meta line's second row with the service chip when the line wraps.
-   Same tokens, same 5.8:1 / 7.5:1 as the card chip. */
-.map-kitchen-meta .trial-chip {
-  min-height: 22px;
-  padding: 1px 8px;
-  font-size: 0.74rem;
+/* "From $X/day · $X/week · $X/month" plus the trial week and nutrition
+   chips: the exact same card-price-row as a list card (see kitchenCard),
+   reused as-is so the price line matches in order and style. */
+.map-kitchen-price-row {
+  margin: 2px 0 6px;
 }
 
 /* "Pickup in Saddle Ridge" / "Delivers to Saddle Ridge, Martindale +2 more" */

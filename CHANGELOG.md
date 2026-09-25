@@ -1,5 +1,42 @@
 # Changelog
 
+## Round 28 — 2026-09-25
+
+Round 28: a snappier Follow button, a sticky section nav on the kitchen
+page, and map-preview/list-card parity (see `plans/ui-backlog.md` items
+6, 7, 12).
+
+- Follow micro-interaction (item 6): the Follow button's own colour
+  change is now 90ms instead of the shared 160ms, so pressing it reads
+  as instant. Tapping Follow (never Unfollow, never on a card that
+  already loads as followed) also gives the checkmark a quick pop,
+  gated behind `prefers-reduced-motion: no-preference` on top of the
+  site's usual reduced-motion override. The toast wording is now a
+  matched pair -- "Now following X." / "No longer following X." -- and
+  `aria-pressed` stays in sync either way. The card's own tap target
+  was already safe (the Follow button sits above the card's full-card
+  link via `z-index`), confirmed with a real tap in the phone pane.
+- Kitchen page section tabs (item 7): a slim sticky nav under the site
+  header on a kitchen's own page -- Menu, Plans, Nutrition (only when
+  the kitchen filled one in), Pickup/Delivery and About -- with
+  scroll-spy (`IntersectionObserver`, the same pattern as the guide
+  pages' "On this page" nav) keeping `aria-current` on the section in
+  view. 44px tap targets, horizontal scroll on a phone if the labels
+  don't fit, and its own `scroll-margin-top` so a tapped section clears
+  both sticky bars. On a phone it sits above the sticky order bar with
+  no overlap (checked in the phone pane with both on screen); on
+  desktop it lives in the content column only, since the order bar's
+  sticky side rail needs an unbroken column of its own.
+- Map preview/list card parity (item 12): the map's bottom-sheet
+  preview card was missing the business-type label entirely and showed
+  only a bare day price instead of the list card's full "From
+  $X/day · $X/week · $X/month" line. Both now reuse the exact same
+  helpers as the list card (`businessTypeChip`, `priceLine`,
+  `card-price-row`), in the same order, so the two surfaces no longer
+  drift apart.
+- Version bumped to `tf-v1.35.0` (styles, scripts and the service
+  worker cache all move together).
+
 ## Round 27 — 2026-09-25
 
 Round 27: a type/spacing rhythm pass, brand-coloured focus rings and
