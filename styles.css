@@ -634,8 +634,8 @@ main[tabindex="-1"]:focus {
   white-space: nowrap;
 }
 
-/* "Tiffin" ink, "Finder" orange; both i's use a dotless ı with a drawn dot
-   so the dot can be a small circle (and, in "Finder", the map-pin icon)
+/* "Tiffin" ink, "Finder" orange; every i uses a dotless ı with a drawn dot
+   so the dot can be a small orange circle (and, in "Finder", the map-pin icon)
    instead of the font's own tittle. The whole mark is aria-hidden and
    paired with a .visually-hidden text node that says "Tiffin Finder". */
 .wordmark .wm-a { color: var(--wm-ink); }
@@ -656,10 +656,6 @@ main[tabindex="-1"]:focus {
   margin-left: -0.1em;
   border-radius: 50%;
   background: var(--wm-orange);
-}
-
-.wordmark .wm-a .wm-i::after {
-  background: var(--wm-ink);
 }
 
 .wordmark .wm-pin::after {

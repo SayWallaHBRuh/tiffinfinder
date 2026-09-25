@@ -70,9 +70,6 @@ svg { display: block; }
   background: #e8871e;
 }
 
-.wordmark .wm-a .wm-i::after {
-  background: #2b1f1a;
-}
 
 .wordmark .wm-pin::after {
   top: 0.06em;
