@@ -144,3 +144,11 @@
 - The Tiffin 101 guide is now linked from a new "New to tiffins?" question on the home page FAQ, from the pre-launch "coming soon" page, and from every kitchen page near its plans and prices.
 - The kitchens are still made-up samples for testing, each marked "Sample".
 - Service worker tf-v1.16.0.
+
+## Overnight round 5 — 2026-09-24
+
+- New tool: `tools/check_diet.py` (standard library only) cross-checks each sample kitchen's weekly menu against its own veg/Jain/halal flags, using the same dish glossary the kitchen pages already use. It found no contradictions in the current sample data — the two Jain kitchens already say up front, in their own description, that everything is cooked without onion, garlic or root vegetables, so the glossary matches on those menus don't count against them.
+- To make that check possible, some dish glossary entries (`data/dishes.json`) now carry an optional `contains` tag (meat, fish, egg, dairy, onion or garlic, or root vegetable), set only where a dish's own description already says so. It changes nothing about how menus look on a kitchen page.
+- The Tiffin 101 guide's "How to choose a kitchen" section has two new entries: allergens (Health Canada's list of 11 priority food allergens, and a note that a home-style kitchen may share spices, ghee or nuts across dishes, worth asking about) and Jain / no-onion-no-garlic cooking (what to ask a kitchen specifically: onion, garlic, root vegetables, when it was cooked, and shared pans). Sources are in `docs/research-notes.md`.
+- The kitchens are still made-up samples for testing, each marked "Sample".
+- Service worker tf-v1.17.0.

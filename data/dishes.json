@@ -11,7 +11,10 @@
         "rajma"
       ],
       "description": "Red kidney beans cooked in a spiced onion and tomato gravy, usually eaten with rice.",
-      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine",
+      "contains": [
+        "onion_garlic"
+      ]
     },
     {
       "id": "jeera-rice",
@@ -40,7 +43,10 @@
         "kachumber"
       ],
       "description": "A fresh chopped salad of tomato, cucumber and onion with lemon juice.",
-      "source": "https://en.wikipedia.org/wiki/Kachumber"
+      "source": "https://en.wikipedia.org/wiki/Kachumber",
+      "contains": [
+        "onion_garlic"
+      ]
     },
     {
       "id": "aloo-gobi",
@@ -49,7 +55,10 @@
         "aloo gobi"
       ],
       "description": "Potatoes (aloo) and cauliflower (gobi) cooked with turmeric and spices.",
-      "source": "https://en.wikipedia.org/wiki/Aloo_gobi"
+      "source": "https://en.wikipedia.org/wiki/Aloo_gobi",
+      "contains": [
+        "root_veg"
+      ]
     },
     {
       "id": "dal-makhani",
@@ -58,7 +67,10 @@
         "dal makhani"
       ],
       "description": "Whole black lentils slow-cooked into a creamy, buttery dal.",
-      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "raita",
@@ -67,7 +79,10 @@
         "raita"
       ],
       "description": "Cool, seasoned yogurt, often mixed with cucumber or onion; served on the side.",
-      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "chole",
@@ -77,7 +92,10 @@
         "chana masala"
       ],
       "description": "Chickpeas cooked in a spiced tomato and onion gravy; also called chana masala.",
-      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes",
+      "contains": [
+        "onion_garlic"
+      ]
     },
     {
       "id": "kadhi-pakora",
@@ -86,7 +104,10 @@
         "kadhi pakora"
       ],
       "description": "A tangy yogurt and gram-flour curry with soft gram-flour fritters (pakoras) in it.",
-      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "kadhi",
@@ -95,7 +116,10 @@
         "kadhi"
       ],
       "description": "A tangy curry of yogurt or buttermilk thickened with gram flour.",
-      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "aloo-matar",
@@ -104,7 +128,10 @@
         "aloo matar"
       ],
       "description": "Potatoes and green peas in a mildly spiced tomato gravy.",
-      "source": "https://en.wikipedia.org/wiki/Aloo_mattar"
+      "source": "https://en.wikipedia.org/wiki/Aloo_mattar",
+      "contains": [
+        "root_veg"
+      ]
     },
     {
       "id": "palak-paneer",
@@ -113,7 +140,10 @@
         "palak paneer"
       ],
       "description": "Cubes of paneer cheese in a smooth, spiced spinach (palak) sauce.",
-      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "aloo-methi",
@@ -122,7 +152,10 @@
         "aloo methi"
       ],
       "description": "Potatoes sauteed with chopped fresh fenugreek (methi) leaves.",
-      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes",
+      "contains": [
+        "root_veg"
+      ]
     },
     {
       "id": "gobi-matar",
@@ -140,7 +173,10 @@
         "kheer"
       ],
       "description": "Rice pudding slow-cooked in milk with sugar and dried fruit.",
-      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "butter-chicken",
@@ -149,7 +185,11 @@
         "butter chicken"
       ],
       "description": "Chicken in a mild, creamy tomato and butter sauce; murgh makhani.",
-      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Punjabi_cuisine",
+      "contains": [
+        "meat",
+        "dairy"
+      ]
     },
     {
       "id": "dal-tadka",
@@ -158,7 +198,10 @@
         "dal tadka"
       ],
       "description": "Yellow dal finished with a tadka: spices sizzled in hot ghee or oil and poured over.",
-      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "paneer-butter-masala",
@@ -167,7 +210,10 @@
         "paneer butter masala"
       ],
       "description": "Soft cubes of paneer cheese in a rich, creamy tomato and butter gravy.",
-      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "pulao",
@@ -195,7 +241,10 @@
         "pav bhaji"
       ],
       "description": "A thick, buttery mashed-vegetable curry (bhaji) eaten with soft bread rolls (pav).",
-      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "dal",
@@ -274,7 +323,10 @@
         "bhinda shaak"
       ],
       "description": "Okra (bhinda) cooked Gujarati-style with light spices.",
-      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine",
+      "contains": [
+        "onion_garlic"
+      ]
     },
     {
       "id": "batata-shaak",
@@ -283,7 +335,11 @@
         "batata shaak"
       ],
       "description": "A simple Gujarati potato (batata) curry.",
-      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine",
+      "contains": [
+        "onion_garlic",
+        "root_veg"
+      ]
     },
     {
       "id": "rotli",
@@ -310,7 +366,10 @@
         "gujarati kadhi"
       ],
       "description": "A thin, gently sweet curry of buttermilk and gram flour, the Gujarati style of kadhi.",
-      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "chaas",
@@ -319,7 +378,10 @@
         "chaas"
       ],
       "description": "A cool, thin drink of yogurt whisked with water and spices.",
-      "source": "https://en.wikipedia.org/wiki/Chaas"
+      "source": "https://en.wikipedia.org/wiki/Chaas",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "ringan-bateta",
@@ -328,7 +390,11 @@
         "ringan bateta"
       ],
       "description": "Aubergine (ringan) and potato (bateta) cooked together Gujarati-style.",
-      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine",
+      "contains": [
+        "onion_garlic",
+        "root_veg"
+      ]
     },
     {
       "id": "thepla",
@@ -356,7 +422,10 @@
         "shrikhand"
       ],
       "description": "A sweet made from strained yogurt with sugar, cardamom and saffron.",
-      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Gujarati_cuisine",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "dudhi",
@@ -435,7 +504,11 @@
         "aloo gosht"
       ],
       "description": "Meat (gosht) and potatoes (aloo) cooked together in a spiced curry.",
-      "source": "https://en.wikipedia.org/wiki/Aloo_gosht"
+      "source": "https://en.wikipedia.org/wiki/Aloo_gosht",
+      "contains": [
+        "meat",
+        "root_veg"
+      ]
     },
     {
       "id": "karahi",
@@ -444,7 +517,10 @@
         "karahi"
       ],
       "description": "Meat cooked quickly with tomato, ginger and green chilli in a wok-like karahi pan.",
-      "source": "https://en.wikipedia.org/wiki/Pakistani_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Pakistani_cuisine",
+      "contains": [
+        "meat"
+      ]
     },
     {
       "id": "keema",
@@ -456,7 +532,11 @@
         "keema"
       ],
       "description": "Minced meat cooked with onion, tomato and spices, often with peas or potato.",
-      "source": "https://en.wikipedia.org/wiki/Pakistani_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Pakistani_cuisine",
+      "contains": [
+        "meat",
+        "onion_garlic"
+      ]
     },
     {
       "id": "haleem",
@@ -465,7 +545,10 @@
         "haleem"
       ],
       "description": "A slow-cooked stew of meat, wheat and lentils, stirred until thick and smooth.",
-      "source": "https://en.wikipedia.org/wiki/Hyderabadi_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Hyderabadi_cuisine",
+      "contains": [
+        "meat"
+      ]
     },
     {
       "id": "naan",
@@ -493,7 +576,10 @@
         "shami kebab"
       ],
       "description": "A pan-fried patty of minced meat and lentils, ground together with spices.",
-      "source": "https://en.wikipedia.org/wiki/Pakistani_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Pakistani_cuisine",
+      "contains": [
+        "meat"
+      ]
     },
     {
       "id": "nihari",
@@ -502,7 +588,10 @@
         "nihari"
       ],
       "description": "Beef or lamb shank slow-cooked into a rich, spiced stew.",
-      "source": "https://en.wikipedia.org/wiki/Pakistani_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Pakistani_cuisine",
+      "contains": [
+        "meat"
+      ]
     },
     {
       "id": "daal-chawal",
@@ -530,7 +619,10 @@
         "qorma"
       ],
       "description": "Meat or vegetables braised slowly with yogurt and spices into a thick sauce.",
-      "source": "https://en.wikipedia.org/wiki/Korma"
+      "source": "https://en.wikipedia.org/wiki/Korma",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "mirchi-ka-salan",
@@ -657,7 +749,10 @@
         "curd rice"
       ],
       "description": "Rice mixed with yogurt and tempered with mustard seeds and curry leaves.",
-      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "idli",
@@ -685,7 +780,10 @@
         "avial"
       ],
       "description": "A Kerala dish of mixed vegetables in a coconut and yogurt sauce.",
-      "source": "https://en.wikipedia.org/wiki/Cuisine_of_Kerala"
+      "source": "https://en.wikipedia.org/wiki/Cuisine_of_Kerala",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "masala-dosa",
@@ -694,7 +792,10 @@
         "masala dosa"
       ],
       "description": "A thin, crisp fermented rice and lentil crepe filled with spiced potato.",
-      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes",
+      "contains": [
+        "root_veg"
+      ]
     },
     {
       "id": "pongal",
@@ -704,7 +805,10 @@
         "pongal"
       ],
       "description": "Rice and mung dal cooked soft with ghee, black pepper and cumin.",
-      "source": "https://en.wikipedia.org/wiki/Pongal_(dish)"
+      "source": "https://en.wikipedia.org/wiki/Pongal_(dish)",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "matta-rice",
@@ -767,7 +871,10 @@
         "payasam"
       ],
       "description": "A South Indian sweet pudding of rice cooked in milk.",
-      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes"
+      "source": "https://en.wikipedia.org/wiki/List_of_Indian_dishes",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "macher-jhol",
@@ -776,7 +883,10 @@
         "macher jhol"
       ],
       "description": "A traditional, lightly spiced Bengali fish curry.",
-      "source": "https://en.wikipedia.org/wiki/Machher_jhol"
+      "source": "https://en.wikipedia.org/wiki/Machher_jhol",
+      "contains": [
+        "fish"
+      ]
     },
     {
       "id": "shorshe-ilish",
@@ -785,7 +895,10 @@
         "shorshe ilish"
       ],
       "description": "Hilsa fish cooked in a sharp mustard (shorshe) sauce, a Bengali classic.",
-      "source": "https://en.wikipedia.org/wiki/Bengali_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Bengali_cuisine",
+      "contains": [
+        "fish"
+      ]
     },
     {
       "id": "shukto",
@@ -803,7 +916,11 @@
         "kosha mangsho"
       ],
       "description": "Bengali mutton curry, slow-cooked with onion and spices until thick and dark.",
-      "source": "https://en.wikipedia.org/wiki/Kosha_mangsho"
+      "source": "https://en.wikipedia.org/wiki/Kosha_mangsho",
+      "contains": [
+        "meat",
+        "onion_garlic"
+      ]
     },
     {
       "id": "luchi",
@@ -821,7 +938,10 @@
         "mishti doi"
       ],
       "description": "Sweet Bengali yogurt, set with sugar or jaggery.",
-      "source": "https://en.wikipedia.org/wiki/Bengali_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Bengali_cuisine",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "bhorta",
@@ -841,7 +961,11 @@
         "rezala"
       ],
       "description": "Meat in a thin, fragrant gravy of yogurt and cardamom.",
-      "source": "https://en.wikipedia.org/wiki/Bengali_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Bengali_cuisine",
+      "contains": [
+        "meat",
+        "dairy"
+      ]
     },
     {
       "id": "polao",
@@ -850,7 +974,10 @@
         "polao"
       ],
       "description": "Fragrant rice cooked with ghee and whole spices, the Bengali pilaf.",
-      "source": "https://en.wikipedia.org/wiki/Bengali_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Bengali_cuisine",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "shak-bhaji",
@@ -859,7 +986,10 @@
         "shak bhaji"
       ],
       "description": "Leafy greens (shak) stir-fried with garlic and chilli.",
-      "source": "https://en.wikipedia.org/wiki/Bangladeshi_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Bangladeshi_cuisine",
+      "contains": [
+        "onion_garlic"
+      ]
     },
     {
       "id": "khichuri",
@@ -878,7 +1008,10 @@
         "borhani"
       ],
       "description": "A spiced yogurt drink from Bangladesh, served with rich rice dishes.",
-      "source": "https://en.wikipedia.org/wiki/Borhani"
+      "source": "https://en.wikipedia.org/wiki/Borhani",
+      "contains": [
+        "dairy"
+      ]
     },
     {
       "id": "qabuli-palaw",
@@ -889,7 +1022,11 @@
         "kabuli palaw"
       ],
       "description": "Afghanistan's national dish: rice cooked in meat stock, topped with carrots and raisins.",
-      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine",
+      "contains": [
+        "meat",
+        "root_veg"
+      ]
     },
     {
       "id": "salata",
@@ -898,7 +1035,10 @@
         "salata"
       ],
       "description": "Afghan salad of tomato and onion, often with cucumber.",
-      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine",
+      "contains": [
+        "onion_garlic"
+      ]
     },
     {
       "id": "bolani",
@@ -907,7 +1047,10 @@
         "bolani"
       ],
       "description": "Thin flatbread stuffed with potato, leek or pumpkin, then pan-fried.",
-      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine",
+      "contains": [
+        "root_veg"
+      ]
     },
     {
       "id": "kofta",
@@ -916,7 +1059,10 @@
         "kofta"
       ],
       "description": "Spiced meatballs, usually of ground beef, cooked in a sauce.",
-      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine",
+      "contains": [
+        "meat"
+      ]
     },
     {
       "id": "challow",
@@ -944,7 +1090,12 @@
         "mantu"
       ],
       "description": "Steamed dumplings filled with onion and ground beef, topped with garlic yogurt and a tomato-lentil sauce.",
-      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine",
+      "contains": [
+        "meat",
+        "onion_garlic",
+        "dairy"
+      ]
     },
     {
       "id": "aushak",
@@ -953,7 +1104,11 @@
         "aushak"
       ],
       "description": "Dumplings filled mainly with leeks, topped with yogurt, mint and often a meat sauce.",
-      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine",
+      "contains": [
+        "root_veg",
+        "dairy"
+      ]
     },
     {
       "id": "shorwa",
@@ -962,7 +1117,10 @@
         "shorwa"
       ],
       "description": "A simple Afghan soup of meat and vegetables.",
-      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Afghan_cuisine",
+      "contains": [
+        "meat"
+      ]
     },
     {
       "id": "dal-bhat",
@@ -980,7 +1138,10 @@
         "aloo tama"
       ],
       "description": "A tangy Nepali curry of potato, fermented bamboo shoot (tama) and black-eyed beans.",
-      "source": "https://en.wikipedia.org/wiki/Aloo_tama"
+      "source": "https://en.wikipedia.org/wiki/Aloo_tama",
+      "contains": [
+        "root_veg"
+      ]
     },
     {
       "id": "gundruk",
@@ -1043,7 +1204,10 @@
         "pol sambol"
       ],
       "description": "Freshly grated coconut ground with chilli, onion and lime.",
-      "source": "https://en.wikipedia.org/wiki/Sri_Lankan_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Sri_Lankan_cuisine",
+      "contains": [
+        "onion_garlic"
+      ]
     },
     {
       "id": "kottu",
@@ -1062,7 +1226,10 @@
         "gotu kola sambol"
       ],
       "description": "A fresh salad of finely shredded gotu kola leaves with coconut and lime, traditionally with dried Maldive fish flakes.",
-      "source": "https://en.wikipedia.org/wiki/Sri_Lankan_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Sri_Lankan_cuisine",
+      "contains": [
+        "fish"
+      ]
     },
     {
       "id": "string-hoppers",
@@ -1098,7 +1265,11 @@
         "adobo"
       ],
       "description": "Meat braised in vinegar, soy sauce, garlic, bay leaves and black pepper.",
-      "source": "https://en.wikipedia.org/wiki/Filipino_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Filipino_cuisine",
+      "contains": [
+        "meat",
+        "onion_garlic"
+      ]
     },
     {
       "id": "garlic-rice",
@@ -1107,7 +1278,10 @@
         "garlic rice"
       ],
       "description": "Rice fried with plenty of garlic; sinangag in Filipino.",
-      "source": "https://en.wikipedia.org/wiki/Filipino_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Filipino_cuisine",
+      "contains": [
+        "onion_garlic"
+      ]
     },
     {
       "id": "atchara",
@@ -1116,7 +1290,10 @@
         "atchara"
       ],
       "description": "A Filipino pickle of grated unripe papaya with carrot and ginger in vinegar.",
-      "source": "https://en.wikipedia.org/wiki/Atchara"
+      "source": "https://en.wikipedia.org/wiki/Atchara",
+      "contains": [
+        "root_veg"
+      ]
     },
     {
       "id": "sinigang",
@@ -1125,7 +1302,10 @@
         "sinigang"
       ],
       "description": "A sour Filipino soup, usually soured with tamarind, with meat and vegetables.",
-      "source": "https://en.wikipedia.org/wiki/Filipino_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Filipino_cuisine",
+      "contains": [
+        "meat"
+      ]
     },
     {
       "id": "pancit-bihon",
@@ -1134,7 +1314,10 @@
         "pancit bihon"
       ],
       "description": "Very thin rice noodles stir-fried with soy sauce, vegetables and meat.",
-      "source": "https://en.wikipedia.org/wiki/Pancit"
+      "source": "https://en.wikipedia.org/wiki/Pancit",
+      "contains": [
+        "meat"
+      ]
     },
     {
       "id": "lumpia",
@@ -1144,7 +1327,10 @@
         "lumpia"
       ],
       "description": "Thin, crisp fried spring rolls filled with seasoned minced meat.",
-      "source": "https://en.wikipedia.org/wiki/Filipino_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Filipino_cuisine",
+      "contains": [
+        "meat"
+      ]
     },
     {
       "id": "tinola",
@@ -1153,7 +1339,10 @@
         "tinola"
       ],
       "description": "Chicken soup simmered with ginger, green papaya and leafy greens.",
-      "source": "https://en.wikipedia.org/wiki/Filipino_cuisine"
+      "source": "https://en.wikipedia.org/wiki/Filipino_cuisine",
+      "contains": [
+        "meat"
+      ]
     },
     {
       "id": "menudo",
@@ -1162,7 +1351,11 @@
         "menudo"
       ],
       "description": "Filipino pork-and-liver stew with tomato sauce, potato and carrot; unrelated to the Mexican tripe soup of the same name.",
-      "source": "https://en.wikipedia.org/wiki/Menudo_(Filipino_stew)"
+      "source": "https://en.wikipedia.org/wiki/Menudo_(Filipino_stew)",
+      "contains": [
+        "meat",
+        "root_veg"
+      ]
     },
     {
       "id": "turon",
