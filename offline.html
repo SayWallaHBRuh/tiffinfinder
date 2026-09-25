@@ -2,7 +2,7 @@
 <html lang="en-CA">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-7+28wn6pdLDm9NgAY9XG1CdC7HtTNrSTUsixXFKFghs=' 'sha256-J+xASHBHcj7Z6purppfpjdA1vHzePKJOoH6E7b+cYeE='; style-src 'self' 'sha256-IqfkmgGo4pD588HBc/HirBdQq8+wUSDdOHiYbSwdFno=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-7+28wn6pdLDm9NgAY9XG1CdC7HtTNrSTUsixXFKFghs=' 'sha256-J+xASHBHcj7Z6purppfpjdA1vHzePKJOoH6E7b+cYeE='; style-src 'self' 'sha256-7+NYTldlBKdpIdlu3ELDVfmJemWQ8RJPIcJU4FZ4Tog=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <script>
   /* The service worker serves this page, offline, for any address it has
@@ -74,10 +74,17 @@
     .footer-nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 2px 20px; }
     .footer-nav a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; text-decoration: none; color: inherit; }
     .menu-btn, .theme-toggle { display:none; }
+    .offline-still-works { margin: 28px auto 0; max-width: 480px; text-align: left; }
+    .offline-still-works h2 { font-family: "Fraunces", "Iowan Old Style", Georgia, serif; font-weight: 600; font-size: 1.05rem; margin: 0 0 10px; }
+    .offline-still-works ul { margin: 0 0 12px; padding-left: 20px; }
+    .offline-still-works li { margin-bottom: 8px; }
+    .offline-still-works a { color: inherit; }
+    .offline-still-works .fine { margin: 0; font-size: 0.85rem; color: #5c6b60; }
+    @media (prefers-color-scheme: dark) { .offline-still-works .fine { color: #93a398; } }
   </style>
-  <script src="./early.js?v=tf-v1.41.0"></script>
-  <link rel="stylesheet" href="./styles.css?v=tf-v1.41.0">
-  <script src="./app.js?v=tf-v1.41.0" defer></script>
+  <script src="./early.js?v=tf-v1.42.0"></script>
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.42.0">
+  <script src="./app.js?v=tf-v1.42.0" defer></script>
   <script type="speculationrules">
   {
     "prefetch": [
@@ -174,10 +181,19 @@
       </div>
       <p class="eyebrow">No connection</p>
       <h1>You’re offline</h1>
-      <p>This page hasn’t been saved on this device yet, so it needs a connection to open. Pages you’ve opened before usually still work.</p>
+      <p>This page hasn’t been saved on this device yet, so it needs a connection to open.</p>
       <div class="page-actions">
         <button type="button" class="btn btn-primary" id="offline-retry">Try again</button>
         <a class="btn btn-secondary" href="./">Go to the home page</a>
+      </div>
+      <div class="offline-still-works">
+        <h2>What still works offline</h2>
+        <ul>
+          <li>Any page you’ve already opened on this device, including a kitchen’s own page and the list you last saw — Tiffin Finder saves them as you browse.</li>
+          <li>The <a href="./guide.html">Tiffin 101 guide</a>, <a href="./permitted.html">How permits work</a>, <a href="./kitchens.html">For kitchens</a> and <a href="./about.html">About</a> pages — they’re part of the app itself, so they’re saved for offline reading even if you haven’t opened them before.</li>
+          <li>Kitchens you follow (from the Menu → Following) show using the details Tiffin Finder last saw while you were online.</li>
+        </ul>
+        <p class="fine">Tip: try again once you’re back on Wi-Fi or mobile data, or add Tiffin Finder to your Home Screen from the Menu while online so it’s ready faster next time.</p>
       </div>
     </div>
   </main>

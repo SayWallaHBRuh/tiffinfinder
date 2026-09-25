@@ -68,6 +68,14 @@
      is ever set to '', the report link is hidden. */
   var REPORT_EMAIL = 'sitesbyadeel@gmail.com';
   var DEFAULT_TITLE = 'Tiffin Finder — permit-checked tiffin kitchens in Calgary';
+  /* The home page's <title> while nothing is listed yet (isLaunch()): the
+     default title above reads "permit-checked tiffin kitchens" as if some
+     are already live, which isn't true with zero kitchens showing. Used
+     only for the browse view's document.title; the static <title> and
+     meta description in index.html stay on the neutral DEFAULT_TITLE text
+     year-round, since a crawler that never runs JS should still see a true,
+     general description in every state (samples, launch or real kitchens). */
+  var LAUNCH_TITLE = 'Tiffin Finder — launching soon in NE Calgary';
   var QUADRANT_LABEL = { NE: 'Northeast', NW: 'Northwest', SE: 'Southeast', SW: 'Southwest', Airdrie: 'Airdrie' };
   var SVG_NS = 'http://www.w3.org/2000/svg';
   /* What the list says when kitchens.json can't be loaded: no connection
@@ -4343,6 +4351,7 @@
       applyFiltersFromURL();
       updateBrowseLinks();
       renderResults();
+      if (isBrowse && isLaunch()) title = LAUNCH_TITLE;
     }
     document.title = (state.demo ? 'Demo · ' : '') + title;
 
@@ -5348,8 +5357,123 @@
     if (!('serviceWorker' in navigator)) return;
     if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') return;
     window.addEventListener('load', function () {
-      navigator.serviceWorker.register('./sw.js').catch(function () { /* offline support is optional */ });
+      navigator.serviceWorker.register('./sw.js').then(function (registration) {
+        initUpdateToast(registration);
+      }).catch(function () { /* offline support is optional */ });
     });
+  }
+
+  /* "New version available" toast: sw.js's own worker no longer calls
+     self.skipWaiting() on install (see sw.js), so a freshly-fetched worker
+     sits in the "waiting" state instead of taking over mid-visit. This
+     shows a small, dismissible, aria-live toast with a Reload button that
+     tells the waiting worker to take over (postMessage SKIP_WAITING), then
+     reloads once it does (controllerchange). It never shows on the very
+     first install (no navigator.serviceWorker.controller yet, since
+     nothing was controlling the page before), and never reloads on its
+     own -- only a tap on Reload does that, so it never interrupts someone
+     mid-order. Built entirely with createElement/textContent (rule 6: no
+     innerHTML), so it needs no HTML markup on any page and no CSP change. */
+  function initUpdateToast(registration) {
+    if (!registration) return;
+    var shown = false;
+    var refreshing = false;
+
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    });
+
+    function present(worker) {
+      if (shown || !worker) return;
+      /* No controller yet means this is the page's first-ever load with a
+         service worker (nothing was serving the page before), not an
+         update -- stay quiet. */
+      if (!navigator.serviceWorker.controller) return;
+      shown = true;
+      showUpdateToast(function () {
+        try { worker.postMessage({ type: 'SKIP_WAITING' }); } catch (e) { /* ignore */ }
+      });
+    }
+
+    if (registration.waiting) present(registration.waiting);
+
+    registration.addEventListener('updatefound', function () {
+      var worker = registration.installing;
+      if (!worker) return;
+      worker.addEventListener('statechange', function () {
+        if (worker.state === 'installed') present(worker);
+      });
+    });
+  }
+
+  var updateToastEl = null;
+
+  function showUpdateToast(onReload) {
+    if (updateToastEl) return;
+
+    var el = document.createElement('div');
+    el.className = 'update-toast';
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
+
+    var text = document.createElement('p');
+    text.className = 'update-toast-text';
+    text.textContent = 'A new version of Tiffin Finder is available.';
+    el.appendChild(text);
+
+    var actions = document.createElement('div');
+    actions.className = 'update-toast-actions';
+
+    var reloadBtn = document.createElement('button');
+    reloadBtn.type = 'button';
+    reloadBtn.className = 'btn btn-primary btn-small';
+    reloadBtn.textContent = 'Reload';
+    reloadBtn.addEventListener('click', function () {
+      reloadBtn.disabled = true;
+      reloadBtn.textContent = 'Reloading…';
+      onReload();
+    });
+    actions.appendChild(reloadBtn);
+
+    var dismissBtn = document.createElement('button');
+    dismissBtn.type = 'button';
+    dismissBtn.className = 'icon-btn update-toast-dismiss';
+    dismissBtn.setAttribute('aria-label', 'Dismiss');
+    var svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '2.2');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('focusable', 'false');
+    var path = document.createElementNS(SVG_NS, 'path');
+    path.setAttribute('d', 'M6 6l12 12M18 6L6 18');
+    svg.appendChild(path);
+    dismissBtn.appendChild(svg);
+    dismissBtn.addEventListener('click', function () { hideUpdateToast(); });
+    actions.appendChild(dismissBtn);
+
+    el.appendChild(actions);
+    document.body.appendChild(el);
+    updateToastEl = el;
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { el.classList.add('is-visible'); });
+    });
+  }
+
+  function hideUpdateToast() {
+    var el = updateToastEl;
+    if (!el) return;
+    updateToastEl = null;
+    el.classList.remove('is-visible');
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setTimeout(function () {
+      if (el.parentNode) el.parentNode.removeChild(el);
+    }, reduce ? 0 : 260);
   }
 
   /* ---------------------------------------------------------------------

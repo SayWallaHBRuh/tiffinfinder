@@ -1,5 +1,70 @@
 # Changelog
 
+## Round 36 — 2026-09-25
+
+Round 36: new guide sections, state-aware hero, iOS install help, update
+toast, useful offline page.
+
+- `guide.html`: two new sourced sections. "Tiffin service vs. meal prep vs.
+  meal kits" is a plain comparison of the three (cooked-and-sent-to-you vs.
+  batch-cooked-and-portioned vs. raw-ingredients-you-cook), sourced to
+  Wikipedia's Meal kit and Meal preparation articles. "Is a home tiffin
+  kitchen legal in Calgary?" is a short, household-facing answer (general
+  information, not legal advice) that points to `permitted.html` for the
+  full kitchen-facing detail, dated "as of 25 Sep 2026" against
+  re-checked Government of Alberta and City of Calgary pages. Both new
+  sections are in the sticky "On this page" table of contents. Sources
+  logged in `docs/research-notes.md` under "Round 36".
+- `permitted.html`: a new "This guide's facts were last checked against
+  those official pages on 25 Sep 2026" line near the top, kept visibly
+  separate from any single kitchen's own "Permit checked" date -- and a
+  new in-content link pointing household readers (as opposed to kitchens)
+  to the new `guide.html` section.
+- Home hero, `<title>` and meta description are now honest across all
+  three real-world states: 24 samples (now), 0 kitchens (before launch)
+  and 1+ real kitchens (after). The hero and its live kitchen count were
+  already state-driven from `data/kitchens.json`; the browse page's
+  `document.title` now also switches to a plain "launching soon" title
+  while nothing is listed, instead of a permit-checked-kitchens title
+  that would read oddly with nothing on the page. index.html's static
+  meta description/OG/Twitter text was reworded ("Every real kitchen's
+  permit is checked before it's listed") so it reads true in every state,
+  including for a crawler that never runs the page's JavaScript.
+- iOS install help was already built (round 21): `isIOS()` detects
+  Safari on iPhone/iPad and swaps the header's Install button to "Add to
+  Home Screen", opening a sheet with the three-step Share -> Add to Home
+  Screen -> Add walkthrough. Confirmed working this round with a
+  screenshot; Android/desktop keep the native `beforeinstallprompt` flow
+  unchanged.
+- New "update available" toast: `sw.js` no longer calls `self.skipWaiting()`
+  automatically on install, so a freshly-fetched worker now sits in the
+  browser's normal "waiting" state on a repeat visit instead of taking
+  over mid-session. `app.js` (`initUpdateToast`) watches the
+  registration, and once a waiting worker appears (never on the very
+  first install -- there's no prior controller to update from) shows a
+  small, dismissible, `aria-live="polite"` toast with a Reload button.
+  Reload posts `{type:'SKIP_WAITING'}` to the waiting worker (a new
+  `message` listener in `sw.js`), then reloads once it takes over
+  (`controllerchange`). Built entirely with `createElement`/`textContent`
+  (rule 6), so no HTML markup or CSP change was needed on any page.
+- `offline.html`: added a "What still works offline" section -- pages
+  already opened on the device, the guide/permits/kitchens/about pages
+  (always precached, so they're available even if never opened before),
+  and followed kitchens -- instead of only the retry/home buttons.
+  Recomputed the page's CSP `style-src` sha256 hash for its changed
+  inline fallback `<style>` block.
+- Internal-linking check across all 9 sitemap pages: nav, footer and
+  in-content links between guide/permits/kitchens/about were already
+  mostly in place from earlier rounds; added the one real gap found
+  (`permitted.html` had no in-content link to `guide.html`).
+- Bumped `sw.js` `VERSION` to `tf-v1.42.0` and every page's `?v=` to match.
+- `tools/check_ship.py` and `tools/check_layout.py` (full sweep, both
+  states) pass. Screenshots of the new sections, the offline page, the
+  update toast (simulated: registered, then the served `sw.js`'s
+  `VERSION` was changed on a temp copy and `registration.update()`
+  called) and the iOS install sheet (UA override via CDP) saved to
+  `design/round36/`.
+
 ## Round 35 — 2026-09-25
 
 Round 35: an automated layout and console check, so the kind of

@@ -34,7 +34,7 @@
 
 'use strict';
 
-var VERSION = 'tf-v1.41.0';
+var VERSION = 'tf-v1.42.0';
 /* The query every page puts on styles.css, app.js and early.js (the pages
    carry the same literal ?v=<VERSION>). cacheFirst matches the exact URL,
    query included. */
@@ -89,10 +89,20 @@ self.addEventListener('install', function (event) {
           /* A single missing file must not block install. */
         });
       }));
-    }).then(function () {
-      return self.skipWaiting();
     })
   );
+  /* No self.skipWaiting() here on purpose: a newly-installed worker waits
+     until the page asks it to take over (see the 'message' listener
+     below), so a visitor with the site already open gets a chance to see
+     the "New version available" toast (app.js initUpdateToast) and choose
+     Reload, instead of the page's scripts changing under them mid-visit.
+     The very first install (no prior controller) has nothing to wait for:
+     the browser activates it immediately either way. */
+});
+
+/* app.js sends this once the person taps Reload on the update toast. */
+self.addEventListener('message', function (event) {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', function (event) {
