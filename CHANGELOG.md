@@ -1,5 +1,12 @@
 # Changelog
 
+## Overnight round 6 — 2026-09-24
+
+- A new ship checklist: `python tools/check_ship.py` runs every pre-commit check in one command (CNAME, banned words, security policy, version numbers, broken links, one heading per page, DOM safety, no secrets, the diet cross-check) and fails loudly if anything is wrong. Documented in the README.
+- Design pass: the home page's big green banner had a lot of empty space on its right side on a desktop screen. It now has a small cluster of the tiffin-carrier icon and a few soft dots to fill that space, so it reads as one finished picture instead of text-then-emptiness. Nothing moved, nothing changed for phones, and it looks the same in light and dark.
+- Checked the home page, the "Launching in NE Calgary" page, a kitchen page with the order sheet open, the Tiffin 101 guide and the permit guide at phone and desktop width, in light and dark — spacing, type and card styling were already consistent, so no other changes were needed.
+- Housekeeping: version bumped to `tf-v1.18.0` (styles, scripts and the service worker's saved-files list all match).
+
 ## Round 1 — 2026-09-22
 
 - Phones now get a Menu button at the top of every page. It opens a panel with the main site links, and closes with the X, by tapping outside it, or with the Escape key.

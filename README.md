@@ -27,6 +27,16 @@ python -m http.server 8000
 
 Open <http://localhost:8000/>. (The service worker registers on `localhost` and `https:` only.)
 
+## Before you ship: `python tools/check_ship.py`
+
+Run this before every commit. It runs every pre-commit check in one command
+(CNAME unchanged, no banned phrases, no `unsafe-inline`, `sw.js` VERSION
+matches every page's `?v=`, the precache list and every local link resolve
+to real files, the 404/offline CSP hashes match their inline scripts, one
+`<h1>` per page, no `innerHTML`/`eval`/inline handlers or styles, no
+secret-looking strings, and `tools/check_diet.py`), and exits non-zero if
+anything fails.
+
 ## Deploy to GitHub Pages
 
 1. Push this folder to a repository (for example `tiffinfinder`) on the `main` branch.

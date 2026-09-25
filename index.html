@@ -38,13 +38,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&display=swap">
-  <link rel="stylesheet" href="./styles.css?v=tf-v1.17.0">
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.18.0">
   <!-- app.js stays blocking here on purpose: it decides the route, a
        kitchen's own link (?k=&solo=1), demo mode and the pending hero
        before first paint, so a shared kitchen link never flashes the home
        page first. The other pages load it with defer (early.js covers
        the theme and a dismissed preview notice there). -->
-  <script src="./app.js?v=tf-v1.17.0"></script>
+  <script src="./app.js?v=tf-v1.18.0"></script>
 </head>
 <body data-page="app">
   <a class="skip-link" href="#main">Skip to content</a>
@@ -111,13 +111,25 @@
           <p class="hero-launch-note">Tiffin Finder isn’t open yet. Real kitchens will show here as soon as each one is checked. Add it to your Home Screen to find it fast when it opens. New to tiffins? Read the <a href="./guide.html">Tiffin 101 guide</a>.</p>
         </div>
       </div>
-      <svg class="hero-art" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-        <path d="M23 16c0-8 18-8 18 0" fill="none" stroke="#fbf7ef" stroke-width="3" stroke-linecap="round"/>
-        <rect x="15" y="16" width="34" height="12" rx="4.5" fill="#fbf7ef"/>
-        <rect x="13" y="30" width="38" height="12" rx="4.5" fill="#fbf7ef"/>
-        <rect x="11" y="44" width="42" height="13" rx="5.5" fill="#fbf7ef"/>
-        <rect x="30" y="12" width="4.2" height="46" rx="2.1" fill="#fbf7ef"/>
-      </svg>
+      <div class="hero-art-cluster" aria-hidden="true">
+        <svg class="hero-art hero-art-main" viewBox="0 0 64 64" focusable="false">
+          <path d="M23 16c0-8 18-8 18 0" fill="none" stroke="#fbf7ef" stroke-width="3" stroke-linecap="round"/>
+          <rect x="15" y="16" width="34" height="12" rx="4.5" fill="#fbf7ef"/>
+          <rect x="13" y="30" width="38" height="12" rx="4.5" fill="#fbf7ef"/>
+          <rect x="11" y="44" width="42" height="13" rx="5.5" fill="#fbf7ef"/>
+          <rect x="30" y="12" width="4.2" height="46" rx="2.1" fill="#fbf7ef"/>
+        </svg>
+        <svg class="hero-art hero-art-small" viewBox="0 0 64 64" focusable="false">
+          <path d="M23 16c0-8 18-8 18 0" fill="none" stroke="#fbf7ef" stroke-width="3" stroke-linecap="round"/>
+          <rect x="15" y="16" width="34" height="12" rx="4.5" fill="#fbf7ef"/>
+          <rect x="13" y="30" width="38" height="12" rx="4.5" fill="#fbf7ef"/>
+          <rect x="11" y="44" width="42" height="13" rx="5.5" fill="#fbf7ef"/>
+          <rect x="30" y="12" width="4.2" height="46" rx="2.1" fill="#fbf7ef"/>
+        </svg>
+        <span class="hero-art-dot hero-art-dot-1"></span>
+        <span class="hero-art-dot hero-art-dot-2"></span>
+        <span class="hero-art-dot hero-art-dot-3"></span>
+      </div>
     </section>
 
     <section class="wrap filters-section is-pending" id="filters-section" aria-labelledby="filters-heading">
