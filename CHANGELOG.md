@@ -1,5 +1,58 @@
 # Changelog
 
+## Round 40 — 2026-09-25
+
+Round 40: lighter first load (lazy map), delivery-area map, dividers,
+plans table polish.
+
+- **The map moved into its own file, loaded only when it's opened.**
+  `map.js` and `map.css` (new) hold everything the map view needed —
+  the illustrated SVG, pins, clustering, zoom, and the preview card —
+  split out of `app.js`/`styles.css`. app.js now inserts them with a
+  same-origin `<script>`/`<link>` the first time someone switches to Map,
+  opens "See it on the map", or lands on `?view=map` directly; every
+  other visit never fetches either file. Both are still precached in
+  `sw.js` so the map keeps working offline once it's been opened once.
+  Nothing about how the map looks, zooms, clusters or opens a card
+  changed. `app.js` dropped from 263.0 KiB to about 227.7 KiB.
+- **Kitchen-page first load is back under budget.** With the map's code
+  gone from the base bundle, and the map's drawing CSS (pins, community
+  shapes, the preview card) split into `map.css` the same lazy way,
+  `styles.css` dropped from 136.3 KiB to about 126.8 KiB. Measured with
+  `tools/check_perf.py`: list-view first load 505.5 → 461.4 KiB (target
+  ≤ 470), a kitchen page's first load 543.6 → 499.5 KiB (target ≤ 500).
+  Also removed two CSS rules nothing referenced any more
+  (`.field-label`, `.notice-ok`), found by grepping every class in
+  `styles.css` against `app.js`, `map.js` and every page.
+- **A kitchen that delivers now shows a small map of its areas.** Below
+  the existing (and still the real, accessible) list of delivery
+  communities, a small illustrated map shades those same communities
+  green and marks the kitchen's pickup pin, if it has one — reusing
+  `map.js`'s community shapes and pin styling, lazily loaded the same
+  way the browse map is. It's `aria-hidden`, shown unzoomed (the whole
+  Calgary + Airdrie picture, not a close-up) so a scaled transform can
+  never measure wider than its own small frame; loads quietly and just
+  stays empty if the map can't load (offline on a first visit) since the
+  text list beside it already says the same thing.
+- **Illustrated section dividers.** A small row of dots in the map's own
+  pickup/delivery colours, purely decorative (`aria-hidden`), between the
+  hero and the filters card and between the FAQ and the footer on the
+  home page. No motion. Switchable in one place — the `--show-dividers`
+  custom property in `styles.css`'s Tokens section — without touching any
+  page.
+- **Plans table polish.** The one recurring plan (day/week/month) with
+  the strictly lowest per-day rate — week ÷ 7, month ÷ 30, the kitchen's
+  own prices divided back to a daily rate purely to compare them — now
+  gets a "Best value" tag, only when it's an unambiguous, tie-free
+  lowest; never a guess. On phones (≤ 480px) each plan is now a stacked
+  row (label, then price below it) instead of a tight two-column table.
+- No schema change: no portion-size tiers this round (flagged in
+  `plans/backlog-4.md` item 10 as its own follow-up if a real kitchen
+  ever asks).
+- `sw.js` VERSION and every page's `?v=` moved to `tf-v1.46.0` (map.js
+  and map.css carry the same query, read from app.js's own `?v=` at load
+  time rather than a second hardcoded version).
+
 ## Round 39 — 2026-09-25
 
 Round 39: kitchen-owner guides; pointer to the private listing editor.
