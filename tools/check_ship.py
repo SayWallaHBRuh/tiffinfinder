@@ -48,6 +48,11 @@ Checks (each prints its own PASS/FAIL lines):
     HTML tags stripped, matched in order against the on-page .faq-item
     markup. If a FAQ answer is edited without also editing the JSON-LD (or
     vice versa), this fails.
+17. Runs tools/check_perf.py (Round 38): app.js and styles.css raw byte
+    size, every HTML page's raw byte size, and the first-load same-origin
+    total for the list view and a kitchen page, against the budgets in
+    tools/budgets.json. Offline only -- the font-transfer part of
+    check_perf.py (--online) never runs here, same as check_links.py.
 
 Exits 0 if everything passes, 1 otherwise. Standard library only, no
 network access, deterministic.
@@ -486,6 +491,22 @@ def check_no_alerts_promise():
 
 
 # ---------------------------------------------------------------------------
+# 17. check_perf.py (performance budgets)
+# ---------------------------------------------------------------------------
+def check_perf():
+    perf_path = os.path.join(ROOT, 'tools', 'check_perf.py')
+    if not os.path.isfile(perf_path):
+        fail('tools/check_perf.py not found')
+        return
+    code, out = run([sys.executable, perf_path])
+    print(out.strip())
+    if code != 0:
+        fail('tools/check_perf.py exited %d' % code)
+    else:
+        ok('tools/check_perf.py passed (performance budgets)')
+
+
+# ---------------------------------------------------------------------------
 # 16. index.html's FAQPage JSON-LD must say exactly what the visible FAQ
 #     says (Round 37): every question's name and every answer's text, tags
 #     stripped, must match the corresponding .faq-item on the page, in the
@@ -583,6 +604,7 @@ def main():
     check_banned_phone()
     check_no_alerts_promise()
     check_faq_jsonld()
+    check_perf()
 
     print('')
     if FAILURES:

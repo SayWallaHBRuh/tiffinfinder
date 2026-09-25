@@ -4252,6 +4252,14 @@
   /* ---------------------------------------------------------------------
      Routing
   --------------------------------------------------------------------- */
+  /* The view render() last drew (its route.view), and the slug of a
+     kitchen link clicked from the list, so that when the list comes back
+     (a card, the map preview or the browser's own Back) focus returns to
+     the card the household actually opened, not just the results heading.
+     Read and cleared once in render(); a fresh click always overwrites it. */
+  var lastRouteView = null;
+  var returnFocusSlug = null;
+
   function parseRoute() {
     var params = new URLSearchParams(window.location.search);
     var k = params.get('k');
@@ -4309,6 +4317,8 @@
     var isBrowse = route.view === 'browse';
     var isFollowing = route.view === 'following';
     var isKitchen = route.view === 'kitchen';
+    var cameFromKitchen = lastRouteView === 'kitchen';
+    lastRouteView = route.view;
     /* The order sheet belongs to one kitchen's page: any other page closes
        it at once (renderKitchen closes it too when the page is rebuilt). */
     if (!(isKitchen && orderDraft && orderDraft.slug === route.slug)) closeOrderSheetNow();
@@ -4371,7 +4381,23 @@
     }
     document.title = (state.demo ? 'Demo · ' : '') + title;
 
-    if (moveFocus) {
+    /* Returning to the list from a kitchen page (a card, the map preview's
+       "View kitchen", or Back/Forward): put focus back on the card that
+       was opened, if it's still showing, so a screen-reader or keyboard
+       user lands where they left off instead of at the top of the list. */
+    var restoredCardFocus = false;
+    if (isBrowse && cameFromKitchen && returnFocusSlug) {
+      var originLink = dom.results && dom.results.querySelector(
+        'a[data-route][href="' + kitchenHref(returnFocusSlug).replace(/"/g, '\\"') + '"]'
+      );
+      if (originLink) {
+        focusQuietly(originLink);
+        restoredCardFocus = true;
+      }
+    }
+    if (!isKitchen) returnFocusSlug = null;
+
+    if (moveFocus && !restoredCardFocus) {
       var focusTarget = isKitchen ? document.getElementById('kitchen-heading') : (isFollowing ? dom.followingHeading : dom.heroHeading);
       if (focusTarget) {
         try { focusTarget.focus({ preventScroll: true }); } catch (e) { focusTarget.focus(); }
@@ -4635,13 +4661,75 @@
     return iosOpen || navOpen || orderOpen || filtersOpen;
   }
 
+  /* ---------------------------------------------------------------------
+     Background inert: while any sheet/dialog is open, everything outside
+     it (header, main -- or the parts of main outside the sheet, since
+     #filters-sheet lives inside <main> -- and footer) is set `inert`, so
+     Tab, a screen reader's browse-mode virtual cursor and hit-testing all
+     stay inside the open dialog, not just Tab (trapFocus() already
+     handles Tab alone; aria-modal="true" is inconsistently honoured by
+     assistive tech for the rest -- WAI-ARIA APG's Dialog pattern
+     recommends aria-hidden on siblings as the robust fallback, which is
+     applied alongside `inert` here for browsers without native `inert`
+     support). Walking up from the dialog element to <body>, inerting
+     every *sibling* at each level, covers a dialog nested anywhere (the
+     filters sheet inside <main>, the other three as direct children of
+     <body>) with one piece of code. */
+  var inertedSiblings = [];
+
+  function setNodeInert(node, on) {
+    try { if ('inert' in node) node.inert = on; } catch (e) { /* ignore */ }
+    if (on) node.setAttribute('aria-hidden', 'true');
+    else node.removeAttribute('aria-hidden');
+  }
+
+  function applyBackgroundInert(dialogEl) {
+    if (!dialogEl || inertedSiblings.length) return;
+    var node = dialogEl;
+    while (node && node !== document.body && node.parentNode) {
+      var parent = node.parentNode;
+      if (parent.nodeType === 1) {
+        Array.prototype.forEach.call(parent.children, function (sibling) {
+          if (sibling === node) return;
+          setNodeInert(sibling, true);
+          inertedSiblings.push(sibling);
+        });
+      }
+      node = parent;
+    }
+  }
+
+  function removeBackgroundInert() {
+    inertedSiblings.forEach(function (node) { setNodeInert(node, false); });
+    inertedSiblings = [];
+  }
+
+  /* Called wherever a sheet adds body.sheet-open; only the first sheet to
+     open applies inert -- checked against the class itself (each open
+     function sets its own "is open" flag true just before calling this,
+     so anySheetOpen() would already say true here even for the very first
+     sheet), matching how sheet-open itself is a single shared class, not
+     a per-sheet one. */
+  function enterModal(dialogEl) {
+    var already = document.body.classList.contains('sheet-open');
+    document.body.classList.add('sheet-open');
+    if (!already) applyBackgroundInert(dialogEl);
+  }
+
+  /* Called wherever a sheet removes body.sheet-open (guarded the same way
+     those call sites already guard the class removal: !anySheetOpen()). */
+  function exitModal() {
+    document.body.classList.remove('sheet-open');
+    removeBackgroundInert();
+  }
+
   function openSheet() {
     var sheet = dom.iosSheet;
     if (!sheet) return;
     lastFocusBeforeSheet = document.activeElement;
     iosOpen = true;
     sheet.hidden = false;
-    document.body.classList.add('sheet-open');
+    enterModal(sheet);
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
         sheet.classList.add('is-open');
@@ -4657,7 +4745,7 @@
     if (!sheet || sheet.hidden) return;
     iosOpen = false;
     sheet.classList.remove('is-open');
-    if (!anySheetOpen()) document.body.classList.remove('sheet-open');
+    if (!anySheetOpen()) exitModal();
     document.removeEventListener('keydown', onSheetKeydown);
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     setTimeout(function () {
@@ -4723,7 +4811,7 @@
     lastFocusBeforeNav = document.activeElement;
     navOpen = true;
     sheet.hidden = false;
-    document.body.classList.add('sheet-open');
+    enterModal(sheet);
     if (dom.menuBtn) dom.menuBtn.setAttribute('aria-expanded', 'true');
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
@@ -4747,7 +4835,7 @@
     sheet.classList.remove('is-open');
     if (dom.menuBtn) dom.menuBtn.setAttribute('aria-expanded', 'false');
     document.removeEventListener('keydown', onNavKeydown);
-    if (!anySheetOpen()) document.body.classList.remove('sheet-open');
+    if (!anySheetOpen()) exitModal();
     clearTimeout(navTimer);
     navTimer = setTimeout(function () {
       navTimer = null;
@@ -4774,7 +4862,7 @@
     sheet.hidden = true;
     if (dom.menuBtn) dom.menuBtn.setAttribute('aria-expanded', 'false');
     document.removeEventListener('keydown', onNavKeydown);
-    if (wasShown && !anySheetOpen()) document.body.classList.remove('sheet-open');
+    if (wasShown && !anySheetOpen()) exitModal();
     lastFocusBeforeNav = null;
   }
 
@@ -4874,7 +4962,7 @@
     lastFocusBeforeFilters = document.activeElement;
     filtersOpen = true;
     sheet.hidden = false;
-    document.body.classList.add('sheet-open');
+    enterModal(sheet);
     if (dom.openFiltersBtn) dom.openFiltersBtn.setAttribute('aria-expanded', 'true');
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
@@ -4897,7 +4985,7 @@
     sheet.classList.remove('is-open');
     if (dom.openFiltersBtn) dom.openFiltersBtn.setAttribute('aria-expanded', 'false');
     document.removeEventListener('keydown', onFiltersKeydown);
-    if (!anySheetOpen()) document.body.classList.remove('sheet-open');
+    if (!anySheetOpen()) exitModal();
     clearTimeout(filtersTimer);
     filtersTimer = setTimeout(function () {
       filtersTimer = null;
@@ -4924,7 +5012,7 @@
     sheet.hidden = true;
     if (dom.openFiltersBtn) dom.openFiltersBtn.setAttribute('aria-expanded', 'false');
     document.removeEventListener('keydown', onFiltersKeydown);
-    if (wasShown && !anySheetOpen()) document.body.classList.remove('sheet-open');
+    if (wasShown && !anySheetOpen()) exitModal();
     lastFocusBeforeFilters = null;
   }
 
@@ -5033,7 +5121,7 @@
     buildOrderBody();
     orderOpen = true;
     sheet.hidden = false;
-    document.body.classList.add('sheet-open');
+    enterModal(sheet);
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
         /* Skip if it was closed again within these two frames. */
@@ -5254,6 +5342,19 @@
     orderDraft.view = view === 'call' ? 'call' : 'message';
     buildOrderBody();
     focusOrderStart();
+    /* buildOrderBody() just cleared #order-sheet-live to '' and changed
+       the visible title (dom.orderSheetTitle) between "You're about to
+       send" and "Before you call" -- a sighted household sees that, but a
+       screen-reader user whose focus lands on a plan radio or "Edit
+       details" never hears it. Set the live region a tick after the clear
+       so assistive tech treats it as a real change and announces the new
+       framing, not just whatever control focus happens to land on. */
+    if (dom.orderSheetLive && dom.orderSheetTitle) {
+      var announce = dom.orderSheetTitle.textContent;
+      setTimeout(function () {
+        if (orderOpen && dom.orderSheetLive) dom.orderSheetLive.textContent = announce;
+      }, 60);
+    }
   }
 
   function closeOrderSheet(restoreFocus) {
@@ -5262,7 +5363,7 @@
     orderOpen = false;
     sheet.classList.remove('is-open');
     document.removeEventListener('keydown', onOrderKeydown);
-    if (!anySheetOpen()) document.body.classList.remove('sheet-open');
+    if (!anySheetOpen()) exitModal();
     clearTimeout(orderTimer);
     orderTimer = setTimeout(function () {
       orderTimer = null;
@@ -5287,7 +5388,7 @@
     sheet.classList.remove('is-open');
     sheet.hidden = true;
     document.removeEventListener('keydown', onOrderKeydown);
-    if (wasShown && !anySheetOpen()) document.body.classList.remove('sheet-open');
+    if (wasShown && !anySheetOpen()) exitModal();
     lastFocusBeforeOrder = null;
   }
 
@@ -5801,6 +5902,20 @@
       if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       if (link.target && link.target !== '_self') return;
       event.preventDefault();
+      /* Remember which kitchen link was clicked, so returning to the list
+         (a card, the map preview's "View kitchen", back/forward) can put
+         focus back on it instead of only the results heading. Any other
+         link click from the list (not a kitchen) clears it -- it would
+         otherwise point at a card that isn't where the household is
+         going back to. */
+      if (parseRoute().view === 'browse') {
+        try {
+          var clickedUrl = new URL(link.getAttribute('href'), window.location.href);
+          returnFocusSlug = clickedUrl.searchParams.get('k');
+        } catch (e) {
+          returnFocusSlug = null;
+        }
+      }
       navigate(link.getAttribute('href'), link.hasAttribute('data-near'));
     }
   }

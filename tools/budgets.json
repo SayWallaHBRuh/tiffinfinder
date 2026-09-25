@@ -1,0 +1,9 @@
+{
+  "_comment": "Performance budgets for tools/check_perf.py, in the same KiB-per-resource-type shape Lighthouse's own budget.json uses (see https://github.com/GoogleChrome/budget.json). Sizes are raw (uncompressed), on-disk bytes -- the exact bytes the file is today, which is also very close to what a browser without content-encoding support would transfer. gzip sizes are measured and printed for information but are not budgeted separately: GitHub Pages serves gzip automatically for these types, so the raw number is the one worth holding a hard line on.",
+  "js_raw_kib": 300,
+  "css_raw_kib": 170,
+  "html_raw_kib": 60,
+  "first_load_raw_kib": 550,
+  "fonts_transferred_kib": 150,
+  "_fonts_comment": "Google Fonts (woff2) can't be measured offline -- checked only with --online, and never fails check_ship.py (network-dependent, like check_links.py --online)."
+}

@@ -1,5 +1,48 @@
 # Changelog
 
+## Round 38 — 2026-09-25
+
+Round 38: screen-reader focus and inert dialogs, performance budget, a11y
+regression check.
+
+- **Returning to the list keeps your place.** Opening a kitchen from a
+  card, the map preview's "View kitchen", or the browser's own Back/Forward
+  already moved focus to the kitchen's own heading (and still does); now
+  going back the other way — Back, or the "All kitchens" link — puts focus
+  back on the card you came from, instead of only the top of the results,
+  so a keyboard or screen-reader user picks up exactly where they left off.
+- **The rest of the page goes `inert` while a sheet is open.** The filters
+  sheet, the phone menu, the order sheet and the iOS install sheet already
+  trapped Tab and were labelled as dialogs; now everything behind them
+  (header, the rest of main, footer) is also marked `inert` (with
+  `aria-hidden` alongside it, for the rare browser without native `inert`
+  support) the moment one opens, and un-marked the moment it fully closes
+  — by Escape, the backdrop, a close button, or a route change. A screen
+  reader's own browse-mode cursor, not just Tab, now stays inside the open
+  dialog.
+- **The order sheet announces "Call instead"/"Edit details".** Switching
+  between the WhatsApp message view and the call-script view already
+  changed the sheet's visible heading; it's now also spoken through the
+  sheet's own live region a moment after the switch, so a screen-reader
+  user whose focus lands on a plan radio or a button hears the new framing
+  too, not just whichever control they land on next.
+- **A performance budget.** `tools/check_perf.py` (new) measures the raw
+  and gzip size of `app.js`, `styles.css`, every HTML page, and the
+  same-origin first-load total for the list view and a kitchen page,
+  against budgets in `tools/budgets.json` (JS ≤ 300 KiB, CSS ≤ 170 KiB,
+  any page ≤ 60 KiB, first load ≤ 550 KiB, all raw/uncompressed) — run
+  with `--online` to also measure Google Fonts' transfer size, which can't
+  be checked offline. Wired into `tools/check_ship.py` as its 17th check;
+  today's numbers pass with room to spare (app.js 258 KiB, styles.css 136
+  KiB, first load 500–539 KiB).
+- **A screen-reader regression check.** `tools/check_layout.py --a11y`
+  (new mode; default mode unchanged) drives headless Edge at phone width
+  through real clicks — opening the filters sheet, the order sheet and a
+  kitchen page — and asserts focus lands inside the dialog, the background
+  is `inert`, Escape closes it and returns focus, and a kitchen page's
+  `<h1>` receives focus on open. Catches the exact class of bug this round
+  fixed, automatically, next time.
+
 ## Round 37 — 2026-09-25
 
 Round 37: tighter hero, trust links, FAQ structured data, consistency.

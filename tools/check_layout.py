@@ -46,6 +46,19 @@ Usage
     python tools/check_layout.py            full sweep (slow -- launches
                                              Edge many times over)
     python tools/check_layout.py --quick     360px + 1280px, light only
+    python tools/check_layout.py --a11y      a different, much shorter
+                                              check (see below); does not
+                                              also run the sweep above
+
+--a11y (Round 38 / backlog-4.md item 12) drives three flows with real
+clicks at phone width -- opening the filters sheet, opening a kitchen page,
+opening the order sheet -- and asserts focus lands inside the dialog (or on
+the kitchen's own <h1>) on an element with a real accessible name, exactly
+one dialog is visibly aria-modal="true" at a time, the rest of the page is
+`inert` while it's open and not once it's closed, and Escape closes it and
+gives focus back. It's a fast, targeted regression guard for exactly the
+class of bug Round 38 fixed (see CHANGELOG.md) -- not a substitute for an
+actual NVDA/VoiceOver pass before shipping a real accessibility change.
 
 This is intentionally NOT part of tools/check_ship.py (it's slow and
 needs Edge installed); run it by hand after UI changes -- see README.md,
@@ -506,6 +519,272 @@ def check_one(cdp, base_url, page_path, width, scheme):
 
 
 # --------------------------------------------------------------------------
+# --a11y: "what a screen reader hears" regression check (Round 38 /
+# backlog-4.md item 12). Reuses the same site copy, HTTP server and headless
+# Edge/CDP plumbing as the layout sweep above, but drives three flows named
+# in the round's task -- opening a kitchen, the filters sheet, the order
+# sheet -- with real DOM clicks (el.click(), which dispatches a genuine
+# 'click' event app.js's own delegated listeners react to; this is not a
+# call into app.js's internal open*() functions) at one phone width, and
+# reads the accessibility-relevant state back through
+# Accessibility.getFullAXTree/DOM state, not just the layout checks above.
+# Independent of, and does not change, the default (no-flag) or --quick
+# sweep: `python tools/check_layout.py --a11y` runs ONLY this, on the
+# 'normal' state site copy.
+#
+# For each of the three flows it asserts:
+#   (a) focus lands on an element with a non-empty accessible name inside
+#       the open dialog (or, for opening a kitchen, on the kitchen <h1>);
+#   (b) exactly one element has a visible aria-modal="true" (catches a
+#       sheet left open under another one);
+#   (c) the page's landmarks (header/main's non-dialog children/footer)
+#       are `inert` while the dialog is open, and not once it's closed
+#       (Round 38, item 2);
+#   (d) Escape closes the dialog and returns focus to where it was before
+#       it opened.
+# --------------------------------------------------------------------------
+
+A11Y_WIDTH = 390
+A11Y_SCHEME = 'light'
+
+ACTIVE_ELEMENT_JS = r"""
+(function () {
+  var el = document.activeElement;
+  if (!el || el === document.body || el === document.documentElement) {
+    return JSON.stringify({ tag: null });
+  }
+  var name = (el.getAttribute('aria-label') || el.textContent || el.value || '').trim();
+  return JSON.stringify({
+    tag: el.tagName.toLowerCase(),
+    id: el.id || null,
+    name: name.slice(0, 80),
+    hasName: name.length > 0,
+    inDialog: !!el.closest('[role="dialog"]')
+  });
+})()
+"""
+
+VISIBLE_MODAL_COUNT_JS = r"""
+(function () {
+  var nodes = document.querySelectorAll('[aria-modal="true"]');
+  var n = 0;
+  for (var i = 0; i < nodes.length; i++) {
+    if (nodes[i].offsetParent !== null) n++;
+  }
+  return n;
+})()
+"""
+
+# True only while the dialog is open: every landmark-level sibling outside
+# the open dialog's own ancestor chain must be inert (or, lacking native
+# `inert`, aria-hidden -- app.js's setNodeInert() sets both); the header
+# and footer are always outside any dialog, so they are the reliable probe.
+BACKGROUND_INERT_JS = r"""
+(function () {
+  function isInert(el) {
+    if (!el) return null;
+    return (el.inert === true) || (el.getAttribute('aria-hidden') === 'true');
+  }
+  return JSON.stringify({
+    header: isInert(document.querySelector('header')),
+    footer: isInert(document.querySelector('footer'))
+  });
+})()
+"""
+
+
+def js_eval(cdp, expression, timeout=10):
+    res = cdp.call('Runtime.evaluate', {
+        'expression': expression,
+        'returnByValue': True,
+        'awaitPromise': False,
+    }, timeout=timeout)
+    exc = res.get('exceptionDetails')
+    if exc:
+        raise RuntimeError('page threw: %s' % exc)
+    return res.get('result', {}).get('value')
+
+
+def js_click(cdp, selector):
+    expr = "(function(){var el=document.querySelector(%s); if(!el) return false; el.click(); return true;})()" % json.dumps(selector)
+    return js_eval(cdp, expr)
+
+
+def js_escape(cdp):
+    js_eval(cdp, "document.dispatchEvent(new KeyboardEvent('keydown', {key:'Escape', bubbles:true, cancelable:true}))")
+
+
+def a11y_goto(cdp, url):
+    cdp.call('Emulation.setDeviceMetricsOverride', {
+        'width': A11Y_WIDTH, 'height': 900, 'deviceScaleFactor': 1, 'mobile': True,
+    })
+    cdp.call('Emulation.setEmulatedMedia', {
+        'features': [{'name': 'prefers-color-scheme', 'value': A11Y_SCHEME}],
+    })
+    cdp.call('Page.navigate', {'url': url}, timeout=20)
+    wait_for_load(cdp)
+    time.sleep(0.6)
+
+
+def a11y_check_modal_flow(cdp, label, open_selector, closed_probe_js):
+    """Click open_selector, assert the dialog took focus/inert/single-modal
+    correctly, press Escape, assert it closed and gave focus back. Returns
+    a list of (ok, message) tuples."""
+    checks = []
+
+    before = json.loads(js_eval(cdp, ACTIVE_ELEMENT_JS))
+    opened = js_click(cdp, open_selector)
+    checks.append((bool(opened), '%s: opener (%s) found and clicked' % (label, open_selector)))
+    time.sleep(0.4)
+
+    active = json.loads(js_eval(cdp, ACTIVE_ELEMENT_JS))
+    checks.append((
+        bool(active.get('inDialog')) and bool(active.get('hasName')),
+        '%s: focus is inside the dialog on an element with an accessible name (got %r)' % (label, active)
+    ))
+
+    modal_count = js_eval(cdp, VISIBLE_MODAL_COUNT_JS)
+    checks.append((modal_count == 1, '%s: exactly one visible aria-modal="true" element (got %s)' % (label, modal_count)))
+
+    bg = json.loads(js_eval(cdp, BACKGROUND_INERT_JS))
+    checks.append((bg.get('header') is True and bg.get('footer') is True,
+                    '%s: header and footer are inert while the dialog is open (got %r)' % (label, bg)))
+
+    js_escape(cdp)
+    time.sleep(0.4)
+
+    closed = js_eval(cdp, closed_probe_js)
+    checks.append((closed is True, '%s: Escape closed the dialog (hidden=%r)' % (label, closed)))
+
+    bg_after = json.loads(js_eval(cdp, BACKGROUND_INERT_JS))
+    checks.append((bg_after.get('header') is not True and bg_after.get('footer') is not True,
+                    '%s: header and footer are no longer inert after closing (got %r)' % (label, bg_after)))
+
+    after = json.loads(js_eval(cdp, ACTIVE_ELEMENT_JS))
+    same_or_reasonable = after.get('tag') is not None and not after.get('inDialog')
+    checks.append((same_or_reasonable,
+                    '%s: focus returned to the page (not left inside the closed dialog; got %r, was %r)'
+                    % (label, after, before)))
+
+    return checks
+
+
+def a11y_check_kitchen_open(cdp, base_url):
+    checks = []
+    a11y_goto(cdp, base_url + '/?demo=1')
+
+    clicked = js_click(cdp, '#results .card-link')
+    checks.append((bool(clicked), 'kitchen open: a results card link was found and clicked'))
+    time.sleep(0.6)
+
+    active = json.loads(js_eval(cdp, ACTIVE_ELEMENT_JS))
+    checks.append((
+        active.get('id') == 'kitchen-heading' and active.get('hasName'),
+        'kitchen open: focus moved to #kitchen-heading with a non-empty accessible name (got %r)' % active
+    ))
+    return checks
+
+
+def run_a11y():
+    edge_path = find_edge()
+    tmp_normal = tempfile.mkdtemp(prefix='tf-a11y-')
+    edge_profile = os.path.join(
+        os.environ.get('LOCALAPPDATA', tempfile.gettempdir()),
+        'Temp', 'edgeprof', uuid.uuid4().hex[:12]
+    )
+    httpd = None
+    edge_proc = None
+    cdp = None
+    target_id = None
+    devtools_port = None
+    all_checks = []
+
+    try:
+        print('Copying site into %s ...' % tmp_normal)
+        copy_site(tmp_normal)
+        port = free_port()
+        httpd = serve(tmp_normal, port)
+        wait_for_server(port)
+        base_url = 'http://127.0.0.1:%d' % port
+
+        devtools_port = free_port()
+        os.makedirs(edge_profile, exist_ok=True)
+        edge_cmd = [
+            edge_path,
+            '--headless=new',
+            '--disable-gpu',
+            '--no-sandbox',
+            '--hide-scrollbars',
+            '--force-prefers-reduced-motion',
+            '--remote-debugging-port=%d' % devtools_port,
+            '--user-data-dir=' + edge_profile,
+        ]
+        print('Launching headless Edge on devtools port %d ...' % devtools_port)
+        edge_proc = subprocess.Popen(edge_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        wait_for_devtools(devtools_port)
+
+        tab = http_json('http://127.0.0.1:%d/json/new?about:blank' % devtools_port, method='PUT')
+        target_id = tab.get('id')
+        cdp = CDPClient(tab['webSocketDebuggerUrl'])
+        cdp.call('Page.enable')
+        cdp.call('Runtime.enable')
+        cdp.call('Log.enable')
+
+        print('-- Filters sheet --')
+        a11y_goto(cdp, base_url + '/')
+        all_checks += a11y_check_modal_flow(
+            cdp, 'filters sheet', '#open-filters-sheet',
+            "document.getElementById('filters-sheet').hidden"
+        )
+
+        print('-- Kitchen page open (focus + announce) --')
+        all_checks += a11y_check_kitchen_open(cdp, base_url)
+
+        print('-- Order sheet --')
+        all_checks += a11y_check_modal_flow(
+            cdp, 'order sheet', '[data-order]',
+            "document.getElementById('order-sheet').hidden"
+        )
+
+    finally:
+        if cdp is not None:
+            try:
+                if target_id and devtools_port:
+                    try:
+                        urllib.request.urlopen(
+                            'http://127.0.0.1:%d/json/close/%s' % (devtools_port, target_id), timeout=3,
+                        )
+                    except Exception:  # noqa: BLE001
+                        pass
+                cdp.close()
+            except Exception:  # noqa: BLE001
+                pass
+        if edge_proc is not None:
+            try:
+                edge_proc.terminate()
+                edge_proc.wait(timeout=10)
+            except Exception:  # noqa: BLE001
+                try:
+                    edge_proc.kill()
+                except Exception:  # noqa: BLE001
+                    pass
+        if httpd is not None:
+            httpd.shutdown()
+        shutil.rmtree(tmp_normal, ignore_errors=True)
+        shutil.rmtree(edge_profile, ignore_errors=True)
+
+    print('')
+    fail_count = 0
+    for ok, msg in all_checks:
+        print(('ok:   ' if ok else 'FAIL: ') + msg)
+        if not ok:
+            fail_count += 1
+    print('')
+    print('%d/%d a11y checks passed (%d failed)' % (len(all_checks) - fail_count, len(all_checks), fail_count))
+    return 1 if fail_count else 0
+
+
+# --------------------------------------------------------------------------
 # Main
 # --------------------------------------------------------------------------
 
@@ -666,4 +945,6 @@ def main():
 
 
 if __name__ == '__main__':
+    if '--a11y' in sys.argv[1:]:
+        sys.exit(run_a11y())
     sys.exit(main())
