@@ -2,26 +2,26 @@
 <html lang="en-CA">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-J+xASHBHcj7Z6purppfpjdA1vHzePKJOoH6E7b+cYeE='; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Terms — Tiffin Finder</title>
-  <meta name="description" content="Plain-language terms for using Tiffin Finder, a directory of permit-checked tiffin kitchens in Calgary. Draft, to be reviewed by a lawyer.">
-  <link rel="canonical" href="https://tiffinfinder.ca/terms.html">
+  <title>Listing consent form — Tiffin Finder</title>
+  <meta name="description" content="A plain-language, printable consent form for kitchen owners: what Tiffin Finder shows publicly, what it never shows, and how to change or remove a listing.">
+  <link rel="canonical" href="https://tiffinfinder.ca/kitchens-consent.html">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Tiffin Finder">
   <meta property="og:locale" content="en_CA">
-  <meta property="og:title" content="Terms — Tiffin Finder">
-  <meta property="og:description" content="Plain-language terms for using Tiffin Finder, a directory of permit-checked tiffin kitchens in Calgary. Draft, to be reviewed by a lawyer.">
-  <meta property="og:url" content="https://tiffinfinder.ca/terms.html">
+  <meta property="og:title" content="Listing consent form — Tiffin Finder">
+  <meta property="og:description" content="A plain-language, printable consent form for kitchen owners: what Tiffin Finder shows publicly, what it never shows, and how to change or remove a listing.">
+  <meta property="og:url" content="https://tiffinfinder.ca/kitchens-consent.html">
   <meta property="og:image" content="https://tiffinfinder.ca/og-image.png">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Tiffin Finder — Find a permit-checked tiffin kitchen in Calgary, with a stacked saffron tiffin on leaf green">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Terms — Tiffin Finder">
-  <meta name="twitter:description" content="Plain-language terms for using Tiffin Finder, a directory of permit-checked tiffin kitchens in Calgary. Draft, to be reviewed by a lawyer.">
+  <meta name="twitter:title" content="Listing consent form — Tiffin Finder">
+  <meta name="twitter:description" content="A plain-language, printable consent form for kitchen owners: what Tiffin Finder shows publicly, what it never shows, and how to change or remove a listing.">
   <meta name="twitter:image" content="https://tiffinfinder.ca/og-image.png">
   <meta name="twitter:image:alt" content="Tiffin Finder — Find a permit-checked tiffin kitchen in Calgary, with a stacked saffron tiffin on leaf green">
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#1f5c3a">
@@ -40,39 +40,11 @@
   <script src="./early.js?v=tf-v1.39.0"></script>
   <link rel="stylesheet" href="./styles.css?v=tf-v1.39.0">
   <script src="./app.js?v=tf-v1.39.0" defer></script>
-  <script type="speculationrules">
-  {
-    "prefetch": [
-      {
-        "source": "document",
-        "where": {
-          "and": [
-            { "href_matches": "/*" },
-            { "not": { "href_matches": { "search": "*demo=1*" } } },
-            { "not": { "selector_matches": "[href^=\"mailto:\"]" } },
-            { "not": { "selector_matches": "[href^=\"tel:\"]" } },
-            { "not": { "selector_matches": "[href^=\"https://wa.me/\"]" } }
-          ]
-        },
-        "eagerness": "moderate"
-      }
-    ]
-  }
-  </script>
 </head>
-<body data-page="terms">
+<body data-page="kitchens-consent">
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <div class="preview-bar" id="preview-bar" role="region" aria-label="Preview notice">
-    <div class="wrap preview-bar-inner">
-      <p><strong>Preview build</strong> — Tiffin Finder isn’t open yet. Any kitchen marked Sample is made up for testing. Real kitchens are added only after their permit is checked.</p>
-      <button type="button" class="icon-btn" data-dismiss-preview aria-label="Dismiss preview notice">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>
-      </button>
-    </div>
-  </div>
-
-  <header class="site-header">
+  <header class="site-header no-print">
     <div class="wrap header-inner">
       <a class="brand" href="./" aria-label="Tiffin Finder home">
         <svg class="logo" viewBox="0 0 400 400" aria-hidden="true" focusable="false"><circle cx="200" cy="210" r="134" fill="#f39a2b"/>
@@ -101,14 +73,10 @@
         <span class="wordmark" aria-hidden="true"><span class="wm-a">T<span class="wm-i">ı</span>ff<span class="wm-i">ı</span>n</span><span class="wm-b">F<span class="wm-i wm-pin">ı</span>nder</span></span><span class="visually-hidden">Tiffin Finder</span>
       </a>
       <nav class="site-nav" aria-label="Primary">
-        <a href="./kitchens.html">For kitchens</a>
+        <a href="./kitchens.html" aria-current="page">For kitchens</a>
         <a href="./permitted.html">How permits work</a>
       </nav>
       <div class="header-actions">
-        <button type="button" class="btn btn-primary btn-small" id="install-btn" hidden>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M4 19h16"/></svg>
-          <span class="btn-label">Install</span>
-        </button>
         <button type="button" class="icon-btn theme-toggle" id="theme-toggle" aria-label="Switch to dark theme">
           <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>
           <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
@@ -121,80 +89,98 @@
   </header>
 
   <main id="main">
-    <section class="page-hero">
-      <div class="wrap page-hero-inner">
-        <p class="eyebrow">Legal</p>
-        <h1>Terms of use</h1>
-        <p class="lede">Plain-language terms for households and kitchens using Tiffin Finder. Last updated 25 September 2026.</p>
-      </div>
-    </section>
-
-    <div class="wrap">
-      <article class="prose">
-        <div class="callout callout-draft">
-          <p>Draft — to be reviewed by a lawyer before the service charges anyone.</p>
+    <div class="wrap print-page">
+      <div class="checklist-brand">
+        <div class="dabba-tile large mascot-tile" aria-hidden="true">
+          <svg class="dabba mascot-glyph" viewBox="0 0 400 400" focusable="false"><circle cx="200" cy="210" r="134" fill="#f39a2b"/>
+<g transform="translate(0 118.7)"><path d="M200 98.0C174.8 67.2 144 34.7 144 0a56 56 0 0 1 112 0c0 34.7-30.8 67.2-56 98.0Z" fill="#ff7a45" stroke="#2b1f1a" stroke-width="6" stroke-linejoin="round"/><circle cx="200" cy="0" r="20.2" fill="#fff" stroke="#2b1f1a" stroke-width="6"/><path d="M159.7 -14.0a44.8 44.8 0 0 1 23.5-25.8" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/></g>
+<path d="M139.0 258V248C139.0 210.1 261.0 210.1 261.0 248V258" fill="none" stroke="#2b1f1a" stroke-width="15" stroke-linecap="round"/>
+<path d="M139.0 258V248C139.0 210.1 261.0 210.1 261.0 248V258" fill="none" stroke="#b9c1c7" stroke-width="9" stroke-linecap="round"/>
+<rect x="185" y="212.7" width="30" height="14" rx="7" fill="#f39a2b" stroke="#2b1f1a" stroke-width="6"/>
+<rect x="142.0" y="250.0" width="116" height="38" rx="17.5" fill="#e9eef1" stroke="#2b1f1a" stroke-width="6"/>
+<path d="M147.0 273.6H253.0V272.3a14.0 14.0 0 0 1-14.0 14.0H161.0a14.0 14.0 0 0 1-14.0-14.0Z" fill="#d3dade"/>
+<rect x="154.6" y="255.5" width="90.8" height="6.5" rx="3.2" fill="#f39a2b"/>
+<path d="M155.0 269.0h12" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+<rect x="142.0" y="292.0" width="116" height="38" rx="17.5" fill="#e9eef1" stroke="#2b1f1a" stroke-width="6"/>
+<path d="M147.0 315.6H253.0V314.3a14.0 14.0 0 0 1-14.0 14.0H161.0a14.0 14.0 0 0 1-14.0-14.0Z" fill="#d3dade"/>
+<rect x="154.6" y="297.5" width="90.8" height="6.5" rx="3.2" fill="#f39a2b"/>
+<path d="M155.0 311.0h12" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+<rect x="142.0" y="334.0" width="116" height="38" rx="17.5" fill="#e9eef1" stroke="#2b1f1a" stroke-width="6"/>
+<path d="M147.0 357.6H253.0V356.3a14.0 14.0 0 0 1-14.0 14.0H161.0a14.0 14.0 0 0 1-14.0-14.0Z" fill="#d3dade"/>
+<rect x="154.6" y="339.5" width="90.8" height="6.5" rx="3.2" fill="#f39a2b"/>
+<path d="M155.0 353.0h12" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+<rect x="135.0" y="247" width="9" height="123" rx="4.5" fill="#b9c1c7" stroke="#2b1f1a" stroke-width="5"/>
+<rect x="256.0" y="247" width="9" height="123" rx="4.5" fill="#b9c1c7" stroke="#2b1f1a" stroke-width="5"/>
+<ellipse cx="184" cy="311.0" rx="4.4" ry="5.8" fill="#2b1f1a"/><ellipse cx="216" cy="311.0" rx="4.4" ry="5.8" fill="#2b1f1a"/>
+<circle cx="185.4" cy="309.0" r="1.6" fill="#fff"/><circle cx="217.4" cy="309.0" r="1.6" fill="#fff"/>
+<path d="M192.5 318.0q7.5 6.5 15 0" fill="none" stroke="#2b1f1a" stroke-width="3.8" stroke-linecap="round"/>
+<ellipse cx="172" cy="318.0" rx="5" ry="3" fill="#f7a9a0"/><ellipse cx="228" cy="318.0" rx="5" ry="3" fill="#f7a9a0"/></svg>
         </div>
+        <p class="wordmark checklist-wordmark" aria-hidden="true"><span class="wm-a">T<span class="wm-i">ı</span>ff<span class="wm-i">ı</span>n</span><span class="wm-b">F<span class="wm-i wm-pin">ı</span>nder</span></p>
+      </div>
 
-        <ul class="toc" aria-label="Sections">
-          <li><a href="#what">What Tiffin Finder is</a></li>
-          <li><a href="#households">Households</a></li>
-          <li><a href="#kitchens">Kitchens</a></li>
-          <li><a href="#verification">Permit checks</a></li>
-          <li><a href="#complaints">Complaints</a></li>
-          <li><a href="#liability">Liability</a></li>
-        </ul>
+      <article class="prose">
+        <p class="eyebrow">For kitchens · Print this page</p>
+        <h1>Listing consent form</h1>
+        <div class="callout callout-draft">
+          <p>Draft — a lawyer should review this wording before it's used with the first real kitchen.</p>
+        </div>
+        <p class="lede">A plain-language record that you're OK being listed on Tiffin Finder, with the details you've given us. Read it, ask any questions, then sign at the bottom — or just text or email the same words if that's easier. <a href="./kitchens.html" class="no-print">Back to For kitchens</a></p>
 
-        <h2 id="what">1. What Tiffin Finder is, and isn’t</h2>
-        <p>Tiffin Finder is a directory. It lists tiffin kitchens in and around Calgary — home kitchens, restaurants, caterers and rented commercial kitchens — whose Alberta Health Services (AHS) Food Handling Permit we have checked, and shows the menu, prices and contact details each kitchen gives us.</p>
-        <p><strong>Tiffin Finder does not take orders or payments and is not the seller of any meal.</strong> When you tap “Order on WhatsApp” or “Call”, a short panel shows you the message first. Nothing is sent until you send it from your own WhatsApp or phone, and then you are contacting the kitchen directly. Your order, payment, delivery and any refund are between you and the kitchen.</p>
-        <p>In this preview version every listing is a sample with made-up names and phone numbers. Nothing on the site is a real offer of food until real, permit-checked kitchens are added.</p>
-
-        <h2 id="households">2. If you’re a household</h2>
+        <h2 id="shown">What will show publicly</h2>
         <ul>
-          <li>You may browse and follow kitchens free of charge.</li>
-          <li>Menus, prices, pickup spots, delivery areas and availability are set by each kitchen and can change without notice. Confirm with the kitchen when you order.</li>
-          <li>Pickup locations are published because the kitchen chose to share them, at the precision it chose. Tiffin Finder never shows more than that. Please collect at the time you agreed with the kitchen.</li>
-          <li>Tell the kitchen about allergies and dietary needs before ordering. Labels such as “veg only”, “halal” or “Jain” are the kitchen’s own statements about its cooking; we display them but cannot guarantee them.</li>
-          <li>If you have a food-safety concern about a kitchen, contact AHS Environmental Public Health (1-833-476-4743). You can also use “Report a problem with this listing” on the kitchen’s page so we can review it.</li>
-          <li>Don’t misuse the site: no scraping of kitchen contact details, no harassment of kitchens, and no attempts to interfere with how the site works.</li>
+          <li>Your kitchen's name, cuisine, and diet words that apply (vegetarian-only, halal, Jain).</li>
+          <li>This week's menu, and your day, week and/or month prices.</li>
+          <li>Whether you offer a trial week, and whether you're taking new customers.</li>
+          <li>Your pickup spot, shown only at the precision you choose below — or your delivery neighbourhoods, or both.</li>
+          <li>The WhatsApp number or phone you want shown, so households can message or call you directly.</li>
+          <li>A "Permit checked" badge with the date we checked it, once your AHS Food Handling Permit is confirmed.</li>
         </ul>
 
-        <h2 id="kitchens">3. If you’re a kitchen</h2>
-        <p>By asking to be listed, you agree that:</p>
+        <h2 id="not-shown">What will never show</h2>
         <ul>
-          <li>You hold a valid <strong>AHS Food Handling Permit</strong> for the kitchen where the meals are prepared, and you will keep it valid for as long as you are listed.</li>
-          <li>You comply with the <strong>Alberta Food Regulation</strong> and any conditions on your permit, and you hold any municipal business licence your city requires.</li>
-          <li>You will tell us within 48 hours if your permit is suspended, cancelled, expires, or if the kitchen you cook in changes.</li>
-          <li><strong>We will remove your listing on any AHS closure order</strong>, and may remove or pause it if we cannot re-confirm your permit, if we receive credible safety complaints, or if listing details are inaccurate.</li>
-          <li>The information you give us — name, cuisine, menu, prices, pickup spot, delivery areas, contact details — is accurate and yours to publish, and you give us permission to display it. You can ask us to update or remove your listing at any time.</li>
-          <li>You choose how your pickup location is shown: exact address, nearest intersection, or neighbourhood only. We publish it only at the precision you choose and never show more. You can change or remove it at any time, and you confirm you’re entitled to share the spot you give us.</li>
-          <li>Listing is free. If we later offer paid “Pro” features, they will be optional and described separately before you pay for anything.</li>
-          <li>You’ll get your own link to your listing, which shows only your kitchen, with no other kitchens and a small “Listed on Tiffin Finder” line. You may share it anywhere. It shows the same listing, permit status and notes as the site, and you agree not to present it as an inspection or endorsement.</li>
+          <li><strong>Your home address</strong>, unless you specifically choose "Exact" pickup precision below and that address <em>is</em> the pickup spot you want shown.</li>
+          <li>Any personal contact other than the number you give us for your listing.</li>
+          <li>Anything about how you found out about Tiffin Finder or our conversation with you.</li>
+          <li>A claim that Alberta Health Services "approved" or "verified" you — a permit check is not an inspection, a grade, or an endorsement, and we say so on your page.</li>
         </ul>
 
-        <h2 id="verification">4. What “Permit checked” means</h2>
-        <p>“Permit checked” with a date means that, on that date, we matched the kitchen the listing is for to its public Alberta Health Services inspection record and, where visible, its City of Calgary business licence. If the permit’s expiry date passes, the listing shows “Permit being re-checked” instead until we check again. “Verification pending” means we have not finished that check.</p>
-        <p>A permit check is not an inspection, a food-safety rating, or an endorsement by AHS or the City of Calgary. We do not inspect kitchens and cannot guarantee that a permitted kitchen follows every rule every day. Permits can lapse between our checks.</p>
+        <h2 id="precision">How pickup precision works</h2>
+        <p>If you offer pickup, choose one. All three are normal, equally supported choices:</p>
+        <ul class="check-list">
+          <li><span class="check-box" aria-hidden="true"></span><div><h3>Exact</h3><p>Your real address. Shows "Pickup at …" plus a directions link.</p></div></li>
+          <li><span class="check-box" aria-hidden="true"></span><div><h3>Nearest intersection</h3><p>Like "36 St &amp; 88 Ave NE". Shows "Pickup near …" plus a directions link.</p></div></li>
+          <li><span class="check-box" aria-hidden="true"></span><div><h3>Neighbourhood only</h3><p>Just your community name, like "Saddle Ridge". No address, no directions link. Most home kitchens choose this.</p></div></li>
+        </ul>
 
-        <h2 id="complaints">5. Complaints and takedowns</h2>
-        <p>Every kitchen’s page has a <strong>Report a problem with this listing</strong> link. It opens a new email in your own email app, with the kitchen’s name filled in. Nothing is sent until you send it yourself. You can also email <a href="mailto:sitesbyadeel@gmail.com">sitesbyadeel@gmail.com</a> if a listing is inaccurate, out of date, uses your name or content without permission, or raises a safety concern. We check reports against public records only, such as the AHS inspection record and City of Calgary licence information, and <strong>we never tell the kitchen who reported it</strong>. Our target is to respond and act, by correcting, pausing or removing the listing, <strong>within 48 hours</strong> of hearing from you. Urgent food-safety matters should also go to AHS Environmental Public Health (1-833-476-4743).</p>
+        <h2 id="change">Changing your mind, later</h2>
+        <p>You can ask us to change or remove your listing at any time — a menu update, a new price, a different pickup precision, a pause, or taking it down completely. Just email <a href="./about.html#contact">sitesbyadeel@gmail.com</a>; our target is to respond and act within <strong>48 hours</strong> of hearing from you. Nothing about this consent is shown on the site — it's kept only so we can show we had your permission.</p>
 
-        <h2 id="content">6. Our content and brand</h2>
-        <p>The text, design, code, logo and mascot illustration on this site are owned by Tiffin Finder. Please don’t copy, republish or reuse them — including cloning the site’s look or code for another project — without our written permission. You’re welcome to link to any page.</p>
-        <p>Kitchen names, menus and descriptions belong to the kitchens that gave them to us. Map shapes are from the City of Calgary’s and City of Airdrie’s open data, under the licences named where the map appears; those attribution lines stay wherever the data is used. You may share links to any page freely. Every kitchen’s page has a Share button that shares a link to that page.</p>
+        <h2 id="pipa">Privacy (Alberta's PIPA)</h2>
+        <ul>
+          <li><strong>Purpose.</strong> We collect what you give us only to build and run your public listing.</li>
+          <li><strong>What's public vs. private.</strong> See "What will show publicly" and "What will never show" above.</li>
+          <li><strong>Storage.</strong> Your listing details live in the site's public data file (the same way every listing does). This consent record itself — the fact you agreed, and when — is kept privately by Adeel, off the public site.</li>
+          <li><strong>Retention.</strong> Kept for as long as your listing is live, plus a record that consent was given even after a listing comes down, in case it's ever needed to show permission was granted.</li>
+          <li><strong>Contact.</strong> Questions about your data, any time: <a href="./about.html#contact">sitesbyadeel@gmail.com</a>.</li>
+        </ul>
 
-        <h2 id="liability">7. Liability, in plain words</h2>
-        <p>We provide the site as it is, without warranties. We are not responsible for the food, the service, delivery, pricing or conduct of any kitchen, or for anything that happens between a household and a kitchen. To the extent Alberta law allows, our liability to you for anything connected with the site is limited to nothing more than the amount you paid us — which, in this version, is zero.</p>
+        <h2 id="free">Free, no commission</h2>
+        <p>Your listing, your weekly menu and your follower list are free, with no commission on anything you sell — see <a href="./kitchens.html#free">what's free, and what "Pro" will be</a> on the For kitchens page.</p>
 
-        <h2 id="changes">8. Changes and law</h2>
-        <p>We may update these terms as the service grows; the date at the top tells you when we last did. Continued use after a change means you accept it. These terms are governed by the laws of Alberta and Canada.</p>
-
-        <p class="fine">Draft — to be reviewed by a lawyer before the service charges anyone. This page is not legal advice.</p>
+        <h2 id="agree">Your agreement</h2>
+        <p>"Yes, you can list <strong>[kitchen name]</strong> on Tiffin Finder with the information I've given you, shown the way described above."</p>
+        <div class="sign-lines">
+          <div class="sign-line"><span class="rule" aria-hidden="true"></span><label>Kitchen owner's name</label></div>
+          <div class="sign-line"><span class="rule" aria-hidden="true"></span><label>Signature</label></div>
+          <div class="sign-line"><span class="rule" aria-hidden="true"></span><label>Date</label></div>
+        </div>
+        <p class="fine">Prefer to send this by text or email instead of signing on paper? Just send the sentence above in your own words to <a href="./about.html#contact">sitesbyadeel@gmail.com</a> — that counts too.</p>
       </article>
     </div>
   </main>
 
-  <footer class="site-footer">
+  <footer class="site-footer no-print">
     <div class="wrap footer-inner">
       <div class="footer-brand">
         <a class="brand" href="./" aria-label="Tiffin Finder home">
@@ -229,8 +215,8 @@
         <ul>
           <li><a href="./about.html">About</a></li>
           <li><a href="./kitchens.html">For kitchens</a></li>
+          <li><a href="./kitchens-checklist.html">Checklist</a></li>
           <li><a href="./permitted.html">How permits work</a></li>
-          <li><a href="./guide.html">Tiffin 101 guide</a></li>
           <li><a href="./terms.html">Terms</a></li>
           <li><a href="./privacy.html">Privacy</a></li>
         </ul>
@@ -239,22 +225,6 @@
       <p class="footer-copy">© 2026 Tiffin Finder · Calgary, Alberta. All rights reserved.</p>
     </div>
   </footer>
-
-  <div class="sheet" id="ios-sheet" hidden>
-    <button type="button" class="sheet-backdrop" tabindex="-1" aria-label="Close"></button>
-    <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-title" aria-describedby="sheet-desc">
-      <div class="sheet-handle" aria-hidden="true"></div>
-      <h2 id="sheet-title">Add Tiffin Finder to your Home Screen</h2>
-      <p id="sheet-desc">On iPhone and iPad, apps install from Safari’s Share menu.</p>
-      <ol class="steps">
-        <li><span>Tap the <strong>Share</strong> button <svg class="share-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v12M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg> in Safari’s toolbar.</span></li>
-        <li><span>Scroll down and tap <strong>Add to Home Screen</strong>.</span></li>
-        <li><span>Tap <strong>Add</strong> in the top corner.</span></li>
-      </ol>
-      <p class="fine">Opened this inside another app? Open it in Safari first.</p>
-      <button type="button" class="btn btn-primary btn-block" id="sheet-close">Got it</button>
-    </div>
-  </div>
 
   <div class="sheet nav-sheet" id="nav-sheet" hidden>
     <button type="button" class="sheet-backdrop" tabindex="-1" aria-label="Close menu" data-close-nav></button>
@@ -267,7 +237,7 @@
       <nav aria-label="Site">
         <ul class="nav-sheet-list">
           <li><a href="./" data-nav="browse">Browse kitchens <svg class="nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg></a></li>
-          <li><a href="./kitchens.html" data-nav="kitchens">For kitchens <svg class="nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg></a></li>
+          <li><a href="./kitchens.html" data-nav="kitchens" aria-current="page">For kitchens <svg class="nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg></a></li>
           <li><a href="./permitted.html" data-nav="permitted">How permits work <svg class="nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg></a></li>
           <li><a href="./guide.html" data-nav="guide">Tiffin 101 guide <svg class="nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg></a></li>
           <li><a href="./about.html" data-nav="about">About <svg class="nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg></a></li>

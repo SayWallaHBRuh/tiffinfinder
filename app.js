@@ -1576,13 +1576,72 @@
     last_posted: '2026-09-20T18:05:00-06:00'
   };
 
+  /* kitchens.html's live preview form (#kitchens-preview-form): each field
+     is optional, and an empty one just falls back to KITCHENS_PAGE_SAMPLE's
+     own value, so the card always has something sensible to show. Nothing
+     here is sent anywhere or saved between visits -- it only ever feeds
+     kitchenCard() for this one on-page preview. */
+  function currentPreviewKitchen() {
+    var k = {
+      slug: KITCHENS_PAGE_SAMPLE.slug,
+      name: KITCHENS_PAGE_SAMPLE.name,
+      sample: true,
+      business_type: KITCHENS_PAGE_SAMPLE.business_type,
+      hue: KITCHENS_PAGE_SAMPLE.hue,
+      cuisine: KITCHENS_PAGE_SAMPLE.cuisine,
+      quadrant: KITCHENS_PAGE_SAMPLE.quadrant,
+      area: KITCHENS_PAGE_SAMPLE.area,
+      service: KITCHENS_PAGE_SAMPLE.service,
+      veg_only: KITCHENS_PAGE_SAMPLE.veg_only,
+      halal: KITCHENS_PAGE_SAMPLE.halal,
+      jain: KITCHENS_PAGE_SAMPLE.jain,
+      price: {
+        day: KITCHENS_PAGE_SAMPLE.price.day,
+        weekly: KITCHENS_PAGE_SAMPLE.price.weekly,
+        monthly: KITCHENS_PAGE_SAMPLE.price.monthly
+      },
+      trial: KITCHENS_PAGE_SAMPLE.trial,
+      capacity: KITCHENS_PAGE_SAMPLE.capacity,
+      menu: KITCHENS_PAGE_SAMPLE.menu,
+      contact: KITCHENS_PAGE_SAMPLE.contact,
+      permit: KITCHENS_PAGE_SAMPLE.permit,
+      last_posted: KITCHENS_PAGE_SAMPLE.last_posted
+    };
+
+    var nameInput = document.getElementById('preview-name');
+    if (nameInput && nameInput.value.trim()) k.name = nameInput.value.trim().slice(0, 60);
+
+    var cuisineInput = document.getElementById('preview-cuisine');
+    if (cuisineInput && cuisineInput.value) k.cuisine = cuisineInput.value;
+
+    var areaInput = document.getElementById('preview-area');
+    if (areaInput && areaInput.value) {
+      var parts = areaInput.value.split('|');
+      k.quadrant = parts[0];
+      k.area = parts[1];
+    }
+
+    var serviceInput = document.getElementById('preview-service');
+    if (serviceInput && serviceInput.value) k.service = serviceInput.value;
+
+    var priceInput = document.getElementById('preview-price');
+    if (priceInput && priceInput.value) {
+      var n = Number(priceInput.value);
+      if (n > 0 && n < 1000) k.price.day = Math.round(n);
+    }
+
+    return k;
+  }
+
   /* Builds the sample card into #kitchens-sample-mount when that container
-     is on the page (kitchens.html only). The Follow button is disabled: this
-     page never loads kitchens.json, so there's no real kitchen behind it. */
+     is on the page (kitchens.html only), from currentPreviewKitchen() so it
+     reflects whatever the "Try your own details" form holds. The Follow
+     button is disabled: this page never loads kitchens.json, so there's no
+     real kitchen behind it. */
   function renderKitchensSampleCard() {
     var mount = document.getElementById('kitchens-sample-mount');
     if (!mount) return;
-    var card = kitchenCard(KITCHENS_PAGE_SAMPLE, 0, 'kitchens-sample');
+    var card = kitchenCard(currentPreviewKitchen(), 0, 'kitchens-sample');
     card.classList.add('no-rise');
     var followBtn = card.querySelector('[data-follow]');
     if (followBtn) {
@@ -1592,6 +1651,18 @@
       followBtn.setAttribute('title', 'Following works once your real listing is live');
     }
     mount.replaceChildren(card);
+  }
+
+  /* Wires the "Try your own details" form to re-render the preview card on
+     every keystroke or selection. The <form> never submits (there's no
+     action and nothing to send); Enter in a text field just re-renders,
+     same as input. */
+  function initKitchensPreviewForm() {
+    var form = document.getElementById('kitchens-preview-form');
+    if (!form) return;
+    form.addEventListener('submit', function (event) { event.preventDefault(); });
+    form.addEventListener('input', renderKitchensSampleCard);
+    form.addEventListener('change', renderKitchensSampleCard);
   }
 
   /* Fill a grid. The first real paint stages in (rise); later re-renders
@@ -4060,6 +4131,39 @@
     side.appendChild(order);
     if (pickup) side.appendChild(pickup);
     if (delivery) side.appendChild(delivery);
+    /* Share kit (a kitchen's own solo page only): copy-ready WhatsApp
+       status text for the KITCHEN to post ("Find our tiffin..."), not the
+       customer-facing orderMessage() text; the link; and the printable
+       poster. Nothing is sent or stored -- both fields are just text to
+       copy by hand. */
+    if (solo) {
+      var kitStatusText = 'Find our tiffin on Tiffin Finder: ' + pageLink;
+      var posterHref = './poster.html?k=' + encodeURIComponent(k.slug);
+      var shareKit = el('section', { class: 'k-section k-sharekit', 'aria-labelledby': 'sharekit-heading' });
+      shareKit.appendChild(el('h2', { id: 'sharekit-heading', text: 'Share your listing' }));
+      shareKit.appendChild(el('p', { class: 'fine', text: 'Copy-ready text for your own WhatsApp status, your link, and a printable poster.' }));
+      shareKit.appendChild(el('div', { class: 'field share-field' }, [
+        el('label', { for: 'sharekit-status', text: 'For your WhatsApp status' }),
+        el('input', { id: 'sharekit-status', type: 'text', readonly: true, value: kitStatusText })
+      ]));
+      shareKit.appendChild(el('button', { type: 'button', class: 'btn btn-secondary btn-small', 'data-copy-field': 'sharekit-status', 'data-copy-status': 'sharekit-status-live' }, [
+        icon('copy', 16), el('span', { text: 'Copy status text' })
+      ]));
+      shareKit.appendChild(el('p', { class: 'share-status', id: 'sharekit-status-live', role: 'status', 'aria-live': 'polite' }));
+      shareKit.appendChild(el('div', { class: 'field share-field' }, [
+        el('label', { for: 'sharekit-link', text: 'Your link' }),
+        el('input', { id: 'sharekit-link', type: 'text', readonly: true, value: pageLink })
+      ]));
+      shareKit.appendChild(el('button', { type: 'button', class: 'btn btn-secondary btn-small', 'data-copy-field': 'sharekit-link', 'data-copy-status': 'sharekit-link-live' }, [
+        icon('copy', 16), el('span', { text: 'Copy link' })
+      ]));
+      shareKit.appendChild(el('p', { class: 'share-status', id: 'sharekit-link-live', role: 'status', 'aria-live': 'polite' }));
+      shareKit.appendChild(el('a', { class: 'btn btn-secondary', href: posterHref, target: '_blank', rel: 'noopener noreferrer' }, [
+        el('span', { text: 'Printable poster' }),
+        el('span', { class: 'visually-hidden', text: ' (opens in a new tab)' })
+      ]));
+      side.appendChild(shareKit);
+    }
     container.appendChild(side);
 
     /* Section tabs: Menu, Plans, Nutrition (only when the kitchen filled
@@ -4165,6 +4269,7 @@
     if (dom.hoods) dom.hoods.hidden = !isBrowse || launch || !state.loaded || state.error || !(dom.hoodsGrid && dom.hoodsGrid.firstChild);
     applyHeroMode(launch);
     updatePreviewBarVisibility();
+    updateFooterNoteVisibility();
 
     dom.tabAll.setAttribute('aria-current', isBrowse ? 'page' : 'false');
     dom.tabFollowing.setAttribute('aria-current', isFollowing ? 'page' : 'false');
@@ -4263,6 +4368,20 @@
     var bar = document.getElementById('preview-bar');
     if (!bar) return;
     bar.hidden = isLaunch() || store.get(KEYS.preview, null) === 1;
+  }
+
+  var FOOTER_NOTE_FULL = 'Preview build with sample listings. Tiffin Finder does not take orders or payments and is not the seller of any meal.';
+  var FOOTER_NOTE_LAUNCH = 'Tiffin Finder does not take orders or payments and is not the seller of any meal.';
+
+  /* Called from render() on the home page: while the site has zero kitchens
+     live (isLaunch()), "Preview build with sample listings" would be
+     untrue, so the footer drops that sentence and keeps only the part
+     that's true either way. Static pages (which never load kitchens.json)
+     carry the launch wording directly in their markup instead, since
+     there's no data to key a toggle off. */
+  function updateFooterNoteVisibility() {
+    if (!dom.footerNote) return;
+    dom.footerNote.textContent = isLaunch() ? FOOTER_NOTE_LAUNCH : FOOTER_NOTE_FULL;
   }
 
   /* ---------------------------------------------------------------------
@@ -4392,6 +4511,38 @@
       Promise.resolve(writing).then(function () {
         setShareStatus('Link copied');
       }, fallback);
+      return;
+    }
+    fallback();
+  }
+
+  /* Copy the value of a readonly text input (the kitchen-owner Share kit's
+     WhatsApp status text and link), the same clipboard-with-fallback
+     pattern as copyShareLink above, generalised to any field. */
+  function copyFieldText(inputId, statusId) {
+    var input = document.getElementById(inputId);
+    if (!input) return;
+    var text = input.value || '';
+    var status = statusId ? document.getElementById(statusId) : null;
+    var setStatus = function (msg) { if (status) status.textContent = msg; };
+    var fallback = function () {
+      input.focus();
+      input.select();
+      try {
+        input.setSelectionRange(0, text.length);
+      } catch (e) {
+        /* select() above already did it */
+      }
+      setStatus('Couldn’t copy automatically. The text is selected, ready to copy.');
+    };
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function' && window.isSecureContext) {
+      var writing;
+      try {
+        writing = navigator.clipboard.writeText(text);
+      } catch (e) {
+        writing = Promise.reject(e);
+      }
+      Promise.resolve(writing).then(function () { setStatus('Copied'); }, fallback);
       return;
     }
     fallback();
@@ -5204,6 +5355,7 @@
     dom.heroCount = dom.hero ? dom.hero.querySelector('.hero-count') : null;
     dom.heroLaunch = document.getElementById('hero-launch');
     dom.demoBar = document.getElementById('demo-bar');
+    dom.footerNote = document.querySelector('.footer-note');
     /* The hero's own words, put back when the launch page gives way to
        listings (see applyHeroMode). */
     heroCopy = {
@@ -5423,6 +5575,13 @@
       copyShareLink(findKitchen(copyBtn.getAttribute('data-slug') || ''));
       return;
     }
+    /* The kitchen-owner Share kit's "Copy" buttons (WhatsApp status text
+       and link), on a kitchen's own solo page. */
+    var fieldCopyBtn = target.closest('[data-copy-field]');
+    if (fieldCopyBtn) {
+      copyFieldText(fieldCopyBtn.getAttribute('data-copy-field'), fieldCopyBtn.getAttribute('data-copy-status') || '');
+      return;
+    }
 
     /* A dish name on a kitchen's menu: show or hide its note. Notes open
        independently and focus stays on the button (Enter and Space arrive
@@ -5510,6 +5669,7 @@
     initOfflinePage();
     initFaq();
     initPageToc();
+    initKitchensPreviewForm();
     renderKitchensSampleCard();
   }
 

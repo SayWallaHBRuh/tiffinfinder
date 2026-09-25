@@ -3092,6 +3092,215 @@ main[tabindex="-1"]:focus {
   position: absolute;
 }
 
+/* The kitchen-owner Share kit (a kitchen's own solo page): stacks its two
+   copy-ready fields with their Copy buttons underneath, spaced like the
+   rest of a .k-section. */
+.k-sharekit .share-field {
+  margin: 14px 0 8px;
+}
+
+.k-sharekit .btn-small {
+  margin-bottom: 4px;
+}
+
+.k-sharekit .btn-secondary[href] {
+  margin-top: 14px;
+}
+
+/* ------------------------------------------------------------------------
+   Printable kitchen-owner pages: the checklist, the consent form, and the
+   poster (kitchens-checklist.html, kitchens-consent.html, poster.html). On
+   screen they use the same page chrome as every other static page;
+   printing (see @media print below) drops the chrome and keeps only the
+   content, so an owner can hand a clean paper copy to someone.
+------------------------------------------------------------------------ */
+.poster-crumb {
+  margin-top: 24px;
+}
+
+.checklist-brand {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 28px 0 6px;
+  text-align: center;
+}
+
+.checklist-wordmark {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.check-list {
+  list-style: none;
+  margin: 18px 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.check-list li {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 14px;
+  align-items: start;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.check-box {
+  display: block;
+  width: 24px;
+  height: 24px;
+  margin-top: 2px;
+  border: 2.2px solid var(--ink-2);
+  border-radius: 5px;
+  background: var(--surface);
+}
+
+.check-list h3 {
+  margin: 0 0 4px;
+  font-size: 1.02rem;
+}
+
+.check-list p {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+.sign-lines {
+  display: grid;
+  gap: 26px;
+  margin: 30px 0 12px;
+}
+
+.sign-line {
+  display: grid;
+  gap: 6px;
+}
+
+.sign-line .rule {
+  border-bottom: 1.4px solid var(--ink-2);
+  height: 36px;
+}
+
+.sign-line label {
+  font-size: 0.86rem;
+  color: var(--ink-2);
+}
+
+.poster {
+  max-width: 620px;
+  margin: 32px auto 48px;
+  padding: 48px 40px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+  text-align: center;
+}
+
+.poster .mascot-tile {
+  margin-inline: auto;
+}
+
+.poster-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 1.2rem + 2vw, 2.4rem);
+  line-height: 1.15;
+  margin: 20px 0 6px;
+}
+
+.poster-tagline {
+  font-size: 1.08rem;
+  color: var(--ink-2);
+  margin: 0 0 24px;
+}
+
+.poster-link-box {
+  padding: 18px 20px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1.4px dashed var(--line);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  word-break: break-word;
+  margin: 0 0 22px;
+}
+
+.poster-actions {
+  margin: 0 0 14px;
+}
+
+.poster-note {
+  font-size: 0.85rem;
+  color: var(--ink-2);
+  margin: 10px 0 0;
+}
+
+.poster-empty-heading {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.6rem;
+  margin: 0 0 8px;
+}
+
+@media print {
+  .no-print,
+  .site-header,
+  .site-footer,
+  .preview-bar,
+  .skip-link,
+  .page-hero-link {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+    color: #111;
+  }
+
+  main {
+    padding: 0;
+  }
+
+  .wrap {
+    max-width: none;
+    padding: 0;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  .check-box {
+    border-color: #111;
+  }
+
+  .check-list li,
+  .print-page {
+    border-color: #ccc;
+    box-shadow: none;
+    break-inside: avoid;
+  }
+
+  .poster {
+    border: none;
+    box-shadow: none;
+    margin: 0;
+    max-width: 100%;
+    padding: 0;
+  }
+
+  @page {
+    margin: 1.5cm;
+  }
+}
+
 /* "Report a problem with this listing": last in the permit section, quiet
    on purpose. --muted on the section: about 5.6:1 light, 5.9:1 dark. */
 .k-report {
@@ -5506,6 +5715,55 @@ main[tabindex="-1"]:focus {
 .sample-card-frame {
   max-width: 360px;
   margin: 22px 0;
+}
+
+/* kitchens.html's live preview form ("See your listing, live"): five
+   optional fields that re-render the sample card above on every keystroke
+   (see initKitchensPreviewForm in app.js). Nothing here is submitted. */
+.preview-form {
+  margin: 18px 0 4px;
+  padding: 18px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+}
+
+.preview-form-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.preview-form .field input,
+.preview-form .field select {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--field-line);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.preview-form .field select {
+  padding-right: 30px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.preview-form .field input:focus-visible,
+.preview-form .field select:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-color: var(--accent-strong);
+}
+
+.preview-note {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink-2);
 }
 
 .pitch-card .glyph svg {

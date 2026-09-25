@@ -1,5 +1,73 @@
 # Changelog
 
+## Round 32 — 2026-09-25
+
+Round 32: a kitchen-owner toolkit, all static, no backend, no libraries.
+
+- Fixed the footer note ("Preview build with sample listings…") that Round
+  31 left showing in launch state. The home page now swaps it for the
+  truthful half of the sentence ("Tiffin Finder does not take orders or
+  payments and is not the seller of any meal.") whenever the site has zero
+  kitchens live, the same way it already hides the preview bar. Static
+  pages (which never load `kitchens.json`, so can't key a toggle off it)
+  carry that same neutral, always-true sentence directly, dropping the
+  preview-specific claim rather than risk it going stale.
+- New printable "What we need from you" one-pager: `kitchens-checklist.html`,
+  linked from `kitchens.html`. Mirrors `docs/adding-a-kitchen.md` in plain,
+  fill-in-by-hand language (kind of place, name, cuisine, contact,
+  pickup/delivery and precision, prices, trial week, capacity, this week's
+  menu, permit, written consent), with a brand header (the mascot) and a
+  clean `@media print` stylesheet — no header/nav chrome, large printable
+  checkboxes, one page's worth of margin.
+- New consent form template: `kitchens-consent.html`, linked from
+  `kitchens.html` and the checklist. Plain-language and PIPA-aware: what
+  shows publicly, what never does (home address unless "Exact" pickup is
+  chosen), how pickup precision works, how to change or remove a listing
+  (email, 48-hour target), that Tiffin Finder is free with no commission,
+  and a visible "Draft — a lawyer should review this wording" note at the
+  top (the existing `.callout-draft` style already used on privacy/terms).
+  Printable, sign-in-person or by text/email.
+- `kitchens.html`'s "What your listing looks like" is now "See your
+  listing, live": a small form (kitchen name, cuisine, area, pickup or
+  delivery, price per day) that re-renders the sample card in real time
+  using the same `kitchenCard()` every list and map card uses, labelled
+  "Preview only — nothing is sent". Nothing leaves the device; nothing is
+  stored between visits.
+- Share kit on a kitchen's own solo page (`?k=<slug>&solo=1`): a "Share
+  your listing" panel with copy-ready WhatsApp status text ("Find our
+  tiffin on Tiffin Finder: <link>" — distinct from the customer-facing
+  `orderMessage()` text, which still always starts "Hi, I found you on
+  Tiffin Finder."), the link itself, and a link to the new printable
+  poster, each with its own Copy button (clipboard with a select-to-copy
+  fallback, matching the existing Share panel's pattern).
+- New printable poster page: `poster.html?k=<slug>` (mascot, kitchen name,
+  the kitchen's own link in large text, a "Print this poster" button, a
+  clean print stylesheet). Its own small script, `poster.js`, looks the
+  kitchen up in `data/kitchens.json` client-side — no routing, no order
+  sheet, just enough to fill in one page.
+- **QR code: skipped this round.** A hand-written, dependency-free QR
+  encoder (byte mode, error correction M) is well-documented and feasible
+  in principle, but this round didn't have room to also build the
+  independent decode-and-verify step (rendering the output and checking it
+  against a reference decoder, or a published test-vector match) needed to
+  *prove* it produces scannable codes before shipping it — an unscannable
+  QR code on a printed poster is worse than no code at all. The poster
+  ships with the plain link in large, readable text instead, as the brief
+  allowed; QR stays a candidate for a future round with room for that
+  verification step.
+- `kitchens.html` FAQ: two new answers — what happens when a permit
+  expires ("Permit being re-checked", ordering pauses, listing stays up),
+  and changing pickup precision later (yes, any time, by email, 48-hour
+  target — matching `docs/takedown-and-updates.md`'s existing promise).
+- `sitemap.xml` gained the two printable pages (not `poster.html`, which
+  needs a `?k=` to mean anything and isn't meant for search). Printables
+  aren't in the service worker's precache list on purpose — they're tools
+  for the moment, not app-shell pages.
+- `tools/check_ship.py` now also scans `poster.js` for banned phrases, the
+  old outreach phone number, DOM-safety issues and secrets, the same as
+  `app.js` and `early.js`.
+- `sw.js` `VERSION` bumped to `tf-v1.39.0` (every `?v=` bumped to match).
+
 ## Round 31 — 2026-09-25
 
 Round 31: the Round 30 launch rehearsal found two honesty problems and the

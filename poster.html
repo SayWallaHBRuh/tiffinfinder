@@ -2,30 +2,12 @@
 <html lang="en-CA">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-7+28wn6pdLDm9NgAY9XG1CdC7HtTNrSTUsixXFKFghs=' 'sha256-J+xASHBHcj7Z6purppfpjdA1vHzePKJOoH6E7b+cYeE='; style-src 'self' 'sha256-IqfkmgGo4pD588HBc/HirBdQq8+wUSDdOHiYbSwdFno=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <script>
-  /* The service worker serves this page, offline, for any address it has
-     no saved copy of, at any depth. Set <base> to the app root before any
-     relative URL below is read, so styles, scripts, icons and links resolve
-     from the site root. Data-free; on file:// it does nothing and the page
-     stays relative. */
-  (function () {
-    var l = window.location;
-    if (l.protocol !== 'http:' && l.protocol !== 'https:') return;
-    var p = l.pathname, base;
-    var i = p.lastIndexOf('/offline.html');
-    if (i !== -1 && i === p.length - 13) base = p.slice(0, i + 1);
-    else if (/\.github\.io$/i.test(l.hostname)) { var s = p.split('/').filter(Boolean); base = s.length ? '/' + s[0] + '/' : '/'; }
-    else base = '/';
-    var b = document.createElement('base');
-    b.href = l.origin + base;
-    document.head.appendChild(b);
-  })();
-  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>You’re offline — Tiffin Finder</title>
+  <title>Poster — Tiffin Finder</title>
   <meta name="robots" content="noindex">
+  <meta name="description" content="A printable poster with your Tiffin Finder link, for your counter or window.">
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#1f5c3a">
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101a14">
   <meta name="color-scheme" content="light dark">
@@ -34,74 +16,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&family=Baloo+2:wght@800&display=swap">
-  <!-- Critical fallback. The base script above normally makes styles.css load
-       even at deep paths; this block keeps the page composed if JavaScript is
-       off at a deep path or the stylesheet fails. styles.css comes later, so it
-       wins whenever it loads (including showing the header buttons). -->
-  <style>
-    :root { color-scheme: light dark; }
-    *, *::before, *::after { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; background: #fbf7ef; color: #17271d; font-family: "Manrope", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.55; -webkit-font-smoothing: antialiased; }
-    @media (prefers-color-scheme: dark) { body { background: #101a14; color: #eef2ec; } .btn-secondary { background: #18261e; border-color: #3a4f42; color: #eef2ec; } .dabba-tile { background: #3a2a17; } .eyebrow { color: #f4b36a; } .site-footer { background: #14211a; border-color: #2a3b31; } }
-    main { flex: 1 0 auto; }
-    svg { display: block; }
-    .wrap { width: 100%; max-width: 1120px; margin-inline: auto; padding-inline: 16px; }
-    .header-inner { display: flex; align-items: center; gap: 18px; min-height: 64px; }
-    .brand { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; text-decoration: none; color: inherit; }
-    .logo { width: 40px; height: 40px; }
-    .footer-brand .logo { width: 32px; height: 32px; }
-    .wordmark { font-family: "Baloo 2", "Fraunces", Georgia, serif; font-weight: 800; font-size: 1.25rem; line-height: 1; white-space: nowrap; }
-    .wordmark .wm-a { color: #2b1f1a; }
-    .wordmark .wm-b { color: #e8871e; }
-    .wordmark .wm-i { position: relative; display: inline-block; }
-    .wordmark .wm-i::after { content: ""; position: absolute; left: 50%; top: .13em; width: .2em; height: .2em; margin-left: -.1em; border-radius: 50%; background: #e8871e; }
-    @media (prefers-color-scheme: dark) { .wordmark .wm-a { color: #fbf2e4; } }
-    .site-nav { display: flex; gap: 18px; margin-left: auto; }
-    .site-nav a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; font-size: 0.95rem; text-decoration: none; color: inherit; }
-    .notfound { text-align: center; padding: 64px 16px 80px; }
-    .notfound h1 { font-family: "Fraunces", "Iowan Old Style", Georgia, serif; font-weight: 600; font-size: clamp(1.9rem, 1.3rem + 3vw, 3.1rem); line-height: 1.12; letter-spacing: -0.012em; margin: 0 0 0.5em; text-wrap: balance; }
-    .eyebrow { margin: 0; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #8a4a0b; }
-    .dabba-tile { display: grid; place-items: center; width: 92px; height: 92px; margin: 0 auto 20px; border-radius: 26px; background: #fce9d2; }
-    .dabba { width: 64px; height: 64px; }
-    .page-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 18px 0; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 10px 20px; border-radius: 999px; border: 1px solid transparent; font-weight: 700; font-size: 0.97rem; text-decoration: none; color: #17271d; background: #f7f1e6; }
-    .btn-primary { background: #e8912d; }
-    .btn-secondary { background: #ffffff; border-color: #cfc4ae; }
-    .site-footer { border-top: 1px solid #e4dccb; background: #f4ede0; font-size: 0.93rem; }
-    .footer-inner { display: grid; gap: 16px; padding-block: 32px 28px; }
-    .footer-brand p, .footer-copy { margin: 0; color: #5c6b60; }
-    @media (prefers-color-scheme: dark) { .footer-brand p, .footer-copy { color: #93a398; } }
-    .footer-nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 2px 20px; }
-    .footer-nav a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; text-decoration: none; color: inherit; }
-    .menu-btn, .theme-toggle { display:none; }
-  </style>
   <script src="./early.js?v=tf-v1.39.0"></script>
   <link rel="stylesheet" href="./styles.css?v=tf-v1.39.0">
-  <script src="./app.js?v=tf-v1.39.0" defer></script>
-  <script type="speculationrules">
-  {
-    "prefetch": [
-      {
-        "source": "document",
-        "where": {
-          "and": [
-            { "href_matches": "/*" },
-            { "not": { "href_matches": { "search": "*demo=1*" } } },
-            { "not": { "selector_matches": "[href^=\"mailto:\"]" } },
-            { "not": { "selector_matches": "[href^=\"tel:\"]" } },
-            { "not": { "selector_matches": "[href^=\"https://wa.me/\"]" } }
-          ]
-        },
-        "eagerness": "moderate"
-      }
-    ]
-  }
-  </script>
+  <script src="./poster.js?v=tf-v1.39.0" defer></script>
 </head>
-<body data-page="offline">
+<body data-page="poster">
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <header class="site-header">
+  <header class="site-header no-print">
     <div class="wrap header-inner">
       <a class="brand" href="./" aria-label="Tiffin Finder home">
         <svg class="logo" viewBox="0 0 400 400" aria-hidden="true" focusable="false"><circle cx="200" cy="210" r="134" fill="#f39a2b"/>
@@ -133,22 +55,17 @@
         <a href="./kitchens.html">For kitchens</a>
         <a href="./permitted.html">How permits work</a>
       </nav>
-      <div class="header-actions">
-        <button type="button" class="icon-btn theme-toggle" id="theme-toggle" aria-label="Switch to dark theme">
-          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>
-          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
-        </button>
-        <button type="button" class="icon-btn menu-btn" id="menu-btn" aria-label="Menu" aria-expanded="false" aria-controls="nav-sheet">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h11"/></svg>
-        </button>
-      </div>
     </div>
   </header>
 
-  <main id="main" tabindex="-1">
-    <div class="wrap notfound">
-      <div class="dabba-tile large mascot-tile" aria-hidden="true">
-        <svg class="dabba mascot-glyph" viewBox="0 0 400 400" focusable="false"><circle cx="200" cy="210" r="134" fill="#f39a2b"/>
+  <main id="main">
+    <div class="wrap">
+      <h1 class="visually-hidden">Poster</h1>
+      <p class="fine no-print poster-crumb"><a href="./kitchens.html">For kitchens</a> · Poster</p>
+
+      <div class="poster print-page" id="poster-mount" hidden>
+        <div class="dabba-tile large mascot-tile" aria-hidden="true">
+          <svg class="dabba mascot-glyph" viewBox="0 0 400 400" focusable="false"><circle cx="200" cy="210" r="134" fill="#f39a2b"/>
 <g transform="translate(0 118.7)"><path d="M200 98.0C174.8 67.2 144 34.7 144 0a56 56 0 0 1 112 0c0 34.7-30.8 67.2-56 98.0Z" fill="#ff7a45" stroke="#2b1f1a" stroke-width="6" stroke-linejoin="round"/><circle cx="200" cy="0" r="20.2" fill="#fff" stroke="#2b1f1a" stroke-width="6"/><path d="M159.7 -14.0a44.8 44.8 0 0 1 23.5-25.8" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/></g>
 <path d="M139.0 258V248C139.0 210.1 261.0 210.1 261.0 248V258" fill="none" stroke="#2b1f1a" stroke-width="15" stroke-linecap="round"/>
 <path d="M139.0 258V248C139.0 210.1 261.0 210.1 261.0 248V258" fill="none" stroke="#b9c1c7" stroke-width="9" stroke-linecap="round"/>
@@ -171,18 +88,27 @@
 <circle cx="185.4" cy="309.0" r="1.6" fill="#fff"/><circle cx="217.4" cy="309.0" r="1.6" fill="#fff"/>
 <path d="M192.5 318.0q7.5 6.5 15 0" fill="none" stroke="#2b1f1a" stroke-width="3.8" stroke-linecap="round"/>
 <ellipse cx="172" cy="318.0" rx="5" ry="3" fill="#f7a9a0"/><ellipse cx="228" cy="318.0" rx="5" ry="3" fill="#f7a9a0"/></svg>
+        </div>
+        <p class="poster-name" id="poster-name">Loading your kitchen…</p>
+        <p class="poster-tagline" id="poster-tagline">Order on WhatsApp — find our plans at the link below</p>
+        <p class="poster-link-box" id="poster-link" aria-hidden="true"></p>
+        <p class="poster-actions no-print"><a class="btn btn-primary" id="poster-wa-link" href="./">Open our Tiffin Finder page</a></p>
+        <p class="poster-note" id="poster-sample-note" hidden>Sample poster, made up for testing — not a real kitchen.</p>
+        <p class="poster-note">Free and permit-checked on Tiffin Finder. Tiffin Finder does not take orders or payments.</p>
+        <p class="page-actions no-print">
+          <button type="button" class="btn btn-secondary" id="poster-print">Print this poster</button>
+        </p>
       </div>
-      <p class="eyebrow">No connection</p>
-      <h1>You’re offline</h1>
-      <p>This page hasn’t been saved on this device yet, so it needs a connection to open. Pages you’ve opened before usually still work.</p>
-      <div class="page-actions">
-        <button type="button" class="btn btn-primary" id="offline-retry">Try again</button>
-        <a class="btn btn-secondary" href="./">Go to the home page</a>
+
+      <div class="empty no-print" id="poster-empty">
+        <p class="poster-empty-heading">Poster not ready</p>
+        <p id="poster-empty-text">Open this page with your own link, for example <code>poster.html?k=your-kitchen</code>. Ask Adeel if you don't have yours yet.</p>
+        <p class="page-actions"><a class="btn btn-primary" href="./kitchens.html">For kitchens</a></p>
       </div>
     </div>
   </main>
 
-  <footer class="site-footer">
+  <footer class="site-footer no-print">
     <div class="wrap footer-inner">
       <div class="footer-brand">
         <a class="brand" href="./" aria-label="Tiffin Finder home">
@@ -217,34 +143,14 @@
         <ul>
           <li><a href="./about.html">About</a></li>
           <li><a href="./kitchens.html">For kitchens</a></li>
-          <li><a href="./permitted.html">How permits work</a></li>
-          <li><a href="./guide.html">Tiffin 101 guide</a></li>
           <li><a href="./terms.html">Terms</a></li>
           <li><a href="./privacy.html">Privacy</a></li>
         </ul>
       </nav>
+      <p class="footer-note">Tiffin Finder does not take orders or payments and is not the seller of any meal.</p>
       <p class="footer-copy">© 2026 Tiffin Finder · Calgary, Alberta. All rights reserved.</p>
     </div>
   </footer>
 
-  <div class="sheet nav-sheet" id="nav-sheet" hidden>
-    <button type="button" class="sheet-backdrop" tabindex="-1" aria-label="Close menu" data-close-nav></button>
-    <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="nav-sheet-title">
-      <div class="sheet-handle" aria-hidden="true"></div>
-      <div class="nav-sheet-head">
-        <h2 id="nav-sheet-title">Menu</h2>
-        <button type="button" class="icon-btn" data-close-nav aria-label="Close menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-      </div>
-      <nav aria-label="Site">
-        <ul class="nav-sheet-list">
-          <li><a href="./" data-nav="browse">Browse kitchens <svg class="nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg></a></li>
-          <li><a href="./kitchens.html" data-nav="kitchens">For kitchens <svg class="nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg></a></li>
-          <li><a href="./permitted.html" data-nav="permitted">How permits work <svg class="nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg></a></li>
-          <li><a href="./guide.html" data-nav="guide">Tiffin 101 guide <svg class="nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg></a></li>
-          <li><a href="./about.html" data-nav="about">About <svg class="nav-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg></a></li>
-        </ul>
-      </nav>
-    </div>
-  </div>
 </body>
 </html>

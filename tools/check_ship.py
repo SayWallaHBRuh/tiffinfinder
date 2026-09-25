@@ -147,7 +147,7 @@ def scan_targets():
     targets = []
     for f in HTML_FILES:
         targets.append(os.path.join(ROOT, f))
-    for f in ('app.js', 'early.js'):
+    for f in ('app.js', 'early.js', 'poster.js'):
         p = os.path.join(ROOT, f)
         if os.path.isfile(p):
             targets.append(p)
@@ -334,7 +334,7 @@ def check_h1_counts():
 # ---------------------------------------------------------------------------
 def check_dom_safety():
     hits = []
-    js_files = [os.path.join(ROOT, f) for f in ('app.js', 'early.js')
+    js_files = [os.path.join(ROOT, f) for f in ('app.js', 'early.js', 'poster.js')
                 if os.path.isfile(os.path.join(ROOT, f))]
     for path in js_files:
         text = read_text(path)

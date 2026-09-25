@@ -54,7 +54,7 @@ once there are real kitchens — and report anything that doesn't answer:
 1. Push this folder to a repository (for example `tiffinfinder`) on the `main` branch.
 2. In the repo, open **Settings → Pages**, choose **Deploy from a branch**, pick `main` and `/ (root)`, and save.
 3. The site is served at the custom domain in `CNAME` (<https://tiffinfinder.ca>), and also works at `https://<your-user>.github.io/tiffinfinder/`.
-4. When you change any file, bump `VERSION` in `sw.js`, and set the same value in the `?v=` on `styles.css`, `app.js` and `early.js` in every page (index, about, kitchens, permitted, guide, privacy, terms, 404, offline), so visitors never get old styles or scripts.
+4. When you change any file, bump `VERSION` in `sw.js`, and set the same value in the `?v=` on `styles.css`, `app.js` and `early.js` in every page (index, about, kitchens, kitchens-checklist, kitchens-consent, poster, permitted, guide, privacy, terms, 404, offline), so visitors never get old styles or scripts.
 
 ## Showing or hiding the sample kitchens
 

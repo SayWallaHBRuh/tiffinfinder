@@ -37,9 +37,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&family=Baloo+2:wght@800&display=swap">
-  <script src="./early.js?v=tf-v1.38.0"></script>
-  <link rel="stylesheet" href="./styles.css?v=tf-v1.38.0">
-  <script src="./app.js?v=tf-v1.38.0" defer></script>
+  <script src="./early.js?v=tf-v1.39.0"></script>
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.39.0">
+  <script src="./app.js?v=tf-v1.39.0" defer></script>
   <script type="speculationrules">
   {
     "prefetch": [
@@ -156,9 +156,56 @@
           </div>
         </div>
 
-        <h2 id="sample">What your listing looks like</h2>
-        <p>This is the same card every household sees in the list and on the map, built with a made-up kitchen so you can see it before yours goes up. It's clearly marked <strong>Sample listing</strong> — tap the name to see the full page it links to.</p>
+        <h2 id="sample">See your listing, live</h2>
+        <p>This is the same card every household sees in the list and on the map. Try your own name, cuisine, area, service and price below — the card updates as you type, right in your browser. <strong>Preview only — nothing is sent or saved.</strong> It's clearly marked <strong>Sample listing</strong>; tap the name to see the full page it links to.</p>
+        <form class="preview-form" id="kitchens-preview-form" aria-label="Try your own listing details">
+          <div class="preview-form-grid">
+            <div class="field">
+              <label for="preview-name">Kitchen name</label>
+              <input type="text" id="preview-name" maxlength="60" placeholder="Saffron Lane Rasoi" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="preview-cuisine">Cuisine</label>
+              <select id="preview-cuisine">
+                <option value="Punjabi">Punjabi</option>
+                <option value="Gujarati">Gujarati</option>
+                <option value="South Indian">South Indian</option>
+                <option value="Pakistani">Pakistani</option>
+                <option value="Afghan">Afghan</option>
+                <option value="Bengali">Bengali</option>
+                <option value="Jain">Jain</option>
+                <option value="Hyderabadi">Hyderabadi</option>
+                <option value="Nepali">Nepali</option>
+                <option value="Sri Lankan">Sri Lankan</option>
+                <option value="Filipino">Filipino</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="preview-area">Area</label>
+              <select id="preview-area">
+                <option value="NE|Saddle Ridge">NE · Saddle Ridge</option>
+                <option value="NW|Royal Oak">NW · Royal Oak</option>
+                <option value="SE|Forest Lawn">SE · Forest Lawn</option>
+                <option value="SW|Evergreen">SW · Evergreen</option>
+                <option value="Airdrie|Bayside">Airdrie · Bayside</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="preview-service">Pickup or delivery</label>
+              <select id="preview-service">
+                <option value="pickup">Pickup</option>
+                <option value="delivery">Delivery</option>
+                <option value="both" selected>Pickup &amp; delivery</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="preview-price">Price per day ($)</label>
+              <input type="number" id="preview-price" min="1" max="999" step="1" placeholder="13" inputmode="numeric">
+            </div>
+          </div>
+        </form>
         <div class="sample-card-frame">
+          <p class="preview-note">Preview only — nothing is sent</p>
           <div class="grid" id="kitchens-sample-mount" aria-label="Sample listing preview"></div>
         </div>
 
@@ -226,6 +273,7 @@
           <a class="btn btn-secondary" href="./permitted.html">How permits work</a>
         </div>
         <p class="fine">Opens in your email app addressed to <a href="./about.html#contact">sitesbyadeel@gmail.com</a>. Prefer to write your own note instead? That address works just as well.</p>
+        <p class="fine">Prefer paper? Print the <a href="./kitchens-checklist.html">What we need from you</a> one-pager and fill it out by hand, and the <a href="./kitchens-consent.html">listing consent form</a> to sign.</p>
       </article>
     </div>
 
@@ -260,6 +308,14 @@
           <div class="faq-item is-open">
             <h3 class="faq-q"><button type="button" id="faq-q-k-privacy" aria-expanded="true" aria-controls="faq-a-k-privacy"><span>Is my location kept private?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
             <div class="faq-a" id="faq-a-k-privacy" role="region" aria-labelledby="faq-q-k-privacy"><div class="faq-a-inner"><p>Yes. You choose how your pickup spot shows: your exact address, the nearest intersection, or your neighbourhood only. We never show a home address, and you can ask us to change or remove it at any time.</p></div></div>
+          </div>
+          <div class="faq-item is-open">
+            <h3 class="faq-q"><button type="button" id="faq-q-k-expiry" aria-expanded="true" aria-controls="faq-a-k-expiry"><span>What happens when my permit expires?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
+            <div class="faq-a" id="faq-a-k-expiry" role="region" aria-labelledby="faq-q-k-expiry"><div class="faq-a-inner"><p>Your badge changes to “Permit being re-checked” and ordering pauses until we've confirmed it again — your listing stays up, it just isn't taking orders in the meantime. Send us your renewed permit and we'll check it and turn ordering back on.</p></div></div>
+          </div>
+          <div class="faq-item is-open">
+            <h3 class="faq-q"><button type="button" id="faq-q-k-precision" aria-expanded="true" aria-controls="faq-a-k-precision"><span>Can I change my pickup precision later?</span><svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></h3>
+            <div class="faq-a" id="faq-a-k-precision" role="region" aria-labelledby="faq-q-k-precision"><div class="faq-a-inner"><p>Yes, any time — switch between exact address, nearest intersection or neighbourhood-only whenever you like. Email <a href="./about.html#contact">sitesbyadeel@gmail.com</a>; our target is to make the change within 48 hours.</p></div></div>
           </div>
         </div>
       </div>
@@ -307,7 +363,7 @@
           <li><a href="./privacy.html">Privacy</a></li>
         </ul>
       </nav>
-      <p class="footer-note">Preview build with sample listings. Tiffin Finder does not take orders or payments and is not the seller of any meal.</p>
+      <p class="footer-note">Tiffin Finder does not take orders or payments and is not the seller of any meal.</p>
       <p class="footer-copy">© 2026 Tiffin Finder · Calgary, Alberta. All rights reserved.</p>
     </div>
   </footer>
