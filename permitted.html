@@ -37,9 +37,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&family=Baloo+2:wght@800&display=swap">
-  <script src="./early.js?v=tf-v1.33.0"></script>
-  <link rel="stylesheet" href="./styles.css?v=tf-v1.33.0">
-  <script src="./app.js?v=tf-v1.33.0" defer></script>
+  <script src="./early.js?v=tf-v1.34.0"></script>
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.34.0">
+  <script src="./app.js?v=tf-v1.34.0" defer></script>
   <script type="speculationrules">
   {
     "prefetch": [
@@ -129,11 +129,13 @@
       </div>
     </section>
 
-    <div class="wrap">
-      <article class="prose">
-        <div class="callout" role="note"><p><strong>General information, not legal advice.</strong> Confirm everything here with AHS Environmental Public Health (<a href="tel:+18334764743">1-833-476-4743</a>) and the City of Calgary before you act on it.</p></div>
-
-        <ul class="toc" aria-label="On this page">
+    <div class="wrap page-with-toc">
+      <nav class="page-toc" aria-label="On this page">
+        <button type="button" class="page-toc-toggle" id="page-toc-toggle" aria-expanded="false" aria-controls="page-toc-list">
+          <span>On this page</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <ul class="page-toc-list" id="page-toc-list" hidden>
           <li><a href="#short-version">The short version</a></li>
           <li><a href="#path">Your path to a permit</a></li>
           <li><a href="#exemption">The home-food exemption</a></li>
@@ -141,8 +143,12 @@
           <li><a href="#fees">Fees and timelines</a></li>
           <li><a href="#inspection-records">Inspection records</a></li>
           <li><a href="#who-to-call">Who to call</a></li>
+          <li><a href="#what-we-check">What Tiffin Finder checks</a></li>
           <li><a href="#sources">Sources</a></li>
         </ul>
+      </nav>
+      <article class="prose">
+        <div class="callout" role="note"><p><strong>General information, not legal advice.</strong> Confirm everything here with AHS Environmental Public Health (<a href="tel:+18334764743">1-833-476-4743</a>) and the City of Calgary before you act on it.</p></div>
 
         <h2 id="short-version">The short version</h2>
         <p>AHS says commercial food businesses, including caterers and home-based businesses that prepare high-risk foods, need an <strong>AHS Food Handling Permit</strong>, issued after an approval inspection. Caterers need the permit for an <strong>approved kitchen</strong> where they prepare their food. Alberta’s Food Regulation exempts only low-risk home-prepared food, so a home kitchen making high-risk food, or food containing meat, poultry, seafood or unpasteurized milk, still needs a permit and an approved food establishment. In Calgary you also need a City business licence, <strong>Food Service – Premises</strong>. Tiffin Finder lists only kitchens with a permit for the kitchen they cook in.</p>

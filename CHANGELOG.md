@@ -1,5 +1,51 @@
 # Changelog
 
+## Round 27 — 2026-09-25
+
+Round 27: a type/spacing rhythm pass, brand-coloured focus rings and
+selected states, small icons for the four kitchen types, and a sticky
+"On this page" contents nav for the two long guide pages (see
+`plans/ui-backlog.md` items 3, 10, 13, 15).
+
+- Type and spacing rhythm (item 3): named the site's font-size and
+  spacing steps as CSS custom properties (`--fs-h1/h2/h3`, `--space-1`
+  through `--space-9`) instead of the same numbers written out in each
+  rule, and wired the base `h1`/`h2`/`h3`, `.section-head` and `.prose`
+  padding/measure to them -- no visual change, just one named place for
+  the scale future rounds should read off. Prose measure trimmed from
+  70ch to the requested 68ch.
+- Brand accent on focus rings and selected states (item 10, deferred from
+  Round 20): the light theme's default focus ring was plain ink-black;
+  it's now a darkened brand coral, `#c1481f` (a burnt-coral in the same
+  hue family as the mascot's `#ff7a45`, darkened until it clears 3:1 on
+  every surface it can land on -- checked with Python: 4.0-5.5:1 across
+  `--bg`/`--surface`/`--surface-2`/`--surface-3`/`--accent-soft`, 4.2:1 on
+  `--map-bg`). Dark theme already used `--accent-strong` (a saffron,
+  6.8-10:1 on the same surfaces) for its focus ring -- left as-is and
+  documented with the same numbers. Selected filter chips keep their
+  forest-green fill (coral text/fill on green fails AA at this size) but
+  now carry a slim coral/saffron ring instead of a green-on-green border,
+  and the List/Map segmented toggle's selected tab gets a matching coral
+  underline. The two dark-theme token blocks stay identical.
+- Business-type icons (item 13): a small `icons/types.svg` sprite (house,
+  fork-and-knife, cloche, warehouse -- one per `business_type`) sits next
+  to the existing "Home kitchen · permitted" / "Restaurant" / "Caterer" /
+  "Rented commercial kitchen" label, same on the card and the kitchen
+  page; the text label still carries the meaning, the icon is
+  `aria-hidden`.
+- Sticky table of contents (item 15): `guide.html` and `permitted.html`'s
+  flat row of jump-links is now a `<nav aria-label="On this page">`. At
+  >=1100px it's a sticky side rail next to the prose column with the
+  current section highlighted (new `initPageToc()` in `app.js`, an
+  `IntersectionObserver`); on phones it's a collapsed "On this page"
+  disclosure button at the top, aria-expanded/aria-controls wired to the
+  list. No smooth-scroll code was added -- the anchor jump uses the
+  page's existing `scroll-behavior` (already off under
+  `prefers-reduced-motion`).
+- Version bumped to `tf-v1.34.0` (styles, scripts and the service
+  worker's saved-files list all match; `icons/types.svg` added to the
+  precache list).
+
 ## Round 26 — 2026-09-25
 
 Round 26: a UI polish pass on empty states, trust badges, the sticky order

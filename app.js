@@ -644,6 +644,32 @@
     caterer: 'Caterer',
     commissary_cook: 'Rented commercial kitchen'
   };
+  /* business_type -> the symbol id in icons/types.svg. A tiny, consistent
+     glyph beside the label; never the only way the type is conveyed (the
+     text label always sits right next to it). */
+  var BUSINESS_TYPE_ICON = {
+    home_kitchen_permitted: 't-home',
+    restaurant: 't-restaurant',
+    caterer: 't-caterer',
+    commissary_cook: 't-commissary'
+  };
+
+  /* A tiny line icon from the icons/types.svg sprite, decorative only --
+     the type label text beside it already carries the meaning. */
+  function typeIcon(type) {
+    var id = BUSINESS_TYPE_ICON[type];
+    if (!id) return null;
+    var svg = svgEl('svg', {
+      viewBox: '0 0 24 24',
+      width: 14,
+      height: 14,
+      'aria-hidden': 'true',
+      focusable: 'false',
+      class: 'type-icon'
+    });
+    svg.appendChild(svgEl('use', { href: 'icons/types.svg#' + id }));
+    return svg;
+  }
 
   function normalizeDecisions(k) {
     k.business_type = BUSINESS_TYPES.indexOf(k.business_type) !== -1 ? k.business_type : '';
@@ -1249,7 +1275,12 @@
      food quality — just what kind of place it is. */
   function businessTypeChip(k) {
     var label = BUSINESS_TYPE_LABEL[k.business_type];
-    return label ? el('span', { class: 'type-label', text: label }) : null;
+    if (!label) return null;
+    var chip = el('span', { class: 'type-label' });
+    var glyph = typeIcon(k.business_type);
+    if (glyph) chip.appendChild(glyph);
+    chip.appendChild(el('span', { text: label }));
+    return chip;
   }
 
   /* "From $13/day · $75/week · $260/month", amounts in <strong>. */
@@ -5440,6 +5471,7 @@
     initClearData();
     initOfflinePage();
     initFaq();
+    initPageToc();
     renderKitchensSampleCard();
   }
 
@@ -5474,6 +5506,59 @@
         if (item) item.classList.toggle('is-open', open);
       });
     });
+  }
+
+  /* guide.html and permitted.html's "On this page" nav (.page-toc). Phones
+     get a collapsed disclosure the person opens by tapping the button;
+     >=1100px the CSS forces the list open as a sticky side rail and hides
+     the button, so this only needs to keep the button's own aria-expanded
+     state in sync on phones. IntersectionObserver adds aria-current to
+     the link for whichever section heading is nearest the top of the
+     viewport, honouring reduced motion by doing nothing motion-related at
+     all -- the anchor jump itself is plain CSS (scroll-behavior, which is
+     already turned off under prefers-reduced-motion). No-ops on every
+     other page. */
+  function initPageToc() {
+    var nav = document.querySelector('.page-toc');
+    var list = document.getElementById('page-toc-list');
+    if (!nav || !list) return;
+
+    var toggle = document.getElementById('page-toc-toggle');
+    if (toggle) {
+      toggle.addEventListener('click', function () {
+        var open = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!open));
+        list.hidden = open;
+      });
+    }
+
+    var links = Array.prototype.slice.call(list.querySelectorAll('a[href^="#"]'));
+    if (!links.length || typeof IntersectionObserver !== 'function') return;
+
+    var targets = [];
+    links.forEach(function (a) {
+      var target = document.getElementById(a.getAttribute('href').slice(1));
+      if (target) targets.push({ id: target.id, el: target, link: a });
+    });
+    if (!targets.length) return;
+
+    function setActive(id) {
+      targets.forEach(function (t) {
+        if (t.id === id) t.link.setAttribute('aria-current', 'true');
+        else t.link.removeAttribute('aria-current');
+      });
+    }
+
+    var visible = {};
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) { visible[entry.target.id] = entry.isIntersecting; });
+      for (var i = 0; i < targets.length; i++) {
+        if (visible[targets[i].id]) { setActive(targets[i].id); return; }
+      }
+    }, { rootMargin: '-88px 0px -72% 0px', threshold: 0 });
+
+    targets.forEach(function (t) { observer.observe(t.el); });
+    setActive(targets[0].id);
   }
 
   /* Demo mode (?demo=1 on the home page): every kitchen shows, samples

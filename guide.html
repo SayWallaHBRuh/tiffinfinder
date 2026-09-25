@@ -37,9 +37,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&family=Baloo+2:wght@800&display=swap">
-  <script src="./early.js?v=tf-v1.33.0"></script>
-  <link rel="stylesheet" href="./styles.css?v=tf-v1.33.0">
-  <script src="./app.js?v=tf-v1.33.0" defer></script>
+  <script src="./early.js?v=tf-v1.34.0"></script>
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.34.0">
+  <script src="./app.js?v=tf-v1.34.0" defer></script>
   <script type="speculationrules">
   {
     "prefetch": [
@@ -129,9 +129,13 @@
       </div>
     </section>
 
-    <div class="wrap">
-      <article class="prose">
-        <ul class="toc" aria-label="On this page">
+    <div class="wrap page-with-toc">
+      <nav class="page-toc" aria-label="On this page">
+        <button type="button" class="page-toc-toggle" id="page-toc-toggle" aria-expanded="false" aria-controls="page-toc-list">
+          <span>On this page</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <ul class="page-toc-list" id="page-toc-list" hidden>
           <li><a href="#what-is-tiffin">What a tiffin service is</a></li>
           <li><a href="#how-plans-work">How plans usually work</a></li>
           <li><a href="#how-to-choose">How to choose a kitchen</a></li>
@@ -141,6 +145,8 @@
           <li><a href="#dish-glossary">Not sure what a dish is?</a></li>
           <li><a href="#sources">Sources</a></li>
         </ul>
+      </nav>
+      <article class="prose">
 
         <h2 id="what-is-tiffin">What a tiffin service is</h2>
         <p>A <strong>tiffin</strong> (also called a <strong>dabba</strong>) is a home-style meal, usually cooked that day, carried or delivered in a stacked metal lunchbox — the tiffin carrier or dabba itself is typically two to four steel tiers that lock together with a handle. A tiffin <em>service</em> is a home kitchen or small caterer that cooks a rotating menu and sends it out to the same households on a regular schedule, instead of a one-off restaurant order.</p>

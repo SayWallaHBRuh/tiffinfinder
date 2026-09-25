@@ -51,7 +51,15 @@
   --pending-soft: #fce9d2;
   --danger: #a32d2d;
   --danger-soft: #fbe3e3;
-  --focus: var(--ink);
+  /* Brand coral focus ring (Round 27, deferred from Round 20): darkened
+     from the mascot's coral #ff7a45 so it clears 3:1 non-text contrast on
+     every plain-theme surface it can land on -- checked numerically:
+     4.0:1 on --surface-3 (the lowest), 4.2-5.5:1 on --bg/--surface/
+     --surface-2/--accent-soft, 4.2:1 on --map-bg. On-brand (green) areas
+     and the map/alerts/page-hero sections keep their own --on-brand-accent
+     override just below, already saffron and already >=4.5:1 there. */
+  --focus-brand: #c1481f;
+  --focus: var(--focus-brand);
   --inset-hi: transparent;
 
   --dabba-cream: #fbf7ef;
@@ -119,6 +127,35 @@
   --wrap: 1120px;
   --gutter: 16px;
   --header-h: 64px;
+
+  /* Round 27: a named spacing scale, mostly formalising the 4px-grid
+     values already used across cards/sections/prose (28px section
+     spacing, 8/12/16px gaps, etc.) so new rules pick a step instead of a
+     one-off number. Existing hand-tuned micro values (2px/3px icon
+     nudges, chip padding) are left as-is -- this scale is for section
+     and heading rhythm, not every pixel on the page. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-9: 48px;
+
+  /* A small type scale for headings, named after the sizes already in use
+     site-wide -- prose h2/h3, section heads and card titles all read off
+     this instead of a local literal. */
+  --fs-h1: clamp(1.9rem, 1.3rem + 3vw, 3.1rem);
+  --fs-h2: clamp(1.45rem, 1.15rem + 1.4vw, 2rem);
+  --fs-h3: 1.2rem;
+  --fs-body: 1rem;
+  --fs-small: 0.88rem;
+  --fs-caption: 0.8rem;
+
+  /* Comfortable reading measure for prose paragraphs and list text. */
+  --measure-prose: 68ch;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -163,7 +200,13 @@
     --pending-soft: #3a2a17;
     --danger: #ff8a8a;
     --danger-soft: #4a1f1f;
+    /* Brand saffron focus ring (Round 27): --accent-strong already reads as
+       the mascot's saffron in the dark palette and clears 3:1 by a wide
+       margin everywhere it lands -- checked: 6.8:1 on --surface-3 (lowest),
+       7.5-9.7:1 on --bg/--surface/--surface-2/--accent-soft, 10.0:1 on
+       --map-bg. */
     --focus: var(--accent-strong);
+    --focus-brand: var(--accent-strong);
     --inset-hi: rgb(255 255 255 / 0.06);
 
     --dabba-cream: #f3f0e6;
@@ -248,7 +291,13 @@
   --pending-soft: #3a2a17;
   --danger: #ff8a8a;
   --danger-soft: #4a1f1f;
+  /* Brand saffron focus ring (Round 27): --accent-strong already reads as
+     the mascot's saffron in the dark palette and clears 3:1 by a wide
+     margin everywhere it lands -- checked: 6.8:1 on --surface-3 (lowest),
+     7.5-9.7:1 on --bg/--surface/--surface-2/--accent-soft, 10.0:1 on
+     --map-bg. */
   --focus: var(--accent-strong);
+  --focus-brand: var(--accent-strong);
   --inset-hi: rgb(255 255 255 / 0.06);
 
   --dabba-cream: #f3f0e6;
@@ -345,15 +394,15 @@ h4 {
 }
 
 h1 {
-  font-size: clamp(1.9rem, 1.3rem + 3vw, 3.1rem);
+  font-size: var(--fs-h1);
 }
 
 h2 {
-  font-size: clamp(1.45rem, 1.15rem + 1.4vw, 2rem);
+  font-size: var(--fs-h2);
 }
 
 h3 {
-  font-size: 1.2rem;
+  font-size: var(--fs-h3);
 }
 
 p {
@@ -1459,7 +1508,11 @@ main[tabindex="-1"]:focus {
 
 .chip-group input:checked + label {
   background: var(--chip-on-bg);
-  border-color: var(--chip-on-bg);
+  /* Forest green stays the fill (kept per Round 27's contrast check --
+     coral text/fill on green fails AA); a slim brand-coral/saffron ring
+     ties the selected state to the mascot accent without touching the
+     fill's own contrast. */
+  border-color: var(--focus-brand, var(--chip-on-bg));
   color: var(--chip-on-ink);
 }
 
@@ -1767,7 +1820,7 @@ main[tabindex="-1"]:focus {
 .view-tabs {
   display: flex;
   gap: 6px;
-  margin-top: 28px;
+  margin-top: var(--space-7);
   padding: 4px;
   width: fit-content;
   max-width: 100%;
@@ -1900,6 +1953,21 @@ main[tabindex="-1"]:focus {
   color: var(--ink);
 }
 
+/* A slim brand-coral/saffron underline on the selected tab, on top of the
+   sliding white pill -- ties the toggle's selected state to the same
+   accent as the focus ring (--focus-brand), checked >=3:1 against
+   --surface just like the focus ring above. */
+.seg-btn[aria-pressed="true"]::after {
+  content: "";
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  bottom: 5px;
+  height: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--focus-brand);
+}
+
 .seg-btn:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
@@ -1916,8 +1984,8 @@ main[tabindex="-1"]:focus {
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: 8px 16px;
-  margin-top: 28px;
+  gap: var(--space-2) var(--space-4);
+  margin-top: var(--space-7);
 }
 
 .section-head h2 {
@@ -2291,6 +2359,7 @@ main[tabindex="-1"]:focus {
 .type-label {
   display: inline-flex;
   align-items: center;
+  gap: 5px;
   min-height: 20px;
   margin: -2px 0 2px;
   color: var(--muted);
@@ -2299,9 +2368,16 @@ main[tabindex="-1"]:focus {
   white-space: nowrap;
 }
 
+.type-label .type-icon {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  color: var(--muted);
+}
+
 .card-tags .type-label {
   margin: 0;
-  padding: 2px 9px;
+  padding: 2px 9px 2px 7px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--line-strong);
 }
@@ -5298,9 +5374,9 @@ main[tabindex="-1"]:focus {
 }
 
 .prose {
-  max-width: 70ch;
+  max-width: var(--measure-prose);
   margin-inline: auto;
-  padding-block: 32px 48px;
+  padding-block: var(--space-8) var(--space-9);
 }
 
 .prose h2 {
@@ -5631,6 +5707,132 @@ main[tabindex="-1"]:focus {
 .toc a:hover {
   color: var(--ink);
   border-color: var(--line-strong);
+}
+
+/* ---------- 14b. Page table of contents (guide.html, permitted.html) ----
+   Round 27: a "On this page" jump list for the two long, section-heavy
+   reference pages. Phones get a compact disclosure at the top of the
+   prose; >=1100px it becomes a sticky side rail beside the prose column.
+   Scroll-spy (app.js, IntersectionObserver) adds aria-current to the link
+   for the section currently in view. */
+.page-with-toc {
+  display: block;
+}
+
+.page-toc {
+  margin-bottom: var(--space-6);
+}
+
+.page-toc-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  width: 100%;
+  padding: 10px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.page-toc-toggle .chev {
+  margin-left: auto;
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  transition: transform var(--dur-1) var(--ease-out);
+  flex: none;
+}
+
+.page-toc-toggle[aria-expanded="true"] .chev {
+  transform: rotate(180deg);
+}
+
+.page-toc-toggle:hover {
+  border-color: var(--line-strong);
+}
+
+/* display isn't set here -- the [hidden] attribute (JS-controlled on
+   phones) hides it via the browser's own default; :not([hidden]) below
+   supplies flex only once it's shown, and the >=1100px rule forces it
+   open regardless of the attribute. */
+.page-toc-list {
+  flex-direction: column;
+  gap: 2px;
+  margin: 6px 0 0;
+  padding: 8px;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.page-toc-list:not([hidden]) {
+  display: flex;
+}
+
+.page-toc-list a {
+  display: block;
+  min-height: 40px;
+  padding: 8px 10px;
+  border-radius: var(--radius-xs);
+  color: var(--ink-2);
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: none;
+  line-height: 1.3;
+  transition: background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
+}
+
+.page-toc-list a:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+/* The active section: --focus-brand text on a soft tint, plus a coral rule
+   on the leading edge -- same brand accent as the focus ring (Round 27
+   item 10), not colour alone (the weight and background carry the state
+   too). Checked >=3:1 against --surface/--surface-2 like the focus ring. */
+.page-toc-list a[aria-current="true"] {
+  background: var(--accent-soft);
+  border-left: 3px solid var(--focus-brand);
+  padding-left: 7px;
+  color: var(--accent-ink);
+  font-weight: 800;
+}
+
+@media (min-width: 1100px) {
+  .page-with-toc {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    align-items: start;
+    gap: 40px;
+  }
+
+  .page-toc {
+    position: sticky;
+    top: calc(var(--header-h) + 24px);
+    margin-bottom: 0;
+    max-height: calc(100vh - var(--header-h) - 48px);
+    overflow-y: auto;
+  }
+
+  .page-toc-toggle {
+    display: none;
+  }
+
+  .page-toc-list {
+    display: flex !important;
+  }
+
+  .page-with-toc .prose {
+    margin-inline: 0;
+  }
 }
 
 .notfound {
