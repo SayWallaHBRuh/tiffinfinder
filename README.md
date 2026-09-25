@@ -13,6 +13,7 @@ The live site is **<https://tiffinfinder.ca>** (the `CNAME` file points GitHub P
 - **The order hand-off sheet** (Rounds 6 and 7). "Order on WhatsApp" and "Call" open a sheet with a message view and a call view. The message is built by `orderMessage()` in `app.js` and always starts "Hi, I found you on Tiffin Finder." Nothing is sent until the household sends it from their own WhatsApp or phone.
 - **Sample switch, demo and launch page** (Round 6). `show_samples` in `data/kitchens.json` hides the sample kitchens and shows the "Launching in NE Calgary" page; `?demo=1` shows the samples anyway. Every sample shows "Sample" / "Sample listing".
 - **The permit guide** (`permitted.html`, Round 8): what a home tiffin kitchen needs in Calgary, framed as "confirm with AHS" and "not legal advice".
+- **Tiffin 101** (`guide.html`, overnight round 3): a plain-language guide for households new to tiffin — what a tiffin service is, how plans and prices usually work, how to choose one, questions to ask a kitchen, and food-safety basics, all sourced and linked from `docs/research-notes.md`.
 - **Fresh pages, Share, a kitchen's own link and the report link** (Round 9). Pages are network-first; every kitchen page has Share; `?k=<slug>&solo=1` shows only that kitchen; and a "Report a problem with this listing" link stays hidden until a public contact address is set.
 - **Installable and offline.** Add it to the home screen; saved pages and the last kitchen list work without a connection.
 - **Round 10:** an accessibility pass (keyboard and screen-reader fixes), and versioned CSS/JS (`?v=<VERSION>`), so an update never serves old styles or scripts. The About page has no contact form (the contact email was added later, see the Update entry in CHANGELOG.md).
@@ -31,7 +32,7 @@ Open <http://localhost:8000/>. (The service worker registers on `localhost` and 
 1. Push this folder to a repository (for example `tiffinfinder`) on the `main` branch.
 2. In the repo, open **Settings → Pages**, choose **Deploy from a branch**, pick `main` and `/ (root)`, and save.
 3. The site is served at the custom domain in `CNAME` (<https://tiffinfinder.ca>), and also works at `https://<your-user>.github.io/tiffinfinder/`.
-4. When you change any file, bump `VERSION` in `sw.js`, and set the same value in the `?v=` on `styles.css`, `app.js` and `early.js` in every page (index, about, kitchens, permitted, privacy, terms, 404, offline), so visitors never get old styles or scripts.
+4. When you change any file, bump `VERSION` in `sw.js`, and set the same value in the `?v=` on `styles.css`, `app.js` and `early.js` in every page (index, about, kitchens, permitted, guide, privacy, terms, 404, offline), so visitors never get old styles or scripts.
 
 ## Showing or hiding the sample kitchens
 

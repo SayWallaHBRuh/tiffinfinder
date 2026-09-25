@@ -34,7 +34,7 @@
 
 'use strict';
 
-var VERSION = 'tf-v1.14.0';
+var VERSION = 'tf-v1.15.0';
 /* The query every page puts on styles.css, app.js and early.js (the pages
    carry the same literal ?v=<VERSION>). cacheFirst matches the exact URL,
    query included. */
@@ -53,6 +53,7 @@ var SHELL = [
   './early.js' + ASSET_Q,
   './manifest.webmanifest',
   './permitted.html',
+  './guide.html',
   './kitchens.html',
   './terms.html',
   './privacy.html',

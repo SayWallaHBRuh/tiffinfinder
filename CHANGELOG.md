@@ -129,3 +129,11 @@
 - Checked the first 10 sample kitchen names against real Calgary and Airdrie food businesses. No name clashes were found, so no kitchen was renamed.
 - The kitchens are still made-up samples for testing, each marked "Sample".
 - Service worker tf-v1.14.0.
+
+## Overnight round 3 — 2026-09-24
+
+- New page: `guide.html`, "Tiffin 101: how to choose a tiffin service in Calgary" — a plain-language guide for households who haven't ordered tiffin before. It covers what a tiffin (dabba) service is and a short, sourced history; how daily/weekly/monthly plans and trial weeks usually work, and what's typically in a meal; how to choose a kitchen (spice level, veg/halal/Jain and allergens, portion and roti count, delivery days, containers and returns); a checklist of questions to ask a kitchen before you start; food-safety basics a household can check, with the real Health Canada numbers for keeping food cold and reheating it safely; a pointer to the dish glossary on kitchen pages; and a sources list.
+- Every fact on the new page links to where it came from (Wikipedia for the tiffin/dabba/thali background, Health Canada for temperatures and timing), all checked 24 Sep 2026 and logged in `docs/research-notes.md`. Any price range on the page is labelled clearly as a typical range from this site's own sample listings, not a quote.
+- The guide is now linked from the phone Menu sheet and the footer on every page, and added to the sitemap.
+- The kitchens are still made-up samples for testing, each marked "Sample".
+- Service worker tf-v1.15.0.
