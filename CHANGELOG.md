@@ -1,5 +1,11 @@
 # Changelog
 
+## Round 17 — 2026-09-25
+
+- Replaced `og-image.png` (the picture shown when a Tiffin Finder link is shared on WhatsApp, Facebook, iMessage and similar) — it still had last round's old baked-in wording, "home tiffin kitchen(s)", left over from before the site listed every permitted kind of operator. The new image reads "Find a permit-checked tiffin kitchen in Calgary." and "Calgary · Permit-checked tiffins", matching `tools/og.html` (the design source, already updated last round) and carrying no "home kitchens only" claim.
+- New `tools/make_og.py` generates that image directly with Pillow — same 1200×630 size, same brand colours (from `styles.css`), same layout (wordmark, eyebrow, headline, sub-line, `tiffinfinder.ca` pill, stacked tiffin-carrier glyph) — instead of screenshotting `tools/og.html` with headless Edge/Chrome. It uses only Windows system fonts (Georgia Bold, Segoe UI Bold; no font files added to the repo) and saves well under WhatsApp's 300 KB limit (about 92 KB) with no separate re-save step needed. `README.md`'s "Link previews" section and Tools list now describe the new one-command way to regenerate it.
+- `og-image.png` isn't part of the offline app shell (`sw.js`'s precache list), so no version bump was needed this round.
+
 ## Round 16 — 2026-09-25
 
 - Wording pass to match Adeel's decisions: the site lists every permitted kind of tiffin operator, not home kitchens only, and pickup and delivery matter equally. Updated the tagline used across page titles, meta descriptions, social-share (Open Graph/Twitter) text, the shared footer line, the hero copy on the home page, and `manifest.webmanifest` from "permit-checked home tiffin kitchens" to "permit-checked tiffin kitchens", and worked "home cooks, restaurants and caterers" into the longer descriptions where there was room.
