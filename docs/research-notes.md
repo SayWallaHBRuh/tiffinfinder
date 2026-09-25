@@ -50,6 +50,56 @@ Dishes dropped from the sample menus because no reliable source could be confirm
 
 Checking method: Wikipedia refused direct automated requests from the build machine (HTTP 403), so each article was opened one at a time through a web reader and its opening description compared with the glossary line.
 
+## Dish glossary audit (overnight round 2)
+
+25 glossary entries were picked as the most likely to be vague, oversimplified, or otherwise worth re-checking, and each was compared against a reputable source. All checked **24 September 2026**.
+
+### Corrected
+
+- **Bhuna khichuri** (`khichuri`) — the description said "bhuna means fried until rich, here with beef", but khichuri/khichdi is a generic rice-and-lentil dish that is very often vegetarian; naming a specific protein inside a general glossary definition was misleading. Multiple sources describe bhuna khichuri's defining trait as its drier, pilaf-like texture from the "bhuna" (fried) step, not a required meat. Reworded to describe the texture instead of a protein. Sources: [Bhuna Khichuri, WithASpin](https://withaspin.com/2014/07/20/rainy-day-bhuna-khichuri/), [Bhuni khichuri, Rumki's Golden Spoon](https://rumkisgoldenspoon.com/bhuni-khichuri/) (accessed 2026-09-24).
+
+### Confirmed accurate, left as-is
+
+- **Shaak** — "the Gujarati word for a cooked vegetable dish" matches multiple Gujarati-cooking sources describing shaak/sabzi as the general term for cooked vegetable dishes. Source: [Gujarati Shaak Sabzi Recipes, Tarla Dalal](https://www.tarladalal.com/recipes-for-gujarati-shaak-sabzi-27) (accessed 2026-09-24).
+- **Dudhi** — "bottle gourd, a mild green vegetable" matches its use as an ingredient across Gujarati recipe sources. Source: [Dudhi (lauki, bottle gourd), Indiaphile](https://indiaphile.info/ingredients/dudhi-lauki-bottle-gourd/) (accessed 2026-09-24).
+- **Chettinad** — "a Tamil regional style known for bold, peppery spice blends" matches Wikipedia's description of a Nagarathar-community regional style built on freshly ground pepper, fennel, star anise and other spices. Source: [Chettinad cuisine, Wikipedia](https://en.wikipedia.org/wiki/Chettinad_cuisine) (accessed 2026-09-24).
+- **Khaman dhokla** (`dhokla`) — "a soft, spongy, steamed savoury cake from Gujarat" is accurate and general enough to cover both the khaman and dhokla families, which recipe sources treat as closely related steamed Gujarati cakes often sold under a combined name. Source: [Khaman vs Dhokla, Gulf Times](https://www.gulf-times.com/story/617645/Khaman-vs-dhokla-the-Gujarati-cuisine) (accessed 2026-09-24).
+- **Korma** — "meat or vegetables braised slowly with yogurt and spices into a thick sauce" matches Wikipedia's description of the Mughal-era braising technique. Source: [Korma, Wikipedia](https://en.wikipedia.org/wiki/Korma) (accessed 2026-09-24).
+- **Borhani** — "a spiced yogurt drink from Bangladesh, served with rich rice dishes" matches its description as a yogurt-based drink served alongside biryani and other rich dishes. Source: [Borhani, Wikipedia](https://en.wikipedia.org/wiki/Borhani) (accessed 2026-09-24).
+- **Bagara rice** — "Hyderabadi rice cooked with whole spices; bagara khana, often served with dalcha" matches Wikipedia's bagara khana article. Source: [Bagara khana, Wikipedia](https://en.wikipedia.org/wiki/Bagara_khana) (accessed 2026-09-24).
+- **Tamarind rice** — "rice mixed with a tangy tamarind, spice and peanut paste; puliyodarai in Tamil" matches the pulihora/puliyodarai preparation, which includes peanuts among the tempered seasonings mixed into the tamarind base. Source: [Pulihora, Wikipedia](https://en.wikipedia.org/wiki/Pulihora) (accessed 2026-09-24).
+- **Yellow rice** — "rice cooked with turmeric and spices; kaha bath in Sinhala" matches Wikipedia's Yellow rice article, which names kaha buth as the Sri Lankan form without asserting further ingredient specifics; kept general rather than adding an unconfirmed detail. Source: [Yellow rice, Wikipedia](https://en.wikipedia.org/wiki/Yellow_rice) (accessed 2026-09-24).
+- **Khatti dal** — "Hyderabadi sour dal, soured with tamarind and eaten with rice and pickle" matches recipe and reference sources on Hyderabadi khatti dal. Source: [Khatti Dal, Wikipedia](https://en.wikipedia.org/wiki/Khatti_Dal) (accessed 2026-09-24).
+- **Kadhi** — "a tangy curry of yogurt or buttermilk thickened with gram flour" matches the general description of kadhi/karhi across regional sources. Source: [Kadhi, Wikipedia](https://en.wikipedia.org/wiki/Kadhi) (accessed 2026-09-24).
+- **Kadhi pakora** — "a tangy yogurt and gram-flour curry with soft gram-flour fritters (pakoras) in it" matches the Punjabi kadhi pakora preparation, distinct from the plainer Gujarati kadhi entry. Source: [Punjabi Kadhi Pakora, Cook With Manali](https://www.cookwithmanali.com/punjabi-kadhi-pakora/) (accessed 2026-09-24).
+- **Sev tameta shaak** — "a tomato curry topped with crunchy gram-flour noodles (sev)" matches sev tameta nu shaak recipe sources. Source: [Sev Tamatar Ki Sabji, Dassana's Veg Recipes](https://www.vegrecipesofindia.com/sev-tameta-nu-shaak-recipe/) (accessed 2026-09-24).
+- **Challow** — "Afghan white rice cooked with mild spices so the grains stay separate" matches Wikipedia's challow article. Source: [Challow, Wikipedia](https://en.wikipedia.org/wiki/Challow) (accessed 2026-09-24).
+- **Shorwa** — "a simple Afghan soup of meat and vegetables" matches multiple sources describing shorwa as a meat-and-vegetable Afghan soup/stew. Source: [Shorwa- The Afghan Soup, Afghan Cooks](https://afghancooks.com/shorwa-the-afghan-soup/) (accessed 2026-09-24).
+- **Achar** — "a South Asian pickle of fruit or vegetables preserved with spices, oil or salt" matches Wikipedia's South Asian pickle article. Source: [South Asian pickle, Wikipedia](https://en.wikipedia.org/wiki/South_Asian_pickle) (accessed 2026-09-24).
+- **Pol sambol** — "freshly grated coconut ground with chilli, onion and lime" matches Wikipedia's pol sambol article. Source: [Pol sambol, Wikipedia](https://en.wikipedia.org/wiki/Pol_sambol) (accessed 2026-09-24).
+- **Kiri hodi** — "a mild, fragrant Sri Lankan coconut-milk gravy" matches Wikipedia's kiri hodi article. Source: [Kiri hodi, Wikipedia](https://en.wikipedia.org/wiki/Kiri_hodi) (accessed 2026-09-24).
+- **Ishtu** — "a mild Kerala stew of vegetables or meat in coconut milk, often eaten with appam" matches sources on Kerala appam-and-ishtu. Source: [Appam and Ishtu, My Diverse Kitchen](https://www.mydiversekitchen.com/appam-and-ishtu) (accessed 2026-09-24).
+- **Rezala** — "meat in a thin, fragrant gravy of yogurt and cardamom" matches the Wikipedia Rezala article's own wording almost exactly ("meat in a thin yogurt and cardamom gravy"). Source: [Rezala, Wikipedia](https://en.wikipedia.org/wiki/Rezala) (accessed 2026-09-24).
+- **Polao** — "fragrant rice cooked with ghee and whole spices, the Bengali pilaf" matches Bengali polao recipe sources describing ghee and whole-spice preparation. Source: [Basanti Pulao, Whiskaffair](https://www.whiskaffair.com/bengali-mishti-pulao-bengali-sweet-pulao/) (accessed 2026-09-24).
+- **Shak bhaji** — "leafy greens (shak) stir-fried with garlic and chilli" matches Bangladeshi shak bhaji preparation sources. Source: [Leafy Greens (Shak Bhaji), Vegan Bangla](https://veganbangla.com/category/vegan-bangla/traditional/leafy-greens-shak-bhaji-%E0%A6%B6%E0%A6%BE%E0%A6%95-%E0%A6%AD%E0%A6%BE%E0%A6%9C%E0%A6%BF/) (accessed 2026-09-24).
+- **Bhorta** — "mashed vegetables, such as potato or roasted aubergine, mixed with mustard oil and chilli" matches Bangladeshi bhorta sources. Source: [Aloo Bhorta, Bong Eats](https://www.bongeats.com/recipe/aloo-bhorta/) (accessed 2026-09-24).
+- **Haleem** — "a slow-cooked stew of meat, wheat and lentils, stirred until thick and smooth" matches the Hyderabadi haleem preparation (the entry is sourced to the Hyderabadi cuisine article, and Hyderabadi haleem specifically includes lentils, unlike the plainer Middle Eastern harees it descends from). Source: [Haleem, Wikipedia](https://en.wikipedia.org/wiki/Haleem) (accessed 2026-09-24).
+
+## Sample kitchen name check (overnight round 2)
+
+The first 10 sample kitchens in `data/kitchens.json` (array order) were each checked against currently-operating Calgary/Airdrie food businesses by searching `"<name>" Calgary` (or Airdrie for the Airdrie kitchen). No real-business name clash was found for any of them, so no renames were made. Checked **24 September 2026**:
+
+- **Saffron Lane Rasoi** — searched "Saffron Lane Rasoi" Calgary; found separate, differently-named Calgary restaurants "Saffron" and "Rasoi East Indian & Hakka Chinese Cuisine", but no business matching the full sample name.
+- **Kesar Thali Ghar** — searched "Kesar Thali Ghar" Calgary; found only "Kesar's - An Indian Thali" in New Jersey (no Calgary presence) and generic Calgary thali-restaurant listings, no matching real business.
+- **Dastarkhwan Dabba** — searched "Dastarkhwan Dabba" Calgary; found a "Dastarkhwan" restaurant in Mississauga (closed) and unrelated Dastarkhwan-named businesses elsewhere, none in Calgary and none matching the full name.
+- **Idli Avenue Tiffins** — searched "Idli Avenue Tiffins" Calgary; found generic Calgary tiffin-service listings and a "Tiffin Curry & Roti House", no matching real business.
+- **Shorshe Bari Bhoj** — searched "Shorshe Bari Bhoj" Calgary; found only generic Bengali-restaurant-naming pages and unrelated "Shorshe"/"Bhoj"-named venues elsewhere, no matching real business.
+- **Nolan Hill Dosa Dabba** — searched "Nolan Hill Dosa Dabba" Calgary; found "Dosa Garden" in nearby Sage Hill and other Indian restaurants near Nolan Hill, but no business matching the sample name.
+- **Sarson Rasoi** — searched "Sarson Rasoi" Calgary; found only the unrelated "Rasoi East Indian & Hakka Chinese Cuisine" (different name) and the UK brand "Sarson's" (a vinegar brand, unrelated), no matching real business.
+- **Pamir Dastarkhan Home Kitchen** — searched "Pamir Dastarkhan" Calgary; found unrelated Calgary businesses named "Pamir" (a fashion boutique and a roofing company), no food business by this name.
+- **Ahimsa Jain Bhojan** — searched "Ahimsa Jain Bhojan" Calgary; found Jain community and vegetarian-restaurant references in Calgary but no business using this name.
+- **Airdrie Biryani Ghar** — searched "Airdrie Biryani Ghar" Airdrie; found several other-named Indian restaurants in Airdrie (Amritsari Tadka, Golden Cinnamon, Qasid Tandoori, Paprika Grill House, etc.), no matching real business.
+
 ## Permit guide (permitted.html)
 
 Every fact on the "How to get permitted in Calgary" page comes from one of these official pages, all **accessed 23 September 2026**. The page links the exact page, never a homepage, and states only what these pages say. It is general information, not legal advice.

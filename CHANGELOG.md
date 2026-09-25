@@ -120,3 +120,12 @@
 - The "Price per day" choices now read "Under $12", "$12 – $13" and "$14 and up", so a kitchen above $15 a day is no longer filed under "$14 – $15". A kitchen with no day price no longer counts as "Under $12".
 - The kitchens are still made-up samples for testing, each marked "Sample".
 - Service worker tf-v1.13.0.
+
+## Overnight round 2 — 2026-09-24
+
+- Line endings are now locked down with a `.gitattributes` file, so text files always save with the same line endings whoever edits them.
+- Added `robots.txt` and `sitemap.xml` so search engines can find the site's public pages (home, About, For kitchens, How permits work, Privacy, Terms). Sample-kitchen and demo pages are deliberately left out.
+- Checked the dish glossary: 25 entries most likely to be vague or off were compared against real sources. One was fixed — "Bhuna khichuri" no longer names a specific meat inside a general definition; it now describes the drier, pilaf-like texture that "bhuna" means. The other 24 checked out and were left as they were.
+- Checked the first 10 sample kitchen names against real Calgary and Airdrie food businesses. No name clashes were found, so no kitchen was renamed.
+- The kitchens are still made-up samples for testing, each marked "Sample".
+- Service worker tf-v1.14.0.
