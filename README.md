@@ -42,6 +42,13 @@ to real files, the 404/offline CSP hashes match their inline scripts, one
 secret-looking strings, `tools/check_diet.py`, and `tools/check_listings.py`
 — see "Adding a real kitchen" below), and exits non-zero if anything fails.
 
+`tools/check_links.py` is the standalone link checker `check_ship.py`'s
+local-link check calls into. Run it by hand with `--online` (never inside
+`check_ship.py`, and not on every commit) to also fetch every external
+`https://` URL on the site — plus any real kitchen's `permit.source_url`,
+once there are real kitchens — and report anything that doesn't answer:
+`python tools/check_links.py --online`.
+
 ## Deploy to GitHub Pages
 
 1. Push this folder to a repository (for example `tiffinfinder`) on the `main` branch.
@@ -62,6 +69,16 @@ The made-up sample kitchens can be switched off in one place, for example when t
 7. To undo, set it back to `true`.
 
 Real kitchens (those without `"sample": true`) always show, whatever the switch says. If `show_samples` is missing, the samples show.
+
+`python tools/rehearse_launch.py [output_dir]` rehearses this switch
+without touching the real site: it copies the whole site to a temp
+folder, flips `show_samples` to `false` in that copy only, serves it
+locally, and screenshots the home page, the map, Following, a former
+sample kitchen's own link, and `kitchens.html` with headless Edge, then
+cleans up after itself. Use it any time you want to see the launch state
+before actually flipping the switch — see `docs/launch-runbook.md` for
+the full first-kitchen process, and `docs/takedown-and-updates.md` for
+handling a kitchen's request to change or remove a listing.
 
 ## Addresses the app understands
 
@@ -143,6 +160,41 @@ kitchen shares its pickup spot. A real kitchen never shows on the site
 until its permit has a checked date, a link to the public record, and the
 kitchen's written OK are all in place — `app.js` and
 `tools/check_listings.py` both enforce this.
+
+## Backups
+
+There is no separate backup step to remember: `git` plus GitHub already
+hold full history for this site. Every commit ever pushed to
+`SayWallaHBRuh/tiffinfinder` stays in the repository forever (GitHub
+doesn't delete old commits when new ones land), so nothing here is a
+single point of failure.
+
+- **To see what changed and when:** `git log` (or the "History" view on
+  GitHub for any file, e.g. `data/kitchens.json`).
+- **To look at an old version of one file without changing anything:**
+  `git show <commit>:<path>`, for example
+  `git show 9f956e4:data/kitchens.json`, or open that commit on GitHub and
+  click the file.
+- **To restore an old version of one file:** `git checkout <commit> -- <path>`,
+  then commit that as a normal change (with a message saying it's a
+  revert and why) and push, the same as any other change (handoff §4).
+- **To undo the most recent commit entirely** (before it's been built
+  further on top of): `git revert <commit>` makes a new commit that
+  undoes it, which is safer than rewriting history on a repo other people
+  (and GitHub Pages) already fetched from.
+
+None of this needs a separate backup file, tool or schedule — it's what
+git and GitHub are for. If GitHub itself were ever unreachable, every
+local clone of this repo (including the one this work happens from) is
+itself a full copy of the same history.
+
+**The private handoff repo is separate and also matters.** Plans, leads,
+outreach notes, and (once real kitchens exist) the private consent log
+(`plans/consent-log-template.md`) live in the private handoff repo
+(`SayWallaHBRuh/tiffinfinder-handoff`), not in this public site repo. It
+has its own git history the same way, but it's a different repository —
+back it up (or at least remember it exists) separately from this one; it
+is not covered by anything in this `README.md`.
 
 ## Paths
 

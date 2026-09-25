@@ -3686,8 +3686,8 @@
           solo ? null : el('a', { href: browseHref(), class: 'btn btn-secondary', 'data-route': '', text: 'Back to Tiffin Finder' })
         ]));
       } else {
-        missing.appendChild(el('h1', { text: 'Kitchen not found', id: 'kitchen-heading', tabindex: '-1' }));
-        missing.appendChild(el('p', { text: 'That listing isn’t here. It may have been removed or the link is wrong.' }));
+        missing.appendChild(el('h1', { text: 'No longer listed', id: 'kitchen-heading', tabindex: '-1' }));
+        missing.appendChild(el('p', { text: 'This kitchen isn’t listed on Tiffin Finder anymore — it may have closed, taken a break, or asked to come off the site. If you typed or pasted this link, double-check it.' }));
         if (!solo) missing.appendChild(el('a', { href: browseHref(), class: 'btn btn-primary', 'data-route': '', text: 'Browse all kitchens' }));
       }
       container.appendChild(missing);

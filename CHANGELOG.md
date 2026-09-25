@@ -1,5 +1,55 @@
 # Changelog
 
+## Round 30 — 2026-09-25
+
+Round 30: launch-readiness build-out from `plans/next-backlog.md` section
+A — a rehearsal for the "turn the samples off" switch, two plain-English
+runbooks, and a link checker.
+
+- New `tools/rehearse_launch.py`: copies the whole site to a temp folder,
+  turns `show_samples` off in that copy only (the real `data/kitchens.json`
+  is never touched), serves it locally, and screenshots the home page,
+  the map, the Following view, a former sample kitchen's own link, and
+  `kitchens.html` with a fresh headless-Edge profile, then cleans up.
+  Ran it and reviewed every screenshot: the launch state already matches
+  what `README.md` describes (the map and Following addresses fall back
+  to the same "Launching in NE Calgary" page; a former sample kitchen's
+  own link shows "This was a sample listing" with a way into the demo).
+- While reviewing, found the *other* empty state — a kitchen link that
+  was never a sample and isn't in `data/kitchens.json` at all (the
+  takedown/typo case) — read a little too much like a plain error.
+  Reworded it in `app.js`: heading "No longer listed" (was "Kitchen not
+  found"), body "This kitchen isn't listed on Tiffin Finder anymore — it
+  may have closed, taken a break, or asked to come off the site. If you
+  typed or pasted this link, double-check it." (was "That listing isn't
+  here. It may have been removed or the link is wrong."). Screenshot-
+  verified. Doesn't change anything shown while samples are on.
+- New `site/docs/launch-runbook.md`: the first-real-kitchen process, start
+  to finish, in plain language — collect details, check the permit and
+  copy the public record link, log consent privately, enter the listing,
+  run the ship check, rehearse locally, flip `show_samples` only on
+  Adeel's word, push, confirm the deploy, check the live URLs, share the
+  link.
+- New `site/docs/takedown-and-updates.md`: what to do within 48 hours
+  (matching `privacy.html`'s and `terms.html`'s own wording) when a
+  kitchen asks to change something or be removed, how a removed listing's
+  old link behaves (see above), and how permit expiry is already handled
+  automatically versus when it needs treating as a removal.
+- New `tools/check_links.py`: offline mode (every local href/src resolves
+  — the exact check `check_ship.py` already ran, now shared from one
+  place instead of two copies of the same logic) plus `--online`, which
+  fetches every external URL on the site, every real kitchen's
+  `permit.source_url`, and the permit-guide pages' own source lists, and
+  reports anything that doesn't answer. `check_ship.py`'s local-link check
+  now calls into this module rather than duplicating it. `--online` is
+  never run as part of `check_ship.py`.
+- `README.md`: a new "Backups" section (git plus GitHub is the backup,
+  how to look at or restore an old version, and a reminder that the
+  private handoff repo holds plans and leads separately), plus pointers to
+  the new rehearsal script, runbooks and link checker.
+- `sw.js` `VERSION` and every page's `?v=` bumped `tf-v1.36.0` →
+  `tf-v1.37.0` (the `app.js` wording change above is a cached file).
+
 ## Round 29 — 2026-09-25
 
 Round 29: a measure-first performance, accessibility and copy quality pass

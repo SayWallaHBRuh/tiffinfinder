@@ -50,6 +50,9 @@ import re
 import subprocess
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import check_links  # noqa: E402  (local module, tools/check_links.py)
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 HTML_FILES = sorted(
@@ -243,26 +246,12 @@ def check_precache_files():
 
 
 # ---------------------------------------------------------------------------
-# 6. local href/src resolve
+# 6. local href/src resolve (offline check -- shared with
+#    tools/check_links.py so there is exactly one copy of this logic;
+#    --online mode lives only in check_links.py and is never run here)
 # ---------------------------------------------------------------------------
 def check_local_links():
-    broken = []
-    checked = 0
-    for f in HTML_FILES:
-        path = os.path.join(ROOT, f)
-        text = read_text(path)
-        for val in re.findall(r'\b(?:href|src)="([^"]*)"', text):
-            if val.startswith(('http://', 'https://', 'mailto:', 'tel:', '#', 'data:')):
-                continue
-            if val.startswith('./?') or val == './' or val.startswith('.?'):
-                continue  # in-app links to index with query params
-            clean = val.split('#', 1)[0].split('?', 1)[0]
-            if clean in ('', '.', './'):
-                continue
-            rel = clean[2:] if clean.startswith('./') else clean.lstrip('/')
-            checked += 1
-            if not os.path.isfile(os.path.join(ROOT, rel)):
-                broken.append('%s: %s -> %s' % (f, val, rel))
+    broken, checked = check_links.offline_broken_links()
     if broken:
         for b in broken:
             fail('broken local link - ' + b)
