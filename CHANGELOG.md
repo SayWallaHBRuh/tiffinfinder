@@ -1,5 +1,11 @@
 # Changelog
 
+## Overnight round 8 — 2026-09-24
+
+- Checked the permit guide's exemption section (why Alberta's low-risk home-food rule doesn't cover hot tiffin meals) against the two official Government of Alberta pages it's built on. Both still say exactly what the page already quotes, so the wording is unchanged — the sources were just re-confirmed and logged.
+- The Tiffin 101 guide's price ranges used to be based only on this site's own made-up sample listings. They're now based on prices we found this September on real, publicly posted Calgary tiffin plans instead: roughly $10-$24 a day, $70-$90 a week, and $240-$320 a month. No business names appear on the page — only in the source list at the bottom.
+- Housekeeping: version bumped to `tf-v1.20.0` (styles, scripts and the service worker's saved-files list all match).
+
 ## Overnight round 7 — 2026-09-24
 
 - The "For kitchens" page now shows what a real listing looks like: a live sample card, built by the same code that draws every card on the list and map, clearly marked "Sample listing".

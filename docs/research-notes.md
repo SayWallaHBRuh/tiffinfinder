@@ -185,3 +185,27 @@ Sources behind `guide.html`, all **accessed 24 September 2026**. Every factual c
 - **Food-safety basics (temperatures and timing):** [Health Canada, Food safety and you](https://www.canada.ca/en/health-canada/services/general-food-safety-tips/food-safety-you.html) — supports "reheat food to at least 74°C (165°F)" and "refrigerate or freeze leftovers within two hours." [Health Canada, Safe food storage](https://www.canada.ca/en/health-canada/services/general-food-safety-tips/safe-food-storage.html) — supports the 4°C (40°F) to 60°C (140°F) temperature danger zone and setting a refrigerator to 4°C (40°F) or lower and a freezer to -18°C (0°F) or lower.
 - The guide links to `permitted.html` for permit details and repeats the site's existing wording rules: never "AHS approved" or "verified by," and "a permit check is not a food-safety inspection or endorsement."
 - The dish-glossary pointer links to the home page rather than duplicating any glossary entries, since the glossary only exists inline on kitchen pages (`data/dishes.json`, already sourced above).
+
+## Round 8
+
+Two checks: whether `permitted.html`'s exemption section needed a source update, and whether `guide.html`'s price ranges could be grounded in public Calgary listings instead of the site's own sample data. All sources below re-fetched **24 September 2026**.
+
+### permitted.html — exemption section review
+
+`permitted.html` already has a full "What the home-based exemption covers, and what it doesn't" section (`#exemption`), fact-checked 23 Sep 2026, that explains the Low-Risk Home-Prepared Food exemption and states plainly that anything containing meat, poultry, seafood or unpasteurized milk, or needing temperature control, isn't covered — which is exactly why typical hot tiffin meals fall outside it. This was judged not missing or vague, so no new section was added; the two primary sources it rests on were re-fetched instead, to confirm nothing changed:
+
+- [Government of Alberta, Low-risk home-prepared foods](https://www.alberta.ca/low-risk-home-prepared-foods) (accessed 2026-09-24) — still says low-risk foods "do not require refrigeration, such as baked goods, candies, whole fresh produce and some canned goods" and that they "can be sold from home (including online or mail-order sales) and special events, as well as from farmers' markets." Matches the 23 Sep 2026 check; no change.
+- Alberta King's Printer, Food Regulation, Alta Reg 31/2006, s.1(1)(y)/(y.1) (accessed 2026-09-24) — the PDF itself couldn't be parsed as text by the fetch tool this pass, so the definition was cross-checked by search instead: "low-risk home-prepared food" is low-risk food "processed, prepared, packaged or labelled by an individual in that individual's private dwelling," that "does not contain any meat, poultry, seafood or unpasteurized milk" — word-for-word the same exclusion already quoted on the page. No change; `permitted.html` was left as-is.
+
+Not re-fetched this round (not touched by any edit): the AHS fee schedule, City of Calgary fee page, and inspection-records sources already checked 23 Sep 2026 — out of scope for this pass since the exemption section was the only one reviewed.
+
+### guide.html — pricing grounded in public Calgary listings
+
+Re-fetched the Calgary pricing sources already listed in `plans/market-research.md` to confirm current numbers before changing the page:
+
+- [Appna Tiffin](https://appnatiffin.ca/) (accessed 2026-09-24) — a real Calgary tiffin business's own pricing page (non-personal, citable). Currently lists Daily: Small $12.99 / Medium $17.99 / Large $23.99 (roti counts vary by size, all with one sabzi, one dal and dahi); Weekly: $70 / $80 / $90; Monthly: $240 / $260 / $300–$320 (GST included; Sunday–Friday, rice and a sweet dish once weekly). These are higher across the board than the $260/month single figure logged in the original market-research pass — the business appears to have added tiered small/medium/large pricing since then, so this round uses the fuller current range.
+- [Tiffin Service Calgary](https://tiffin-service-calgary.web.app/) (accessed 2026-09-24) — a small business one-page site (not a Kijiji/Facebook personal post, so citable). Lists Vegetarian $10/day, Non-Vegetarian $12/day, Special $15/day. No weekly/monthly figures on this page.
+- [Tiffin Service Calgary (directory page)](https://tiffinservicecalgary.web.app/) (accessed 2026-09-24) — a similar small one-page site listing three providers at $250/month, $260/month and $280/month; no per-provider names used in `guide.html`'s body text, only in this source list.
+- Kijiji Calgary tiffin category (<https://www.kijiji.ca/b-calgary/tiffin-services/k0l1700199>, accessed 2026-09-24) — re-checked but not cited on `guide.html`: it's a live feed of personal classified ads, not a stable citable page, and this pass mostly surfaced unrelated room-rental posts rather than tiffin meal prices. Described here generically rather than linked from the guide page, per the site's rule against citing Kijiji/Facebook personal posts.
+
+Combining the three citable sources, `guide.html`'s pricing paragraph and its closing callout now say prices are "publicly advertised Calgary tiffin plans" found in September 2026, ranged roughly **$10–$24 a day, $70–$90 a week and $240–$320 a month**, replacing the previous wording that pointed only at this site's own fictional sample listings ($11–$15/day, $60–$90/week, $205–$320/month). No business name appears in the guide's body text; the three sources above were added to its Sources list.
