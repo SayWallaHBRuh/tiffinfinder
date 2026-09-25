@@ -1736,6 +1736,11 @@
     if (dom.filters) dom.filters.classList.toggle('has-active', active > 0);
     /* On the map, "nothing matches" shows over the map instead (#map-empty). */
     dom.resultsEmpty.hidden = n > 0 || isMap;
+    if (n === 0 && !isMap) {
+      var resultsState = emptyStateText(f);
+      if (dom.resultsEmptyText) dom.resultsEmptyText.textContent = resultsState.text;
+      if (dom.emptyClearSearch) dom.emptyClearSearch.hidden = !resultsState.hasQuery;
+    }
     if (isMap) renderMap(list, f);
     markCurrentHood();
     renderNearPill();
@@ -1825,6 +1830,43 @@
     } else if (dom.resultsStatus) {
       try { dom.resultsStatus.focus({ preventScroll: true }); } catch (e) { dom.resultsStatus.focus(); }
     }
+  }
+
+  /* Drops just the search box, keeping every other filter, for the "Clear
+     search" action in the empty states. */
+  function clearSearch() {
+    if (!dom.filters || !dom.filters.elements.q) return;
+    dom.filters.elements.q.value = '';
+    clearTimeout(searchTimer);
+    searchTimer = null;
+    syncFiltersToURL();
+    renderResults();
+    var hoverable = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+    if (hoverable) {
+      dom.filters.elements.q.focus();
+    } else if (dom.resultsStatus) {
+      try { dom.resultsStatus.focus({ preventScroll: true }); } catch (e) { dom.resultsStatus.focus(); }
+    }
+  }
+
+  /* The empty state's own line ("No kitchens match…") names the search
+     text and/or filter count that's active, so the reader knows what to
+     clear rather than guessing. Shared by the list's #results-empty and
+     the map's #map-empty. Returns the message and whether a search is on. */
+  function emptyStateText(f) {
+    var q = (dom.filters && dom.filters.elements.q && dom.filters.elements.q.value || '').trim();
+    var other = activeFilterCount(f) - (f.q ? 1 : 0);
+    var text;
+    if (q && other > 0) {
+      text = 'No kitchens match “' + q + '” and ' + other + ' other ' + plural(other, 'filter', 'filters') + '.';
+    } else if (q) {
+      text = 'No kitchens match “' + q + '”.';
+    } else if (other > 0) {
+      text = 'No kitchens match the ' + other + ' ' + plural(other, 'filter', 'filters') + ' you’ve set.';
+    } else {
+      text = 'No kitchens match those filters.';
+    }
+    return { text: text, hasQuery: !!q };
   }
 
   /* One render per change. Typing in search is debounced through 'input';
@@ -2873,7 +2915,14 @@
       }
     }
 
-    if (dom.mapEmpty) dom.mapEmpty.hidden = list.length > 0;
+    if (dom.mapEmpty) {
+      dom.mapEmpty.hidden = list.length > 0;
+      if (list.length === 0) {
+        var mapEmptyState = emptyStateText(f);
+        if (dom.mapEmptyText) dom.mapEmptyText.textContent = mapEmptyState.text;
+        if (dom.mapEmptyClearSearch) dom.mapEmptyClearSearch.hidden = !mapEmptyState.hasQuery;
+      }
+    }
 
     if (dom.mapMissing) {
       var missing = 0;
@@ -5122,6 +5171,8 @@
     dom.results = document.getElementById('results');
     dom.resultsStatus = document.getElementById('results-status');
     dom.resultsEmpty = document.getElementById('results-empty');
+    dom.resultsEmptyText = document.getElementById('results-empty-text');
+    dom.emptyClearSearch = document.getElementById('empty-clear-search');
     dom.resultsError = document.getElementById('results-error');
     dom.resultsErrorTitle = document.getElementById('results-error-title');
     dom.resultsErrorText = document.getElementById('results-error-text');
@@ -5139,6 +5190,8 @@
     dom.mapErrorTitle = document.getElementById('map-error-title');
     dom.mapErrorText = document.getElementById('map-error-text');
     dom.mapEmpty = document.getElementById('map-empty');
+    dom.mapEmptyText = document.getElementById('map-empty-text');
+    dom.mapEmptyClearSearch = document.getElementById('map-empty-clear-search');
     dom.mapReset = document.getElementById('map-reset');
     dom.mapTitle = document.getElementById('map-title');
     dom.mapMissing = document.getElementById('map-missing');
@@ -5529,6 +5582,7 @@
     initFiltersSheet();
     var emptyReset = document.getElementById('empty-reset');
     if (emptyReset) emptyReset.addEventListener('click', resetFilters);
+    if (dom.emptyClearSearch) dom.emptyClearSearch.addEventListener('click', clearSearch);
     if (dom.nearPill) dom.nearPill.addEventListener('click', onNearPillClick);
     /* Try again buttons ([data-retry]) are handled in onDocumentClick. When
        the connection comes back after a failed load, retry on our own. */
@@ -5559,6 +5613,7 @@
     }
     var mapEmptyReset = document.getElementById('map-empty-reset');
     if (mapEmptyReset) mapEmptyReset.addEventListener('click', resetFilters);
+    if (dom.mapEmptyClearSearch) dom.mapEmptyClearSearch.addEventListener('click', clearSearch);
     if (dom.mapReset) dom.mapReset.addEventListener('click', onMapReset);
     if (dom.mapStage) dom.mapStage.addEventListener('click', onMapStageClick);
     if (dom.mapCard) {

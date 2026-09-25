@@ -38,13 +38,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&family=Baloo+2:wght@800&display=swap">
-  <link rel="stylesheet" href="./styles.css?v=tf-v1.32.0">
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.33.0">
   <!-- app.js stays blocking here on purpose: it decides the route, a
        kitchen's own link (?k=&solo=1), demo mode and the pending hero
        before first paint, so a shared kitchen link never flashes the home
        page first. The other pages load it with defer (early.js covers
        the theme and a dismissed preview notice there). -->
-  <script src="./app.js?v=tf-v1.32.0"></script>
+  <script src="./app.js?v=tf-v1.33.0"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -326,9 +326,13 @@
                 <div class="map-state-actions"><button type="button" class="btn btn-primary btn-small" id="map-retry">Try again</button><button type="button" class="btn btn-secondary btn-small" id="map-to-list">Show the list</button></div>
               </div>
               <div class="map-state" id="map-empty" hidden>
+                <img class="empty-mascot" src="./icons/mascot.svg" alt="" width="120" height="120">
                 <h4 class="map-state-title">No kitchens match</h4>
-                <p>Try widening the quadrant or clearing a filter.</p>
-                <button type="button" class="btn btn-secondary btn-small" id="map-empty-reset">Reset filters</button>
+                <p id="map-empty-text">Try widening the quadrant or clearing a filter.</p>
+                <div class="map-state-actions">
+                  <button type="button" class="btn btn-secondary btn-small" id="map-empty-clear-search" hidden>Clear search</button>
+                  <button type="button" class="btn btn-secondary btn-small" id="map-empty-reset">Reset filters</button>
+                </div>
               </div>
             </div>
           </div>
@@ -353,10 +357,13 @@
         <div class="map-card" id="map-card" role="dialog" aria-labelledby="map-card-title" hidden></div>
       </div>
       <div class="empty" id="results-empty" hidden>
-        <span class="empty-art" data-hue="30" aria-hidden="true"></span>
+        <img class="empty-mascot" src="./icons/mascot.svg" alt="" width="120" height="120">
         <h3 class="empty-title">Nothing matches yet</h3>
-        <p>No kitchens match those filters. Try widening the quadrant or clearing a filter.</p>
-        <button type="button" class="btn btn-secondary" id="empty-reset">Reset filters</button>
+        <p id="results-empty-text">No kitchens match those filters. Try widening the quadrant or clearing a filter.</p>
+        <div class="page-actions">
+          <button type="button" class="btn btn-secondary" id="empty-clear-search" hidden>Clear search</button>
+          <button type="button" class="btn btn-secondary" id="empty-reset">Reset filters</button>
+        </div>
       </div>
       <div class="empty" id="results-error" hidden>
         <span class="empty-art" data-hue="300" aria-hidden="true"></span>
@@ -378,13 +385,13 @@
       </div>
       <div class="grid" id="following-grid"></div>
       <div class="empty" id="following-empty" hidden>
-        <span class="empty-art" data-hue="96" aria-hidden="true"></span>
+        <img class="empty-mascot" src="./icons/mascot.svg" alt="" width="120" height="120">
         <h3 class="empty-title">No follows yet</h3>
         <p>You’re not following any kitchens yet. Tap <strong>Follow</strong> on a kitchen and it will show up here. Follows are saved on this device.</p>
         <a href="./" class="btn btn-secondary" data-route>Browse kitchens</a>
       </div>
       <div class="empty" id="following-launch" hidden>
-        <span class="empty-art" data-hue="96" aria-hidden="true"></span>
+        <img class="empty-mascot" src="./icons/mascot.svg" alt="" width="120" height="120">
         <h3 class="empty-title">Nothing to follow yet</h3>
         <p>Tiffin Finder is launching in NE Calgary and no kitchens are listed yet. Once real kitchens are added, tap <strong>Follow</strong> on one and it will show up here. Follows are saved on this device.</p>
       </div>

@@ -1,5 +1,37 @@
 # Changelog
 
+## Round 26 — 2026-09-25
+
+Round 26: a UI polish pass on empty states, trust badges, the sticky order
+bar, skeletons, the filters button and the 720-900px tablet band (see
+`plans/ui-backlog.md` items 4, 5, 8, 9, 11, 14).
+
+- Friendly empty states: "Nothing matches yet" (list) and "No kitchens
+  match" (map) now show the brand mascot (`icons/mascot.svg`, 120px, 84px
+  on the map's narrower card) instead of the small tiffin-box icon, plus a
+  line naming what's active -- the search text in quotes, how many other
+  filters are on, or both -- so it's clear what to clear. A new "Clear
+  search" button (only shown when a search is typed) drops just the search
+  box and keeps every other filter; "Reset filters" still clears
+  everything. Following-empty and the launch page's "Nothing to follow
+  yet" state now show the same mascot, so all four empty states read as
+  one component.
+- Trust-cue consistency: the permit/sample badge already comes from one
+  shared function (`permitBadge()`) on the card, the map preview and the
+  kitchen page, so its wording, colour and icon were already identical;
+  the map preview's badge row was sized a shade smaller than the card's
+  (24px vs 25px, 0.76rem vs 0.74rem) -- lined up to match exactly.
+- Verified: the sticky order bar's iOS safe-area padding
+  (`env(safe-area-inset-bottom)`) and single-primary-action shape from
+  earlier rounds are still in place and don't cover the page below them;
+  the loading skeleton's tile/title/line shapes still match the card
+  (cuisine tile, bigger title and price) added in Round 25; the "Filters"
+  button's live "N kitchens" count (badge + "Show N kitchens" in the
+  sheet) from Round 24 is still working; the header, filters and card grid
+  checked out at 768px and 820px with no wrapping or crowding.
+- Version bumped to `tf-v1.33.0` (styles, scripts and the service
+  worker's saved-files list all match).
+
 ## Round 25 — 2026-09-25
 
 Round 25: kitchen cards, the kitchen page header and the map preview all

@@ -2512,6 +2512,25 @@ main[tabindex="-1"]:focus {
   height: 56px;
 }
 
+/* The brand mascot shown in the friendly empty states (zero-result list,
+   zero-result map, Following-empty and the launch "nothing to follow yet"
+   state) so all four read as one component, distinct from the smaller
+   dabba icon used for load errors. */
+.empty-mascot {
+  display: block;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 12px;
+}
+
+/* The map's zero-result card is narrower (min(300px, 100% - 32px)), so the
+   mascot scales down to leave room for the title, text and buttons. */
+.map-state .empty-mascot {
+  width: 84px;
+  height: 84px;
+  margin-bottom: 8px;
+}
+
 .empty .page-actions {
   justify-content: center;
 }
@@ -4501,9 +4520,11 @@ main[tabindex="-1"]:focus {
 .map-kitchen-badges .badge,
 .map-kitchen-badges .diet-chip,
 .map-kitchen-badges .status-pill {
-  min-height: 24px;
+  /* Same size as .card-badges, so the permit badge reads identically on
+     the map preview and the list card. */
+  min-height: 25px;
   padding-block: 2px;
-  font-size: 0.76rem;
+  font-size: 0.74rem;
 }
 
 .map-kitchen-badges .badge {
