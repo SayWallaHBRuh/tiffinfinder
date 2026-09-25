@@ -6,7 +6,8 @@ The live site is **<https://tiffinfinder.ca>** (the `CNAME` file points GitHub P
 
 ## What it does
 
-- **Browse, search and filter.** Search dishes, kitchens or areas, and filter by quadrant (NE, NW, SE, SW, Airdrie), pickup or delivery, cuisine, price, veg, halal, Jain, "Trial week", "Taking new customers" and near a neighbourhood (`?near=`). The filters live in the address, so a filtered list can be reloaded or shared.
+- **Browse, search and filter.** Search dishes, kitchens or areas, and filter by quadrant (NE, NW, SE, SW, Airdrie), pickup or delivery, cuisine, price, type of kitchen, veg, halal, Jain, "Trial week", "Taking new customers" and near a neighbourhood (`?near=`). The filters live in the address, so a filtered list can be reloaded or shared.
+- **Every permitted kind of tiffin operator, listed equally** (Round 15): a home kitchen with a permit, a restaurant, a caterer, or a cook renting a commercial kitchen all get a small neutral label ("Home kitchen · permitted", "Restaurant", "Caterer", "Rented commercial kitchen") and a "Type" filter (`?type=`) — never a claim about food quality, just what kind of place it is. Pickup and delivery are shown equally; the list stays the default view and the map stays secondary.
 - **A pickup-first map** (Rounds 4 and 5). Each kitchen that offers pickup gets a pin at the spot it chose to share; pins that sit too close join into one numbered pin, and tapping a pin opens a small preview card. The map's files download only when someone opens the map.
 - **Kitchen pages.** This week's menu with the dish glossary (a dotted dish name opens a one-line description), plans and prices, the permit line ("Permit checked" kitchens show "Permit status checked on <date>."; samples show "Sample listing" instead), and the pickup spot or delivery areas.
 - **Follow and alerts, on this device only.** Follow a kitchen to find it again under "Following", and leave an email for alerts at launch. Both are saved in this browser only; nothing is sent.
@@ -34,8 +35,8 @@ Run this before every commit. It runs every pre-commit check in one command
 matches every page's `?v=`, the precache list and every local link resolve
 to real files, the 404/offline CSP hashes match their inline scripts, one
 `<h1>` per page, no `innerHTML`/`eval`/inline handlers or styles, no
-secret-looking strings, and `tools/check_diet.py`), and exits non-zero if
-anything fails.
+secret-looking strings, `tools/check_diet.py`, and `tools/check_listings.py`
+— see "Adding a real kitchen" below), and exits non-zero if anything fails.
 
 ## Deploy to GitHub Pages
 
@@ -98,11 +99,13 @@ The home page (`./`) reads these from the address:
 ### Tools
 
 - **`tools/check_diet.py`** (standard library only; `python tools/check_diet.py` from the `tiffinfinder` folder) cross-checks each kitchen's sample menu against its own `veg_only`, `jain` and `halal` flags, using the same dish-glossary term matching as the kitchen page (`data/dishes.json`). It flags a `veg_only` kitchen whose menu names a dish tagged `meat`, `fish` or `egg`; a `jain` kitchen whose menu names a dish tagged `onion_garlic` or `root_veg`, unless the kitchen's own description already says its food is prepared the Jain way (no onion, no garlic, no root vegetables); and prints a plain reminder — never a pass/fail claim — that `halal` can't be checked from dish names alone. It exits non-zero if it finds a contradiction, or if `contains` holds anything other than the categories above.
-- `tools/sample_pickup.py` and `tools/sample_decisions.py` (both standard library only, described above) fill in the sample kitchens' pickup points, trial weeks and capacity deterministically.
+- **`tools/check_listings.py`** (Round 15; standard library only) checks every real kitchen (`"sample"` not `true`) in `data/kitchens.json` against the data model in `docs/listing-data.md`: the permit-and-consent safety gate, required fields, ISO dates, delivery/pickup community names against the real map data, no street-address text in a neighbourhood-only pickup label, a contact present, and no banned wording. Run automatically by `tools/check_ship.py`.
+- `tools/sample_pickup.py`, `tools/sample_decisions.py` and `tools/sample_business_type.py` (all standard library only, described above) fill in the sample kitchens' pickup points, trial weeks, capacity and business type deterministically.
 - `docs/research-notes.md` lists the sources for community names, quadrants and dish descriptions, and the official pages behind the permit guide (`permitted.html`). Delivery communities must come from the lists named there, with each community in one quadrant only.
 - `data/map/calgary.json` and `data/map/airdrie.json` are the map shapes (Calgary communities and Airdrie neighbourhoods as ready-made SVG paths), from the City of Calgary's and City of Airdrie's open data. `docs/map-data.md` explains where they come from, their licences and how to refresh them. The map must always show the two credit lines under it ("Contains information licensed under the Open Government Licence – City of Calgary." and "Contains information licensed under the Open Data Licence – City of Airdrie."), and must not use either City's logo.
 - Each kitchen has an `area` (its own community, as the kitchen spells it) and a `base_community` (`{"city": "calgary" | "airdrie", "slug": "<community>"}`) for the same community, so the slug of `area` equals `base_community.slug`. The community must exist in the matching map file, and an Airdrie kitchen (quadrant `Airdrie`) must use `airdrie`.
 - `service` is `"pickup"`, `"delivery"` or `"both"`, and sits right after `base_community`, followed by `pickup`. Every kitchen also keeps `delivery` (`{"areas": [...], "notes": "..."}`); a pickup-only kitchen has `"areas": []` and `"notes": ""`. The app trusts `service` only when the data backs it (pickup needs a valid `pickup`, delivery needs at least one delivery area) and otherwise falls back to what is there; a kitchen with neither is not shown.
+- `business_type` (Round 15) is `"home_kitchen_permitted"`, `"restaurant"`, `"caterer"` or `"commissary_cook"` (a cook renting a commercial kitchen). It shows as a small neutral label on the card and kitchen page ("Home kitchen · permitted", "Restaurant", "Caterer", "Rented commercial kitchen") and is the "Type" filter (`?type=`). It's never a claim about food quality, only what kind of place it is; an unknown or missing value just shows no label. Every permitted kind of operator is listed — not home kitchens only.
 - `pickup` is `null` for a delivery-only kitchen, or `{"precision", "label", "point", "lat", "lon", "notes"}`:
   - `precision` is how the kitchen chose to share its spot: `"exact"` (its address), `"intersection"` (the nearest intersection) or `"community"` (its neighbourhood only).
   - `label` (1 to 80 characters) is only the place text, such as `Saddletowne Circle NE`. The app adds the verb: "Pickup at …" (exact), "Pickup near …" (intersection), or "Pickup in <area>" (community, with the label as fine print under it).
@@ -121,6 +124,18 @@ The home page (`./`) reads these from the address:
 - A share goes to a friend, not to the kitchen, so it never goes through `orderMessage` and never starts "Hi, I found you on Tiffin Finder.". Links to a kitchen (`wa.me/<digits>`) always carry `orderMessage`; links with no number (`wa.me/?text=`) always carry `shareText`.
 - At the end of the permit section ("About this listing" for a sample), every kitchen's page has a quiet **Report a problem with this listing** link, also on a kitchen's own link. It is a `mailto:` link (`reportHref`) addressed to `REPORT_EMAIL` in `app.js` (sitesbyadeel@gmail.com, approved by the owner as the public contact; setting it to '' hides the link), with the subject "Problem with listing: <Kitchen name> (<slug>)" and a short body: a list of problems to keep or delete (closed or no longer taking orders, permit, wrong information, food safety concern, other), a space for details, the link to the listing, and the AHS Environmental Public Health number (1-833-476-4743) for urgent food-safety concerns. The same address is written out in `privacy.html` and `terms.html`, so change all three together.
 - Nothing is sent automatically: sharing, copying and reporting all happen in the household's own apps, and Tiffin Finder is never told about them.
+
+## Adding a real kitchen
+
+`docs/listing-data.md` documents the full shape of a kitchen's entry in
+`data/kitchens.json` (Round 15), field by field, with a worked example.
+`docs/adding-a-kitchen.md` is a plain-English checklist for Adeel: what to
+collect from a kitchen, how to check its permit in the AHS public
+inspection database, getting written consent, and choosing how precisely a
+kitchen shares its pickup spot. A real kitchen never shows on the site
+until its permit has a checked date, a link to the public record, and the
+kitchen's written OK are all in place — `app.js` and
+`tools/check_listings.py` both enforce this.
 
 ## Paths
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## Round 15 — 2026-09-25
+
+- Got the site ready to hold real kitchens, following Adeel's decisions on 25 Sep 2026: every permitted kind of tiffin operator gets listed (a home kitchen with a permit, a restaurant, a caterer, or a cook renting a commercial kitchen), not home kitchens only; pickup and delivery are shown equally; the list stays the default view and the map stays secondary; the permit line keeps its one-date wording.
+- New: a "Type" filter (quadrant, cuisine and price already had one) and a small neutral label on every card and kitchen page ("Home kitchen · permitted", "Restaurant", "Caterer", "Rented commercial kitchen"). Every sample kitchen got a plausible type, mostly home kitchens, a few of the others, picked the same repeatable way the sample trial weeks and pickup spots already are (`tools/sample_business_type.py`).
+- A real kitchen (once one is added) can never show on the site half-checked: `app.js` now refuses to display any kitchen that isn't a sample unless its permit has a checked date, a link to the public record, and the kitchen's written OK to be listed are all present — if one's missing it's left out with a note in the browser console, not shown anyway.
+- New `tools/check_listings.py` checks the same rule, plus the rest of the listing data (dates, delivery and pickup neighbourhood names against the real map data, no street address text when a kitchen chose neighbourhood-only pickup, a contact number present, none of the banned wording). It's now part of `python tools/check_ship.py`, so it runs before every commit automatically.
+- New `docs/listing-data.md` documents the full shape of a kitchen's entry in `data/kitchens.json`, field by field, with a worked example. New `docs/adding-a-kitchen.md` is a plain-English, step-by-step checklist for Adeel: what to collect, how to check a permit in the AHS public inspection database, getting written consent, and choosing how precisely a kitchen shares its pickup spot.
+- Housekeeping: version bumped to `tf-v1.23.0` (styles, scripts and the service worker's saved-files list all match).
+
 ## Round 14 — 2026-09-25
 
 - Smoother moves between pages. Going from the home page to a page like the Tiffin 101 guide, or back, now gently cross-fades instead of the old hard jump, and the header stays put while it happens. It's quick (under a quarter of a second) so it feels snappy, not slow, and it only runs for browsers that support it and for visitors who haven't asked their device to reduce motion — everyone else just sees a normal page change, exactly as before.

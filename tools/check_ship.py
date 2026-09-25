@@ -29,6 +29,7 @@ Checks (each prints its own PASS/FAIL lines):
 10. No obvious hardcoded secret (API key / token-looking string) in the
     diff-able source files.
 11. Runs tools/check_diet.py.
+12. Runs tools/check_listings.py (real-kitchen listing data checks).
 
 Exits 0 if everything passes, 1 otherwise. Standard library only, no
 network access, deterministic.
@@ -387,6 +388,22 @@ def check_diet():
         ok('tools/check_diet.py passed')
 
 
+# ---------------------------------------------------------------------------
+# 12. check_listings.py
+# ---------------------------------------------------------------------------
+def check_listings():
+    listings_path = os.path.join(ROOT, 'tools', 'check_listings.py')
+    if not os.path.isfile(listings_path):
+        fail('tools/check_listings.py not found')
+        return
+    code, out = run([sys.executable, listings_path])
+    print(out.strip())
+    if code != 0:
+        fail('tools/check_listings.py exited %d' % code)
+    else:
+        ok('tools/check_listings.py passed')
+
+
 def main():
     print('== Tiffin Finder ship check ==\n')
     check_cname()
@@ -401,6 +418,7 @@ def main():
     check_dom_safety()
     check_secrets()
     check_diet()
+    check_listings()
 
     print('')
     if FAILURES:

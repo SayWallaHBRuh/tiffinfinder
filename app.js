@@ -581,7 +581,20 @@
   var CAPACITIES = ['open', 'waitlist', 'full'];
   var CAPACITY_LABEL = { open: 'Taking new customers', waitlist: 'Waitlist', full: 'Full right now' };
 
+  /* business_type: what kind of permitted operator this is. Every permitted
+     tiffin option is listed, not home kitchens only (Adeel's decision,
+     25 Sep 2026); this is a small neutral label on the card and kitchen
+     page, and a "Type" filter, never a claim about food quality. */
+  var BUSINESS_TYPES = ['home_kitchen_permitted', 'restaurant', 'caterer', 'commissary_cook'];
+  var BUSINESS_TYPE_LABEL = {
+    home_kitchen_permitted: 'Home kitchen · permitted',
+    restaurant: 'Restaurant',
+    caterer: 'Caterer',
+    commissary_cook: 'Rented commercial kitchen'
+  };
+
   function normalizeDecisions(k) {
+    k.business_type = BUSINESS_TYPES.indexOf(k.business_type) !== -1 ? k.business_type : '';
     k.capacity = CAPACITIES.indexOf(k.capacity) !== -1 ? k.capacity : '';
     var t = k.trial;
     if (t && typeof t === 'object' && t.offered === true) {
@@ -641,6 +654,24 @@
       })
       .then(function (json) {
         var list = (json && Array.isArray(json.kitchens)) ? json.kitchens.filter(isValidKitchen) : [];
+        /* A real kitchen (sample !== true) never renders unless its permit
+           has been checked, has a public-record link, and it gave written
+           consent to be listed. Any one missing, and it's skipped with a
+           console warning rather than shown half-checked. tools/check_listings.py
+           runs the fuller version of this check before a commit ships. */
+        list = list.filter(function (k) {
+          if (k.sample === true) return true;
+          var p = (k.permit && typeof k.permit === 'object') ? k.permit : {};
+          var c = (k.consent && typeof k.consent === 'object') ? k.consent : {};
+          var ok = !!isoDay(p.checked_on) &&
+            typeof p.source_url === 'string' && p.source_url.indexOf('https://') === 0 &&
+            c.listing_ok === true;
+          if (!ok) {
+            console.warn('Tiffin Finder: kitchen "' + k.slug + '" was skipped — it needs permit.checked_on, permit.source_url and consent.listing_ok before it can be listed.');
+            return false;
+          }
+          return true;
+        });
         /* Samples switched off (and not the demo): take them out before
            anything is built from the list, so search, cuisines, the
            communities, the map, Following and every count leave them out.
@@ -1037,6 +1068,15 @@
     return el('span', { class: 'trial-chip', text: k.trial.price !== null ? 'Trial week ' + money(k.trial.price) : 'Trial week' });
   }
 
+  /* A small neutral label for the kind of permitted operator this is
+     ("Home kitchen · permitted", "Restaurant", "Caterer", "Rented
+     commercial kitchen"), or null when it isn't known. Never a claim about
+     food quality — just what kind of place it is. */
+  function businessTypeChip(k) {
+    var label = BUSINESS_TYPE_LABEL[k.business_type];
+    return label ? el('span', { class: 'type-label', text: label }) : null;
+  }
+
   /* "From $13/day · $75/week · $260/month", amounts in <strong>. */
   var PRICE_UNIT = { day: '/day', week: '/week', month: '/month' };
 
@@ -1230,6 +1270,8 @@
     head.appendChild(title);
     if (kitchen.sample) head.appendChild(sampleTag());
     card.appendChild(head);
+    var typeChip = businessTypeChip(kitchen);
+    if (typeChip) card.appendChild(typeChip);
 
     /* Diet has its own chip and the service is in this line, so the badge
        row holds at most three things. */
@@ -1286,6 +1328,7 @@
     slug: 'saffron-lane-rasoi',
     name: 'Saffron Lane Rasoi',
     sample: true,
+    business_type: 'home_kitchen_permitted',
     hue: 28,
     cuisine: 'Punjabi',
     quadrant: 'NE',
@@ -1366,7 +1409,7 @@
   --------------------------------------------------------------------- */
   function readFilters() {
     var form = dom.filters;
-    if (!form) return { q: '', quadrant: '', service: '', near: state.near, cuisine: '', price: '', veg: false, halal: false, jain: false, trial: false, open: false };
+    if (!form) return { q: '', quadrant: '', service: '', near: state.near, cuisine: '', type: '', price: '', veg: false, halal: false, jain: false, trial: false, open: false };
     var quad = form.querySelector('input[name="quadrant"]:checked');
     var svc = form.querySelector('input[name="service"]:checked');
     return {
@@ -1375,6 +1418,7 @@
       service: (svc && (svc.value === 'pickup' || svc.value === 'delivery')) ? svc.value : '',
       near: state.near,
       cuisine: form.elements.cuisine ? form.elements.cuisine.value : '',
+      type: form.elements.type && BUSINESS_TYPES.indexOf(form.elements.type.value) !== -1 ? form.elements.type.value : '',
       price: form.elements.price ? form.elements.price.value : '',
       veg: !!(form.elements.veg && form.elements.veg.checked),
       halal: !!(form.elements.halal && form.elements.halal.checked),
@@ -1405,6 +1449,7 @@
     /* ?near=: pickup or delivery in that community. */
     if (f.near && pickupSlug(k) !== f.near && !deliveryAreas(k).some(function (a) { return communitySlug(a) === f.near; })) return false;
     if (f.cuisine && k.cuisine !== f.cuisine) return false;
+    if (f.type && k.business_type !== f.type) return false;
     if (f.price && priceBand(k) !== f.price) return false;
     if (f.veg && !k.veg_only) return false;
     if (f.halal && !k.halal) return false;
@@ -1424,6 +1469,7 @@
     if (f.service) n += 1;
     if (f.near) n += 1;
     if (f.cuisine) n += 1;
+    if (f.type) n += 1;
     if (f.price) n += 1;
     if (f.veg) n += 1;
     if (f.halal) n += 1;
@@ -1633,7 +1679,7 @@
      view=map (state.mode, the List / Map switch) comes last; the list is
      the default and has no view= at all.
   --------------------------------------------------------------------- */
-  var FILTER_KEYS = ['q', 'area', 'service', 'near', 'cuisine', 'price', 'veg', 'halal', 'jain', 'trial', 'open', 'view'];
+  var FILTER_KEYS = ['q', 'area', 'service', 'near', 'cuisine', 'type', 'price', 'veg', 'halal', 'jain', 'trial', 'open', 'view'];
   /* The on/off switches: diet, then "Trial week" and "Taking new customers". */
   var SWITCH_KEYS = ['veg', 'halal', 'jain', 'trial', 'open'];
   var PRICE_BANDS = ['low', 'mid', 'high'];
@@ -1658,6 +1704,8 @@
        one from the address rather than letting an early keystroke drop it. */
     if (!state.loaded && state.pendingCuisine) cuisine = state.pendingCuisine;
     if (cuisine) params.append('cuisine', cuisine);
+    var type = form.elements.type ? form.elements.type.value : '';
+    if (BUSINESS_TYPES.indexOf(type) !== -1) params.append('type', type);
     var price = form.elements.price ? form.elements.price.value : '';
     if (PRICE_BANDS.indexOf(price) !== -1) params.append('price', price);
     SWITCH_KEYS.forEach(function (key) {
@@ -1739,6 +1787,11 @@
     if (form.elements.price) {
       var price = (params.get('price') || '').toLowerCase();
       form.elements.price.value = PRICE_BANDS.indexOf(price) !== -1 ? price : '';
+    }
+
+    if (form.elements.type) {
+      var type = params.get('type') || '';
+      form.elements.type.value = BUSINESS_TYPES.indexOf(type) !== -1 ? type : '';
     }
 
     SWITCH_KEYS.forEach(function (key) {
@@ -3321,6 +3374,8 @@
     var titleBlock = el('div', { class: 'k-head-title' });
     var tags = el('div', { class: 'card-tags' });
     if (k.sample) tags.appendChild(sampleTag());
+    var kTypeChip = businessTypeChip(k);
+    if (kTypeChip) tags.appendChild(kTypeChip);
     tags.appendChild(serviceChip(k));
     titleBlock.appendChild(tags);
     titleBlock.appendChild(el('h1', { text: k.name, id: 'kitchen-heading', tabindex: '-1' }));

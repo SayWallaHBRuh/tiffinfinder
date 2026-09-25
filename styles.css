@@ -1397,7 +1397,7 @@ main[tabindex="-1"]:focus {
 .select-row {
   display: grid;
   gap: 12px;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 }
 
 .field {
@@ -2102,6 +2102,30 @@ main[tabindex="-1"]:focus {
   flex-wrap: wrap;
   align-items: center;
   gap: 6px 8px;
+}
+
+/* The kind of permitted operator ("Home kitchen · permitted",
+   "Restaurant", "Caterer", "Rented commercial kitchen"): a small neutral
+   label, never a claim about food quality. --muted text, no background, so
+   it reads quieter than the permit badge and diet chip beside it. On a
+   card it sits under the title; in .card-tags on the kitchen page it sits
+   inline with the Sample tag and service chip. */
+.type-label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  margin: -2px 0 2px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.card-tags .type-label {
+  margin: 0;
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line-strong);
 }
 
 /* "Jain", "Veg" or "Halal". --verified on --surface-2: 5.7:1 light,

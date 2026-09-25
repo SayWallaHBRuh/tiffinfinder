@@ -38,13 +38,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&display=swap">
-  <link rel="stylesheet" href="./styles.css?v=tf-v1.22.0">
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.23.0">
   <!-- app.js stays blocking here on purpose: it decides the route, a
        kitchen's own link (?k=&solo=1), demo mode and the pending hero
        before first paint, so a shared kitchen link never flashes the home
        page first. The other pages load it with defer (early.js covers
        the theme and a dismissed preview notice there). -->
-  <script src="./app.js?v=tf-v1.22.0"></script>
+  <script src="./app.js?v=tf-v1.23.0"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -204,6 +204,18 @@
                 <option value="low">Under $12</option>
                 <option value="mid">$12 – $13</option>
                 <option value="high">$14 and up</option>
+              </select>
+            </span>
+          </div>
+          <div class="field">
+            <label for="type">Type</label>
+            <span class="select">
+              <select id="type" name="type">
+                <option value="">Any type</option>
+                <option value="home_kitchen_permitted">Home kitchen · permitted</option>
+                <option value="restaurant">Restaurant</option>
+                <option value="caterer">Caterer</option>
+                <option value="commissary_cook">Rented commercial kitchen</option>
               </select>
             </span>
           </div>
