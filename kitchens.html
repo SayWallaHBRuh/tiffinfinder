@@ -37,9 +37,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&family=Baloo+2:wght@800&display=swap">
-  <script src="./early.js?v=tf-v1.48.0"></script>
-  <link rel="stylesheet" href="./styles.css?v=tf-v1.48.0">
-  <script src="./app.js?v=tf-v1.48.0" defer></script>
+  <script src="./early.js?v=tf-v1.49.0"></script>
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.49.0">
+  <script src="./app.js?v=tf-v1.49.0" defer></script>
   <script type="speculationrules">
   {
     "prefetch": [
@@ -130,7 +130,25 @@
       </div>
     </section>
 
-    <div class="wrap">
+    <div class="wrap page-with-toc">
+      <nav class="page-toc" aria-label="On this page">
+        <button type="button" class="page-toc-toggle" id="page-toc-toggle" aria-expanded="false" aria-controls="page-toc-list">
+          <span>On this page</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <ul class="page-toc-list" id="page-toc-list" hidden>
+          <li><a href="#what-you-get">What a listing includes</a></li>
+          <li><a href="#sample">See your listing, live</a></li>
+          <li><a href="#pickup">Your pickup spot</a></li>
+          <li><a href="#own-link">Copy your own link</a></li>
+          <li><a href="#free">What's free, what's Pro</a></li>
+          <li><a href="#verification">What "Permit checked" means</a></li>
+          <li><a href="#steps">How to get listed</a></li>
+          <li><a href="#request">Request a listing</a></li>
+          <li><a href="#presenting">Presenting your plan</a></li>
+          <li><a href="#photos">Photographing your tiffin</a></li>
+        </ul>
+      </nav>
       <article class="prose">
         <h2 id="what-you-get">What a listing includes</h2>
         <div class="pitch-grid">
@@ -211,19 +229,27 @@
 
         <h2 id="pickup">Your pickup spot</h2>
         <p>Tiffin Finder’s <a href="./?view=map">map</a> shows pickup spots and delivery areas side by side — pickup and delivery matter equally here. If you offer pickup, you choose how your spot is shown: your exact address, the nearest intersection, or your neighbourhood only. Households see only what you choose, and you can change it or take it down at any time. Just message us.</p>
-        <p>If you also deliver, your delivery areas show too. If you only deliver, your listing shows your neighbourhood and delivery areas, with no pickup spot.</p>
+        <div class="callout">
+          <p>If you also deliver, your delivery areas show too. If you only deliver, your listing shows your neighbourhood and delivery areas, with no pickup spot.</p>
+        </div>
 
         <h2 id="own-link">Copy your own link</h2>
         <p>Once your listing is live, you also get your own link. It opens your kitchen’s page on its own: your menu, prices, order button, Share button and permit line, with no other kitchens, no filters, no map and no directory menu. There’s just a small “Listed on Tiffin Finder” line at the bottom. Put it in your WhatsApp status, your Instagram bio or on a flyer.</p>
-        <p>It looks like <code>https://tiffinfinder.ca/?k=your-kitchen&amp;solo=1</code>. We send it to you with your listing. To copy it again, open it and tap <strong>Share</strong>, then <strong>Copy link</strong>. <a href="./?k=saffron-lane-rasoi&amp;solo=1&amp;demo=1">See an example with a sample kitchen</a>.</p>
+        <div class="callout">
+          <p>It looks like <code>https://tiffinfinder.ca/?k=your-kitchen&amp;solo=1</code>. We send it to you with your listing. To copy it again, open it and tap <strong>Share</strong>, then <strong>Copy link</strong>. <a href="./?k=saffron-lane-rasoi&amp;solo=1&amp;demo=1">See an example with a sample kitchen</a>.</p>
+        </div>
 
         <h2 id="free">What’s free, and what “Pro” will be</h2>
         <p><strong>Free, always:</strong> your listing, your weekly menu and your follower list. There is no commission and no fee to be listed.</p>
-        <p><strong>Pro, later:</strong> we plan optional paid extras for kitchens that want them — things like a featured spot in your quadrant, scheduling menus ahead, and simple stats on views and follows. None of this exists yet, there is no price yet, and nothing free will move behind Pro. We’ll tell listed kitchens first.</p>
+        <div class="callout">
+          <p><strong>Pro, later:</strong> we plan optional paid extras for kitchens that want them — things like a featured spot in your quadrant, scheduling menus ahead, and simple stats on views and follows. None of this exists yet, there is no price yet, and nothing free will move behind Pro. We’ll tell listed kitchens first.</p>
+        </div>
 
         <h2 id="verification">What “Permit checked” means</h2>
         <p>Before we list you, we ask for a copy of your current <strong>AHS Food Handling Permit</strong> and match your kitchen to its public Alberta Health Services inspection record and, where it’s visible, your City of Calgary business licence. When that checks out, your page shows <strong>“Permit checked”</strong> with the date we checked. If your permit’s expiry date passes, the badge comes off and your page shows “Permit being re-checked” until we check again.</p>
-        <p>A permit check is not an inspection, a grade, or an endorsement by Alberta Health Services, and we say so on every page. You agree to keep the permit valid, to tell us if anything changes, and to accept that we remove listings that receive an AHS closure order. The full wording is in the <a href="./terms.html">terms</a>.</p>
+        <div class="callout">
+          <p>A permit check is not an inspection, a grade, or an endorsement by Alberta Health Services, and we say so on every page. You agree to keep the permit valid, to tell us if anything changes, and to accept that we remove listings that receive an AHS closure order. The full wording is in the <a href="./terms.html">terms</a>.</p>
+        </div>
 
         <h2 id="steps">How to get listed</h2>
         <ol class="fact-list">

@@ -1,5 +1,72 @@
 # Changelog
 
+## Round 43 — 2026-09-25
+
+Round 43: consistent page treatments, About refresh, TOCs, stable header,
+aligned cards.
+
+- **`about.html` got the same visual treatment its sibling pages already
+  have.** It now opens with an "On this page" jump nav (the same
+  component `guide.html`, `permitted.html` and, from this round,
+  `kitchens.html` use), a small icon beside each of its four section
+  headings (Who runs this, Why permit-checked, What we deliberately don't
+  do, Contact), and its "What we deliberately don't do" list sits in the
+  same bordered callout box other pages already use for a load-bearing
+  point. No wording changed and no new claims were added -- every
+  sentence is the one that was already there.
+- **`guide.html` and `kitchens.html` now apply one rule per kind of
+  content, instead of mixing plain paragraphs and rich cards for the same
+  kind of thing.** On `guide.html`, "How plans usually work" (four plan
+  lengths) and "Tiffin service vs. meal prep vs. meal kits" (a three-way
+  comparison) now use the same card component "How to choose a kitchen"
+  already used, since both are comparisons of a short list of options --
+  the wording is unchanged, only split into a heading and a paragraph per
+  card. On `kitchens.html`, the plain explanatory paragraphs between the
+  page's rich sections ("Your pickup spot", "Copy your own link", "What's
+  free, and what 'Pro' will be", "What 'Permit checked' means") each now
+  puts its one load-bearing sentence in the same callout box the page
+  already used elsewhere -- reusing, for "a permit check is not an
+  inspection", the exact callout pattern `guide.html` and `permitted.html`
+  already use for that same sentence.
+- **`privacy.html` gained the same quick-jump pill row `terms.html`
+  already has** (The short version, On your device, In the moment, Third
+  parties, Kitchens, Your choices, Questions) -- it's the longer of the
+  two pages and had no equivalent navigation aid.
+- **`kitchens.html` gained the same sticky "On this page" nav**
+  `guide.html` and `permitted.html` already have, covering its ten
+  sections from "What a listing includes" down to "Photographing your
+  tiffin". No new component -- `initPageToc()` in `app.js` already drives
+  any `.page-toc` on the page, so this was markup only.
+- **The header no longer shifts when the Install button appears
+  mid-session.** From 720px, the primary nav centres in the space left
+  between the brand and the header actions column; when
+  `beforeinstallprompt` fires after first paint, `app.js` un-hides that
+  button, the actions column widens, and the nav's centred position moved
+  with it -- confirmed via CDP (`Emulation.setDeviceMetricsOverride` +
+  toggling `#install-btn.hidden` the same way `initInstall()` does):
+  0.00px shift after the fix, versus a real, measurable jump before it.
+  The fix reserves the button's box at all times (`visibility: hidden`
+  instead of removing it from layout while hidden), so the actions
+  column's width -- and the nav's available space -- never changes.
+  `:root.is-solo`'s existing `display: none !important` for a kitchen's
+  own link still removes it entirely there, unaffected.
+- **Verified, not changed:** the card grid's Follow-button row was
+  checked against a row with mixed one-line and two-line kitchen names
+  (`.card` is already a column flex container and `.card-foot` already
+  carries `margin-top: auto`) -- every card's footer already lines up
+  across a row. The numbered step-card component was checked for a colour
+  difference between `guide.html`/`kitchens.html` and `permitted.html` --
+  all three already share one `.fact-list .num` rule with one colour
+  pair; no per-page override exists. The card facts line was checked at
+  every width `check_layout.py` sweeps with the worst-case combination of
+  optional flags -- it already wraps cleanly, never overflows. Nothing
+  needed to change on these three; they're recorded here so a future
+  round doesn't re-investigate them.
+- `check_ship.py`, `check_layout.py` (208/208, four widths, both themes,
+  both states) and `check_layout.py --a11y` (16/16) all pass. Perf budget
+  unchanged: list 468.8/550 KiB, kitchen page 506.9/550 KiB.
+- Service worker tf-v1.49.0.
+
 ## Round 42 — 2026-09-25
 
 Round 42: live data check, menu freshness, owner flow order, calmer cards,

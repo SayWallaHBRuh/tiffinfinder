@@ -37,9 +37,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Manrope:wght@400..800&family=Baloo+2:wght@800&display=swap">
-  <script src="./early.js?v=tf-v1.48.0"></script>
-  <link rel="stylesheet" href="./styles.css?v=tf-v1.48.0">
-  <script src="./app.js?v=tf-v1.48.0" defer></script>
+  <script src="./early.js?v=tf-v1.49.0"></script>
+  <link rel="stylesheet" href="./styles.css?v=tf-v1.49.0">
+  <script src="./app.js?v=tf-v1.49.0" defer></script>
   <script type="speculationrules">
   {
     "prefetch": [
@@ -129,24 +129,50 @@
       </div>
     </section>
 
-    <div class="wrap">
+    <div class="wrap page-with-toc">
+      <nav class="page-toc" aria-label="On this page">
+        <button type="button" class="page-toc-toggle" id="page-toc-toggle" aria-expanded="false" aria-controls="page-toc-list">
+          <span>On this page</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <ul class="page-toc-list" id="page-toc-list" hidden>
+          <li><a href="#who">Who runs this</a></li>
+          <li><a href="#why">Why permit-checked</a></li>
+          <li><a href="#what-we-dont-do">What we deliberately don’t do</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
       <article class="prose">
-        <h2 id="who">Who runs this</h2>
+        <div class="h2-glyph">
+          <span class="glyph" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span>
+          <h2 id="who">Who runs this</h2>
+        </div>
         <p>Tiffin Finder is built and run in Calgary by <strong>Sites by Adeel</strong>, a one-person web studio. It isn’t affiliated with Alberta Health Services, the City of Calgary or any kitchen listed here. The preview you’re looking at was designed and built as a single-page app with no accounts, no database and no tracking, so it could be shown to kitchens and households before anything real goes live.</p>
 
-        <h2 id="why">Why permit-checked</h2>
+        <div class="h2-glyph">
+          <span class="glyph" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+          <h2 id="why">Why permit-checked</h2>
+        </div>
         <p>Tiffin service in Calgary comes from home kitchens, restaurants and caterers alike, especially across the northeast and in Airdrie. Most of the demand and much of the supply moves through WhatsApp groups and marketplace posts, where a household has no way to tell a permitted kitchen from one that isn’t, and a permitted kitchen has no way to show the difference.</p>
         <p>Alberta requires an <strong>AHS Food Handling Permit</strong> to sell hot meals, and getting one is real work — an approved kitchen, an inspection, a City licence. We think that work should be visible. So Tiffin Finder lists only kitchens whose permit we’ve checked, shows the date we checked it, and says plainly what that check does and doesn’t mean. You can read the details on <a href="./permitted.html">How permits work</a>.</p>
 
-        <h2 id="what-we-dont-do">What we deliberately don’t do</h2>
-        <ul>
-          <li>We don’t take orders or payments. You order with the kitchen directly, on WhatsApp or by phone, the way most households already do.</li>
-          <li>We don’t deliver, and we don’t set prices.</li>
-          <li>We show a kitchen’s pickup spot only the way the kitchen chooses (exact address, nearest intersection or neighbourhood only) and never more.</li>
-          <li>We don’t run ads or trackers. See <a href="./privacy.html">Privacy</a> for exactly what stays in your browser.</li>
-        </ul>
+        <div class="h2-glyph">
+          <span class="glyph" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M6.5 6.5l11 11"/></svg></span>
+          <h2 id="what-we-dont-do">What we deliberately don’t do</h2>
+        </div>
+        <div class="callout">
+          <ul>
+            <li>We don’t take orders or payments. You order with the kitchen directly, on WhatsApp or by phone, the way most households already do.</li>
+            <li>We don’t deliver, and we don’t set prices.</li>
+            <li>We show a kitchen’s pickup spot only the way the kitchen chooses (exact address, nearest intersection or neighbourhood only) and never more.</li>
+            <li>We don’t run ads or trackers. See <a href="./privacy.html">Privacy</a> for exactly what stays in your browser.</li>
+          </ul>
+        </div>
 
-        <h2 id="contact">Contact</h2>
+        <div class="h2-glyph">
+          <span class="glyph" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg></span>
+          <h2 id="contact">Contact</h2>
+        </div>
         <p id="contact-launch">Email <a href="mailto:sitesbyadeel@gmail.com?subject=Tiffin%20Finder">sitesbyadeel@gmail.com</a> for questions, listing requests or to report a problem. Kitchens can first read <a href="./kitchens.html">what a listing includes</a>.</p>
         <p>Urgent food-safety concerns should go to AHS Environmental Public Health at <a href="tel:+18334764743">1-833-476-4743</a>.</p>
       </article>

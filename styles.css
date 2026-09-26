@@ -810,6 +810,16 @@ main[tabindex="-1"]:focus {
   gap: 8px;
 }
 
+/* Reserve the Install button's box even while it's hidden, so the header
+   actions column's width — and the centred nav's available space, from
+   720px — never changes the moment beforeinstallprompt fires mid-session.
+   :root.is-solo's display:none !important (12b) still wins there. */
+#install-btn[hidden] {
+  display: inline-flex;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .icon-btn {
   display: inline-grid;
   place-items: center;
@@ -5278,8 +5288,13 @@ main[tabindex="-1"]:focus {
   margin: 18px 0;
 }
 
-.callout p:last-child {
+.callout p:last-child,
+.callout ul:last-child {
   margin-bottom: 0;
+}
+
+.callout ul:first-child {
+  margin-top: 0;
 }
 
 /* A margin note, not a banner: the amber preview bar already sits above. */
@@ -5394,6 +5409,37 @@ main[tabindex="-1"]:focus {
   border-radius: 14px;
   background: var(--accent-soft);
   color: var(--accent-ink);
+}
+
+/* about.html: a small icon beside a section's <h2>, the same glyph-tile
+   look as .pitch-card's icon, applied inline so plain prose sections read
+   with the same visual device the rest of the site's content pages use
+   (Round 43). No new pattern — same tile, smaller, next to a heading. */
+.prose .h2-glyph {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 2.4rem;
+}
+
+.prose .h2-glyph .glyph {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  flex: none;
+}
+
+.prose .h2-glyph .glyph svg {
+  width: 20px;
+  height: 20px;
+}
+
+.prose .h2-glyph h2 {
+  margin: 0;
 }
 
 /* kitchens.html "What your listing looks like": the real card component,
