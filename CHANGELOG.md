@@ -1,5 +1,56 @@
 # Changelog
 
+## Round 44 — 2026-09-25
+
+Round 44: a max-price filter, a more discoverable "browse by area", a
+permit explainer where you actually see the badge, a toast that gets out
+of the way, a fuller listing-request email, a device-only follows note,
+and a remembered tab.
+
+- **The "Price per day" filter is now a max-price picker.** Instead of
+  three fixed buckets (Under $12 / $12-$13 / $14 and up), it's "Any
+  price", "Up to $11/day", "Up to $12/day", "Up to $13/day", "Up to
+  $14/day" and "Up to $15/day" -- so "find something under $14/day", a
+  natural way to think about a budget, is one tap instead of checking two
+  buckets and eyeballing the rest. `?price=` still takes the old three
+  values in a saved or shared link (they map to the nearest new one:
+  `low`→11, `mid`→13, `high`→15).
+- **"Browse by neighbourhood" is easier to find on a phone.** The search
+  box's placeholder is now the shorter "Dish, kitchen or area" (the old
+  wording truncated to "Search dishes, kitche…" before phone screens ever
+  showed the word "areas"), and a small "Browse by neighbourhood" link
+  now sits right under the search bar, jumping straight to that section
+  instead of leaving it as the last thing before the FAQ.
+- **The "new version available" toast no longer sits on top of an open
+  sheet's own buttons.** It now hides itself automatically while any
+  sheet or dialog (the Filters sheet, the order sheet) is open, and
+  reappears once it closes; on desktop it moves to the bottom-right
+  corner instead of the page centre, clear of the filter card.
+- **"Permit checked" is explained right next to the badge, not just in
+  the FAQ or a fourth tab.** A kitchen page's permit/sample badge now has
+  a small "what does this mean?" button beside it (a plain accessible
+  disclosure, closed by default) that spells out, in plain words, that
+  "permitted" in the type label is what kind of place this is, while
+  "Permit checked" is what Tiffin Finder itself looked at -- with a link
+  to the fuller `permitted.html` guide. Cards carry the same distinction
+  for screen readers.
+- **The kitchen-owner "Email your listing request" button now asks for
+  everything the page already says it needs.** The prefilled email now
+  also asks for cuisine, how precisely to show the pickup spot, and a
+  note to attach a photo or copy of the permit -- matching the "how to
+  get listed" steps and the FAQ answer, which already listed all of it.
+- **Following a kitchen for the first time says plainly that it's
+  saved only on this device.** The Follow toast adds "Saved on this
+  device only" the first time ever (on a given device), and the
+  Following view's own status line, once it has kitchens, keeps saying
+  so every time, not only while it's empty.
+- **The home page remembers whether you were on "All kitchens" or
+  "Following."** Reopening the app at a bare address (an installed PWA,
+  a home-screen tap, a new session) returns to whichever tab you were on
+  last, the same way follows and theme already remember your choice. Any
+  address that already says `?k=`, `?view=` or carries a filter is left
+  exactly as written.
+
 ## Round 43 — 2026-09-25
 
 Round 43: consistent page treatments, About refresh, TOCs, stable header,

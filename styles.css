@@ -1465,6 +1465,29 @@ main[tabindex="-1"]:focus {
   appearance: none;
 }
 
+/* Round 44: a small, quiet jump link to the neighbourhood section, near
+   the search box -- discoverable on phones, where the search
+   placeholder truncates before it ever hints "areas" are searchable. */
+.hoods-jump {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.hoods-jump-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--muted);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.hoods-jump-link:hover {
+  color: var(--ink);
+}
+
 /* Quadrant chips above Pickup / Delivery chips. */
 .chip-stack {
   display: grid;
@@ -2906,6 +2929,47 @@ main[tabindex="-1"]:focus {
   margin: 0;
   color: var(--ink-2);
   max-width: 62ch;
+}
+
+/* Round 44: the permit/sample badge plus its "what does this mean?"
+   disclosure button, on one row. */
+.k-badge-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.permit-info-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  min-width: 44px;
+  min-height: 44px;
+  margin: -8px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+}
+
+.permit-info-btn:hover,
+.permit-info-btn[aria-expanded="true"] {
+  color: var(--ink);
+  background: var(--surface-2);
+}
+
+.permit-info-note {
+  margin: 0;
+  max-width: 62ch;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 0.88rem;
 }
 
 .k-actions {
@@ -5890,6 +5954,38 @@ main[tabindex="-1"]:focus {
 .update-toast.is-visible {
   transform: translate(-50%, 0);
   opacity: 1;
+}
+
+/* Round 44: never let the toast sit on top of a sheet/dialog's own
+   controls (the Filters sheet's "Show N kitchens" footer, or any other
+   sheet). body.sheet-open is already toggled by every sheet the page
+   opens, so this reacts automatically -- no extra JS needed -- and the
+   toast reappears on its own once the sheet closes and the class is
+   removed. */
+body.sheet-open .update-toast {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* On desktop, anchor the toast to the top-right corner instead of the
+   bottom centre. The filters card (quadrant/service chips, the price
+   select) sits below the header on every page that has one, so a
+   bottom-fixed toast can land on top of it on a short first paint (a
+   short viewport, or before the results grid adds height) regardless of
+   which side it's pinned to; the top corner has no page content fixed
+   there to collide with. */
+@media (min-width: 900px) {
+  .update-toast {
+    left: auto;
+    right: calc(24px + env(safe-area-inset-right, 0px));
+    top: var(--update-toast-top-clear, calc(24px + env(safe-area-inset-top, 0px)));
+    bottom: auto;
+    transform: translate(0, -20px);
+  }
+
+  .update-toast.is-visible {
+    transform: translate(0, 0);
+  }
 }
 
 .update-toast-text {

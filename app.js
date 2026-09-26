@@ -47,7 +47,17 @@
   var KEYS = {
     theme: 'tf.theme',
     follows: 'tf.follows',
-    preview: 'tf.previewDismissed'
+    preview: 'tf.previewDismissed',
+    /* Round 44: set once a "Saved on this device only" note has shown in
+       the Follow toast, so it appears exactly the first time someone
+       follows a kitchen (ever, on this device), not on every follow. */
+    followNoteShown: 'tf.followNoteShown',
+    /* Round 44: the last-viewed top tab ('following' or 'browse'), so a
+       fresh visit to a bare "/" (no k=, view= or filter params -- an
+       installed PWA reopening, a home-screen tap, a new session) returns
+       to Following if that's where someone left off, instead of always
+       resetting to the full list. Any explicit URL param always wins. */
+    lastTab: 'tf.lastTab'
   };
   /* Alerts were never shipped (see decisions in the repo's handoff notes),
      but an earlier build saved a sign-up email under this key on some
@@ -524,14 +534,11 @@
     return n === 1 ? one : many;
   }
 
-  function priceBand(k) {
+  function dayPrice(k) {
     var day = k.price && Number(k.price.day);
-    /* No day price (missing, null or 0) is no band, never "Under $12". */
-    if (!isFinite(day) || day <= 0) return '';
-    /* Matches the labels in index.html: Under $12, $12 – $13, $14 and up. */
-    if (day < 12) return 'low';
-    if (day < 14) return 'mid';
-    return 'high';
+    /* No day price (missing, null or 0) matches no max-price filter. */
+    if (!isFinite(day) || day <= 0) return NaN;
+    return day;
   }
 
   /* One muted line instead of a pile of pills:
@@ -1066,7 +1073,16 @@
     saveFollows();
     updateFollowButtons(slug, kitchen.name, nowFollowing);
     updateFollowCount();
-    toast((nowFollowing ? 'Now following ' : 'No longer following ') + kitchen.name + '.');
+    var toastText = (nowFollowing ? 'Now following ' : 'No longer following ') + kitchen.name + '.';
+    /* Round 44: the first time anyone follows a kitchen on this device,
+       say plainly that the list is device-only -- the Following view's
+       own "Saved on this device only" note only shows once you're
+       already there, and someone may never open it. */
+    if (nowFollowing && store.get(KEYS.followNoteShown, 0) !== 1) {
+      store.set(KEYS.followNoteShown, 1);
+      toastText += ' Saved on this device only.';
+    }
+    toast(toastText);
     var route = parseRoute();
     if (route.view === 'following') {
       /* Unfollowing here removes the card, and the grid is rebuilt, so the
@@ -1220,6 +1236,51 @@
       badge.appendChild(el('span', { text: 'Verification pending' }));
     }
     return badge;
+  }
+
+  /* Round 44: plain-language text for the "what does this badge mean?"
+     disclosure, distinguishing the type label's "permitted" (what kind of
+     place this is) from the badge's "Permit checked" (what Tiffin Finder
+     itself looked at) -- the two words that sit inches apart on the same
+     header but were never explained as different things. */
+  function permitExplainerText(info) {
+    var distinction = 'The type label above (“permitted”, “restaurant” and so on) says what kind of place this is. “Permit checked” is different: it’s what Tiffin Finder itself looked at.';
+    if (info.state === 'sample') {
+      return 'This is a made-up sample, not a real kitchen, so there’s nothing to check yet. ' + distinction;
+    }
+    if (info.state === 'checked') {
+      return distinction + ' We looked at this kitchen’s own food permit on ' + formatDate(info.checkedOn) + '. Not a food-safety inspection or endorsement.';
+    }
+    if (info.state === 'rechecking') {
+      return distinction + ' The expiry date we had on file for this kitchen’s permit has passed, so we’re checking it again before ordering reopens.';
+    }
+    return distinction + ' We haven’t checked this kitchen’s permit yet, so ordering isn’t open.';
+  }
+
+  /* A compact, keyboard- and screen-reader-accessible "what does this
+     mean?" disclosure next to the permit/sample badge on a kitchen page:
+     a button (aria-expanded, aria-controls) that shows or hides one short
+     paragraph in place, plus a link to the fuller permitted.html guide.
+     Hidden on a kitchen's own solo link, like the other quiet trust links,
+     since solo pages deliberately drop every other site link. */
+  function permitInfoDisclosure(k, info, solo) {
+    var noteId = 'permit-info-note';
+    var btn = el('button', {
+      type: 'button',
+      class: 'permit-info-btn',
+      'aria-expanded': 'false',
+      'aria-controls': noteId,
+      'aria-label': 'What does this badge mean?',
+      'data-info-toggle': ''
+    });
+    btn.appendChild(icon('info', 14));
+    var noteChildren = [permitExplainerText(info)];
+    if (!solo) {
+      noteChildren.push(' ');
+      noteChildren.push(el('a', { href: './permitted.html', class: 'link', text: 'How permits work' }));
+    }
+    var note = el('p', { class: 'permit-info-note', id: noteId, hidden: true }, noteChildren);
+    return { btn: btn, note: note };
   }
 
   /* Round 37: a small, quiet trust link near the permit badge and in the
@@ -1380,16 +1441,25 @@
      dropped, only re-weighted. */
   function cardFacts(kitchen) {
     var info = permitInfo(kitchen);
-    var parts = [];
-    if (info.state === 'sample') parts.push('Sample listing');
-    else if (info.state === 'checked') parts.push('Permit checked · ' + formatDate(info.checkedOn));
-    else if (info.state === 'rechecking') parts.push('Permit being re-checked');
-    else parts.push('Verification pending');
+    var permitText;
+    if (info.state === 'sample') permitText = 'Sample listing';
+    else if (info.state === 'checked') permitText = 'Permit checked · ' + formatDate(info.checkedOn);
+    else if (info.state === 'rechecking') permitText = 'Permit being re-checked';
+    else permitText = 'Verification pending';
+    var rest = [];
     var dietWord = kitchen.jain ? 'Jain' : (kitchen.veg_only ? 'Veg' : (kitchen.halal ? 'Halal' : ''));
-    if (dietWord) parts.push(dietWord);
-    if (kitchen.trial) parts.push(kitchen.trial.price !== null ? 'Trial week ' + money(kitchen.trial.price) : 'Trial week');
-    if (kitchen.nutrition) parts.push('Nutrition info');
-    return el('p', { class: 'card-facts', text: parts.join(' · ') });
+    if (dietWord) rest.push(dietWord);
+    if (kitchen.trial) rest.push(kitchen.trial.price !== null ? 'Trial week ' + money(kitchen.trial.price) : 'Trial week');
+    if (kitchen.nutrition) rest.push('Nutrition info');
+    var p = el('p', { class: 'card-facts' });
+    /* Round 44: aria-describedby points at one shared, page-level note
+       (#permit-sr-explainer in index.html) explaining what "Permit
+       checked" means and how it differs from "permitted" in the type
+       label -- a tooltip-like explainer for screen readers, without
+       repeating the paragraph on every one of the 24 cards. */
+    p.appendChild(el('span', { 'aria-describedby': 'permit-sr-explainer' }, permitText));
+    rest.forEach(function (part) { p.appendChild(document.createTextNode(' · ' + part)); });
+    return p;
   }
 
   /* A small neutral label for the kind of permitted operator this is
@@ -1851,7 +1921,10 @@
     if (f.near && pickupSlug(k) !== f.near && !deliveryAreas(k).some(function (a) { return communitySlug(a) === f.near; })) return false;
     if (f.cuisine && k.cuisine !== f.cuisine) return false;
     if (f.type && k.business_type !== f.type) return false;
-    if (f.price && priceBand(k) !== f.price) return false;
+    if (f.price) {
+      var day = dayPrice(k);
+      if (!isFinite(day) || day > Number(f.price)) return false;
+    }
     if (f.veg && !k.veg_only) return false;
     if (f.halal && !k.halal) return false;
     if (f.jain && !k.jain) return false;
@@ -2132,7 +2205,18 @@
   /* The on/off switches: diet, then "Trial week", "Taking new customers" and
      "Shows nutrition info". */
   var SWITCH_KEYS = ['veg', 'halal', 'jain', 'trial', 'open', 'nutrition'];
-  var PRICE_BANDS = ['low', 'mid', 'high'];
+  /* Round 44: the price filter is now a max-price select (?price=11..15,
+     "up to $N/day"), matching a kitchen's price.day. Old links using the
+     three former bands (Under $12 / $12-$13 / $14 and up) still work: each
+     maps to the nearest max value below. */
+  var PRICE_MAX_VALUES = ['11', '12', '13', '14', '15'];
+  var LEGACY_PRICE_BANDS = { low: '11', mid: '13', high: '15' };
+  function normalizePriceParam(value) {
+    var v = (value || '').toLowerCase();
+    if (PRICE_MAX_VALUES.indexOf(v) !== -1) return v;
+    if (LEGACY_PRICE_BANDS.hasOwnProperty(v)) return LEGACY_PRICE_BANDS[v];
+    return '';
+  }
   var QUERY_MAX = 100;
 
   /* The form's filters as URL parameters, in the fixed key order, defaults omitted. */
@@ -2157,7 +2241,7 @@
     var type = form.elements.type ? form.elements.type.value : '';
     if (BUSINESS_TYPES.indexOf(type) !== -1) params.append('type', type);
     var price = form.elements.price ? form.elements.price.value : '';
-    if (PRICE_BANDS.indexOf(price) !== -1) params.append('price', price);
+    if (PRICE_MAX_VALUES.indexOf(price) !== -1) params.append('price', price);
     SWITCH_KEYS.forEach(function (key) {
       if (form.elements[key] && form.elements[key].checked) params.append(key, '1');
     });
@@ -2235,8 +2319,7 @@
     if (serviceRadio) serviceRadio.checked = true;
 
     if (form.elements.price) {
-      var price = (params.get('price') || '').toLowerCase();
-      form.elements.price.value = PRICE_BANDS.indexOf(price) !== -1 ? price : '';
+      form.elements.price.value = normalizePriceParam(params.get('price'));
     }
 
     if (form.elements.type) {
@@ -2303,7 +2386,7 @@
     if (dom.followingStatus) {
       /* setStatus skips identical text, so a re-render doesn't re-announce. */
       setStatus(dom.followingStatus, state.loaded
-        ? (list.length === 0 ? 'Not following any kitchens yet.' : 'Following ' + list.length + ' ' + plural(list.length, 'kitchen', 'kitchens') + '. Saved on this device.')
+        ? (list.length === 0 ? 'Not following any kitchens yet.' : 'Following ' + list.length + ' ' + plural(list.length, 'kitchen', 'kitchens') + '. Saved on this device only.')
         : 'Loading…', false);
     }
   }
@@ -2829,7 +2912,13 @@
     titleBlock.appendChild(el('p', { class: 'card-meta', text: metaLine(k, true) }));
     top.appendChild(titleBlock);
     head.appendChild(top);
-    head.appendChild(permitBadge(k));
+    /* Round 44: the "what does this badge mean?" disclosure sits right
+       next to the badge itself -- the point of need, before the About tab
+       or the home page FAQ. */
+    var permitDisclosure = permitInfoDisclosure(k, info, solo);
+    var badgeRow = el('div', { class: 'k-badge-row' }, [permitBadge(k), permitDisclosure.btn]);
+    head.appendChild(badgeRow);
+    head.appendChild(permitDisclosure.note);
     if (k.description) head.appendChild(el('p', { class: 'desc', text: k.description }));
     var actions = el('div', { class: 'k-actions' });
     actions.appendChild(followButton(k));
@@ -3302,12 +3391,39 @@
   var lastRouteView = null;
   var returnFocusSlug = null;
 
+  /* True only for a truly bare address -- no params at all, or just
+     demo=1 (a mode flag, not a navigation choice) -- so a remembered tab
+     never overrides a shared or filtered link (near=, area=, price=, and
+     so on all count as an explicit choice, same as k= or view=). */
+  function isBareRoot(params) {
+    var keys = Array.from(params.keys());
+    return keys.length === 0 || (keys.length === 1 && keys[0] === 'demo');
+  }
+
   function parseRoute() {
     var params = new URLSearchParams(window.location.search);
     var k = params.get('k');
     if (k) return { view: 'kitchen', slug: k };
     if (params.get('view') === 'following') return { view: 'following' };
     return { view: 'browse', mode: (params.get('view') || '').toLowerCase() === 'map' ? 'map' : 'list' };
+  }
+
+  /* Round 44: at boot only (never on a later in-app navigation, so the
+     "All kitchens" tab's own bare "./" link always still means the list),
+     if the address is truly bare and the last tab left open on this
+     device was Following, rewrite the address to ?view=following before
+     the first render -- same effect as if that link had been opened
+     directly, so every other route rule (?k=, filters, the launch and
+     empty states) keeps working unchanged. Any explicit param in the
+     starting address is left alone. */
+  function applyLastTabFallback() {
+    var params = new URLSearchParams(window.location.search);
+    if (params.has('k') || params.has('view') || !isBareRoot(params)) return;
+    if (store.get(KEYS.lastTab, '') !== 'following') return;
+    params.set('view', 'following');
+    var url = new URL(window.location.href);
+    url.search = '?' + params.toString();
+    try { history.replaceState(history.state, '', url.href); } catch (e) { /* ignore */ }
   }
 
   /* toResults: the link lists kitchens for a community (a delivery chip or a
@@ -3361,6 +3477,10 @@
     var isKitchen = route.view === 'kitchen';
     var cameFromKitchen = lastRouteView === 'kitchen';
     lastRouteView = route.view;
+    /* Round 44: remember only the two top-level tabs (not a kitchen page),
+       so the next bare "/" can return to Following without needing
+       ?view=following in the address. */
+    if (isBrowse || isFollowing) store.set(KEYS.lastTab, isFollowing ? 'following' : 'browse');
     /* The order sheet belongs to one kitchen's page: any other page closes
        it at once (renderKitchen closes it too when the page is rebuilt). */
     if (!(isKitchen && orderDraft && orderDraft.slug === route.slug)) closeOrderSheetNow();
@@ -3387,7 +3507,13 @@
     dom.viewFollowing.hidden = !isFollowing;
     dom.viewKitchen.hidden = !isKitchen;
     if (dom.faq) dom.faq.hidden = isKitchen;
-    if (dom.hoods) dom.hoods.hidden = !isBrowse || launch || !state.loaded || state.error || !(dom.hoodsGrid && dom.hoodsGrid.firstChild);
+    var hoodsReady = isBrowse && !launch && state.loaded && !state.error && !!(dom.hoodsGrid && dom.hoodsGrid.firstChild);
+    if (dom.hoods) dom.hoods.hidden = !hoodsReady;
+    /* Round 44: a short jump link near the search box (discoverable on
+       phones, where the search placeholder truncates before "areas"),
+       pointing at the same neighbourhood section, shown exactly when
+       that section itself has something to jump to. */
+    if (dom.hoodsJump) dom.hoodsJump.hidden = !hoodsReady;
     applyHeroMode(launch);
     updatePreviewBarVisibility();
     updateFooterNoteVisibility();
@@ -4584,6 +4710,18 @@
     el.className = 'update-toast';
     el.setAttribute('role', 'status');
     el.setAttribute('aria-live', 'polite');
+    /* Round 44: on desktop the toast is fixed to the top-right corner (see
+       styles.css) so it can never land on the filters card lower on the
+       page. That corner can briefly sit under the preview/demo notice
+       banners instead, while the page is scrolled to the very top and
+       one or both are showing -- nudge it below them in that one case,
+       measured once at show time (the banners don't reflow after load). */
+    var topBar = document.getElementById('demo-bar');
+    if (!topBar || topBar.hidden) topBar = document.getElementById('preview-bar');
+    if (topBar && !topBar.hidden && window.getComputedStyle(topBar).display !== 'none') {
+      var barBottom = topBar.getBoundingClientRect().bottom;
+      if (barBottom > 0) el.style.setProperty('--update-toast-top-clear', Math.round(barBottom + 12) + 'px');
+    }
 
     var text = document.createElement('p');
     text.className = 'update-toast-text';
@@ -4654,6 +4792,7 @@
       store.remove(KEYS.follows);
       store.remove(KEYS.theme);
       store.remove(KEYS.preview);
+      store.remove(KEYS.followNoteShown);
       state.follows = new Set();
       applyTheme(null);
       if (status) status.textContent = 'Cleared. Follows, your theme choice and the preview-notice dismissal were removed from this device.';
@@ -4763,6 +4902,7 @@
     dom.viewKitchen = document.getElementById('view-kitchen');
     dom.kitchenDetail = document.getElementById('kitchen-detail');
     dom.hoods = document.getElementById('hoods');
+    dom.hoodsJump = document.getElementById('hoods-jump');
     dom.hoodsGrid = document.getElementById('hoods-grid');
     dom.faq = document.getElementById('faq');
 
@@ -4932,6 +5072,19 @@
         var wrapper = note.closest('.dish-notes');
         if (wrapper) wrapper.hidden = !wrapper.querySelector('.dish-note:not([hidden])');
       }
+      return;
+    }
+
+    /* Round 44: any "what does this mean?" disclosure button built by
+       permitInfoDisclosure -- toggles aria-expanded and shows/hides its
+       aria-controls note in place, same pattern as the dish-glossary
+       toggle above. */
+    var infoToggle = target.closest('[data-info-toggle]');
+    if (infoToggle) {
+      var infoOpen = infoToggle.getAttribute('aria-expanded') !== 'true';
+      var infoNote = document.getElementById(infoToggle.getAttribute('aria-controls') || '');
+      infoToggle.setAttribute('aria-expanded', infoOpen ? 'true' : 'false');
+      if (infoNote) infoNote.hidden = !infoOpen;
       return;
     }
 
@@ -5268,6 +5421,7 @@
     });
 
     updateFollowCount();
+    applyLastTabFallback();
     render(false);
     startLoad();
   }
